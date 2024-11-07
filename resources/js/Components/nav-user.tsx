@@ -19,6 +19,7 @@ import {
     useSidebar,
 } from "@/Components/ui/sidebar";
 import type { User as TypeUser } from "@/types";
+import { Link } from "@inertiajs/react";
 
 type NavUserProps = {
     user: TypeUser;
@@ -85,10 +86,16 @@ export function NavUser({ user }: NavUserProps) {
                         </DropdownMenuGroup>
                         <DropdownMenuSeparator />
 
-                        <DropdownMenuItem>
-                            <LogOut />
-                            Log out
-                        </DropdownMenuItem>
+                        <Link
+                            method="post"
+                            href={route("logout")}
+                            className="w-full"
+                        >
+                            <DropdownMenuItem>
+                                <LogOut />
+                                Log out
+                            </DropdownMenuItem>
+                        </Link>
                     </DropdownMenuContent>
                 </DropdownMenu>
             </SidebarMenuItem>
