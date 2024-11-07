@@ -48,4 +48,21 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    /**
+     * Add computed role names to serialized model output.
+     *
+     * @var array<int, string>
+     */
+    protected $appends = ['role'];
+
+    /**
+     * Get the user's role names.
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    public function getRoleAttribute()
+    {
+        return $this->getRoleNames()->first(); // Returns a collection of role names
+    }
 }
