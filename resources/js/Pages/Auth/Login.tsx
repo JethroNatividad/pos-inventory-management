@@ -1,11 +1,9 @@
-import Checkbox from '@/Components/Checkbox';
-import InputError from '@/Components/InputError';
-import InputLabel from '@/Components/InputLabel';
-import PrimaryButton from '@/Components/PrimaryButton';
-import TextInput from '@/Components/TextInput';
-import GuestLayout from '@/Layouts/GuestLayout';
-import { Head, Link, useForm } from '@inertiajs/react';
-import { FormEventHandler } from 'react';
+import InputError from "@/Components/InputError";
+import { Button } from "@/Components/ui/button";
+import { Input } from "@/Components/ui/input";
+import { Label } from "@/Components/ui/label";
+import { Head, Link, useForm } from "@inertiajs/react";
+import { FormEventHandler } from "react";
 
 export default function Login({
     status,
@@ -15,30 +13,79 @@ export default function Login({
     canResetPassword: boolean;
 }) {
     const { data, setData, post, processing, errors, reset } = useForm({
-        email: '',
-        password: '',
+        email: "",
+        password: "",
         remember: false,
     });
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
 
-        post(route('login'), {
-            onFinish: () => reset('password'),
+        post(route("login"), {
+            onFinish: () => reset("password"),
         });
     };
 
     return (
-        <GuestLayout>
+        <div className="flex items-center justify-center min-h-screen dark:bg-primary bg-primary/5">
             <Head title="Log in" />
 
-            {status && (
-                <div className="mb-4 text-sm font-medium text-green-600">
-                    {status}
+            <form
+                onSubmit={submit}
+                className="border bg-white p-6 rounded-md w-full max-w-sm"
+            >
+                <div className="flex items-center space-x-2 mb-8">
+                    <h1 className="text-2xl font-medium uppercase">
+                        Login to Paso POS
+                    </h1>
                 </div>
-            )}
 
-            <form onSubmit={submit}>
+                <div className="space-y-4 ">
+                    <div className="space-y-2">
+                        <Label htmlFor="email">Email</Label>
+                        <Input
+                            id="email"
+                            type="email"
+                            name="email"
+                            value={data.email}
+                            onChange={(e) => setData("email", e.target.value)}
+                            placeholder="your@email.com"
+                        />
+                        <InputError message={errors.email} />
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label htmlFor="password">Password</Label>
+                        <Input
+                            id="password"
+                            type="password"
+                            name="password"
+                            value={data.password}
+                            onChange={(e) =>
+                                setData("password", e.target.value)
+                            }
+                            placeholder="********"
+                        />
+                        <InputError message={errors.password} />
+                    </div>
+                    <Button type="submit" className="w-full">
+                        Login
+                    </Button>
+
+                    {canResetPassword && (
+                        <div>
+                            <Link
+                                href={route("password.request")}
+                                className="text-sm underline"
+                            >
+                                Forgot your password?
+                            </Link>
+                        </div>
+                    )}
+                </div>
+            </form>
+
+            {/* <form onSubmit={submit}>
                 <div>
                     <InputLabel htmlFor="email" value="Email" />
 
@@ -50,7 +97,7 @@ export default function Login({
                         className="mt-1 block w-full"
                         autoComplete="username"
                         isFocused={true}
-                        onChange={(e) => setData('email', e.target.value)}
+                        onChange={(e) => setData("email", e.target.value)}
                     />
 
                     <InputError message={errors.email} className="mt-2" />
@@ -66,7 +113,7 @@ export default function Login({
                         value={data.password}
                         className="mt-1 block w-full"
                         autoComplete="current-password"
-                        onChange={(e) => setData('password', e.target.value)}
+                        onChange={(e) => setData("password", e.target.value)}
                     />
 
                     <InputError message={errors.password} className="mt-2" />
@@ -78,7 +125,7 @@ export default function Login({
                             name="remember"
                             checked={data.remember}
                             onChange={(e) =>
-                                setData('remember', e.target.checked)
+                                setData("remember", e.target.checked)
                             }
                         />
                         <span className="ms-2 text-sm text-gray-600">
@@ -90,7 +137,7 @@ export default function Login({
                 <div className="mt-4 flex items-center justify-end">
                     {canResetPassword && (
                         <Link
-                            href={route('password.request')}
+                            href={route("password.request")}
                             className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                         >
                             Forgot your password?
@@ -101,7 +148,7 @@ export default function Login({
                         Log in
                     </PrimaryButton>
                 </div>
-            </form>
-        </GuestLayout>
+            </form> */}
+        </div>
     );
 }
