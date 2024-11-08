@@ -9,7 +9,6 @@ const Index = ({ users }: Props) => {
     return (
         <Layout>
             <h1>Show users table</h1>
-            {JSON.stringify(users)}
         </Layout>
     );
 };
