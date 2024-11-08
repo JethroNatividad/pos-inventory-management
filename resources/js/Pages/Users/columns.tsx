@@ -87,8 +87,8 @@ export const columns: ColumnDef<User>[] = [
                             </AlertDialogTitle>
                             <AlertDialogDescription>
                                 This action cannot be undone. This will
-                                permanently delete the recipe{" "}
-                                {row.getValue("name")} from your inventory.
+                                permanently delete the user '
+                                {row.getValue("first_name")}' from the database.
                             </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
