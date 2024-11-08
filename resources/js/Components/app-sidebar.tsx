@@ -60,7 +60,7 @@ const items = [
         title: "Manage Users",
         url: "users",
         icon: Users,
-        name: "users",
+        name: "users.index",
     },
 ];
 
