@@ -10,7 +10,7 @@ type Props = {
 const Index = ({ users }: Props) => {
     return (
         <Layout>
-            <h1>Show users table</h1>
+            <h1 className="text-xl font-medium mb-2">Manage Users</h1>
             <DataTable columns={columns} data={users} />
         </Layout>
     );
