@@ -20,7 +20,7 @@ import {
 } from "@/Components/ui/sidebar";
 
 import { Link } from "@inertiajs/react";
-import ApplicationLogo from "./ApplicationLogo";
+import ApplicationLogo from "./application-logo";
 import { NavUser } from "./nav-user";
 import { User } from "@/types";
 

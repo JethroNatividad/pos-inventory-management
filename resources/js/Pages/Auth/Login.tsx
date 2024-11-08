@@ -1,4 +1,4 @@
-import InputError from "@/Components/InputError";
+import InputError from "@/Components/input-error";
 import { Button } from "@/Components/ui/button";
 import { Checkbox } from "@/Components/ui/checkbox";
 import { Input } from "@/Components/ui/input";

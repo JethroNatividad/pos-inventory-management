@@ -1,4 +1,4 @@
-import { AppSidebar } from "@/Components/AppSidebar";
+import { AppSidebar } from "@/Components/app-sidebar";
 import { SidebarProvider, SidebarTrigger } from "@/Components/ui/sidebar";
 import { usePage } from "@inertiajs/react";
 import { PropsWithChildren } from "react";
