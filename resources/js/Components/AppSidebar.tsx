@@ -30,31 +30,37 @@ const items = [
         title: "Dashboard",
         url: "#",
         icon: Home,
+        name: "home",
     },
     {
         title: "POS",
         url: "#",
         icon: LayoutDashboard,
+        name: "pos",
     },
     {
         title: "Inventory",
         url: "#",
         icon: Box,
+        name: "inventory",
     },
     {
         title: "Recipes",
         url: "#",
         icon: Boxes,
+        name: "recipes",
     },
     {
         title: "Reports",
         url: "#",
         icon: Notebook,
+        name: "reports",
     },
     {
         title: "Users",
         url: "#",
         icon: Users,
+        name: "manage-users",
     },
 ];
 
@@ -81,7 +87,10 @@ export function AppSidebar({ user }: AppSidebarProps) {
                         <SidebarMenu>
                             {items.map((item) => (
                                 <SidebarMenuItem key={item.title}>
-                                    <SidebarMenuButton asChild>
+                                    <SidebarMenuButton
+                                        asChild
+                                        isActive={route().current(item.name)}
+                                    >
                                         <Link href={item.url}>
                                             <item.icon />
                                             <span>{item.title}</span>
