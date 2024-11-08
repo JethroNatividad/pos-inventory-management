@@ -11,6 +11,6 @@ Route::get('/', function () {
     return Inertia::render('Home');
 })->middleware(['auth'])->name('home');
 
-Route::resource('users', UsersController::class)->only(['index'])->middleware('auth');
+Route::resource('users', UsersController::class)->only(['index'])->middleware(['auth'])->names(['index' => 'users']);
 
 require __DIR__ . '/auth.php';
