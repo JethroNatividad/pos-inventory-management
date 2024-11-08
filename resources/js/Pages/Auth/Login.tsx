@@ -35,7 +35,7 @@ export default function Login({
                 onSubmit={submit}
                 className="border bg-white p-6 rounded-md w-full max-w-sm"
             >
-                <div className="flex items-center space-x-2 mb-8">
+                <div className="mb-4">
                     <h1 className="text-2xl font-medium uppercase">
                         Login to Paso POS
                     </h1>
@@ -91,7 +91,7 @@ export default function Login({
                     {canResetPassword && (
                         <div>
                             <Link
-                                href={route("#")}
+                                href={route("password.request")}
                                 className="text-sm underline"
                             >
                                 Forgot your password?
