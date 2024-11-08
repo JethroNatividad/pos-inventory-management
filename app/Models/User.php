@@ -34,6 +34,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'roles'
     ];
 
     /**
@@ -63,6 +64,6 @@ class User extends Authenticatable
      */
     public function getRoleAttribute()
     {
-        return $this->getRoleNames()->first(); // Returns a collection of role names
+        return $this->getRoleNames()->first();
     }
 }
