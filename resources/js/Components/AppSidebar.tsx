@@ -57,7 +57,7 @@ const items = [
         name: "reports",
     },
     {
-        title: "Users",
+        title: "Manage Users",
         url: "#",
         icon: Users,
         name: "manage-users",
