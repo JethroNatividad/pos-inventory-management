@@ -1,5 +1,6 @@
-import InputError from "@/Components/InputError";
+import InputError from "@/Components/input-error";
 import { Button } from "@/Components/ui/button";
+import { Checkbox } from "@/Components/ui/checkbox";
 import { Input } from "@/Components/ui/input";
 import { Label } from "@/Components/ui/label";
 import { Head, Link, useForm } from "@inertiajs/react";
@@ -68,6 +69,21 @@ export default function Login({
                         />
                         <InputError message={errors.password} />
                     </div>
+
+                    <div className="flex items-center space-x-2">
+                        <Checkbox
+                            id="remember"
+                            name="remember"
+                            checked={data.remember}
+                            onCheckedChange={(checked) =>
+                                setData("remember", !!checked)
+                            }
+                        />
+                        <Label htmlFor="remember" className="text-sm">
+                            Remember me
+                        </Label>
+                    </div>
+
                     <Button type="submit" className="w-full">
                         Login
                     </Button>
@@ -75,7 +91,7 @@ export default function Login({
                     {canResetPassword && (
                         <div>
                             <Link
-                                href={route("password.request")}
+                                href={route("#")}
                                 className="text-sm underline"
                             >
                                 Forgot your password?

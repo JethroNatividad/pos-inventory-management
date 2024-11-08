@@ -34,6 +34,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'roles'
     ];
 
     /**
@@ -47,5 +48,22 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Add computed role names to serialized model output.
+     *
+     * @var array<int, string>
+     */
+    protected $appends = ['role'];
+
+    /**
+     * Get the user's role names.
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    public function getRoleAttribute()
+    {
+        return $this->getRoleNames()->first();
     }
 }
