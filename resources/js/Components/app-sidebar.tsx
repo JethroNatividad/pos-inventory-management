@@ -28,37 +28,35 @@ import { User } from "@/types";
 const items = [
     {
         title: "Dashboard",
-        url: "/",
         icon: Home,
         name: "home",
     },
     {
         title: "POS",
-        url: "#",
         icon: LayoutDashboard,
-        name: "pos",
+        name: "home",
+        // name: "pos",
     },
     {
         title: "Inventory",
-        url: "#",
         icon: Box,
-        name: "inventory",
+        // name: "inventory",
+        name: "home",
     },
     {
         title: "Recipes",
-        url: "#",
         icon: Boxes,
-        name: "recipes",
+        // name: "recipes",
+        name: "home",
     },
     {
         title: "Reports",
-        url: "#",
         icon: Notebook,
-        name: "reports",
+        // name: "reports",
+        name: "home",
     },
     {
         title: "Manage Users",
-        url: "users",
         icon: Users,
         name: "users.index",
     },
@@ -91,7 +89,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
                                         asChild
                                         isActive={route().current(item.name)}
                                     >
-                                        <Link href={item.url}>
+                                        <Link href={route(item.name)}>
                                             <item.icon />
                                             <span>{item.title}</span>
                                         </Link>
