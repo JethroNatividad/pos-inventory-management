@@ -28,7 +28,7 @@ import { User } from "@/types";
 const items = [
     {
         title: "Dashboard",
-        url: "#",
+        url: "/",
         icon: Home,
         name: "home",
     },
