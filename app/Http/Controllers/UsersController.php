@@ -41,7 +41,7 @@ class UsersController extends Controller
     {
         $request->validate([
             'first_name' => 'required|string|max:255',
-            'middle_name' => 'string|max:255',
+            'middle_name' => 'max:255',
             'last_name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:6',
@@ -59,7 +59,7 @@ class UsersController extends Controller
         $user->assignRole($request->role);
 
         // Send email to the user
-        Mail::to($user->email)->send(new UserInvite($user->name, $user->email, $request->password, $request->role, route('login')));
+        Mail::to($user->email)->send(new UserInvite($user->first_name, $user->email, $request->password, $request->role, route('login')));
 
         return redirect()->route('users.index');
     }

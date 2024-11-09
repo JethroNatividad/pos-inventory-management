@@ -31,9 +31,7 @@ const Create = ({ roles }: Props) => {
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
-        post(route("users.store"), {
-            onFinish: () => reset(),
-        });
+        post(route("users.store"));
     };
 
     return (
