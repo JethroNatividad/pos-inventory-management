@@ -27,6 +27,10 @@ Route::get('/recipes', function () {
     return Inertia::render('Recipes/Index');
 })->name('recipes')->middleware(['recipes']);
 
+Route::get('/reports', function () {
+    return Inertia::render('Reports/Index');
+})->name('reports')->middleware(['reports']);
+
 
 // Route::get('/testroute', function () {
 //     $name = "Funny Coder";
