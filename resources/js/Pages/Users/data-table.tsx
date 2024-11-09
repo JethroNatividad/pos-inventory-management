@@ -2,6 +2,7 @@ import {
     ColumnDef,
     flexRender,
     getCoreRowModel,
+    getFilteredRowModel,
     useReactTable,
 } from "@tanstack/react-table";
 
@@ -13,24 +14,96 @@ import {
     TableHeader,
     TableRow,
 } from "@/Components/ui/table";
+import { DataTablePagination } from "@/Components/data-table-pagination";
+import { Label } from "@/Components/ui/label";
+import { Input } from "@/Components/ui/input";
+import { useState } from "react";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/Components/ui/select";
+import { Role } from "@/types";
+import { Button } from "@/Components/ui/button";
+import { Link } from "@inertiajs/react";
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
     data: TData[];
+    roles: Role[];
 }
 
 export function DataTable<TData, TValue>({
     columns,
     data,
+    roles,
 }: DataTableProps<TData, TValue>) {
+    const [globalFilter, setGlobalFilter] = useState("");
+
     const table = useReactTable({
         data,
         columns,
         getCoreRowModel: getCoreRowModel(),
+        getFilteredRowModel: getFilteredRowModel(),
+        state: {
+            globalFilter,
+        },
+        onGlobalFilterChange: setGlobalFilter,
     });
 
     return (
-        <div className="grid auto-rows-max">
+        <div className="grid auto-rows-max space-y-4">
+            <div className="flex justify-between items-end">
+                <div className="flex space-x-2 w-full">
+                    <div className="max-w-xs w-full space-y-2">
+                        <Label>Search</Label>
+                        <Input
+                            type="text"
+                            placeholder="Search..."
+                            value={globalFilter}
+                            onChange={(e) =>
+                                table.setGlobalFilter(e.target.value)
+                            }
+                        />
+                    </div>
+
+                    <div className="max-w-52 w-full space-y-2">
+                        <Label>Role</Label>
+                        <Select
+                            onValueChange={(value) => {
+                                table
+                                    .getColumn("role")
+                                    ?.setFilterValue(
+                                        value === "all" ? undefined : value
+                                    );
+                            }}
+                            defaultValue="all"
+                        >
+                            <SelectTrigger>
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All</SelectItem>
+                                {roles.map((role) => (
+                                    <SelectItem
+                                        key={role.name}
+                                        value={role.name}
+                                    >
+                                        {role.name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                </div>
+
+                <Button asChild>
+                    <Link href={route("users.create")}>Create User</Link>
+                </Button>
+            </div>
+
             <div className="overflow-x-auto rounded-md border">
                 <Table>
                     <TableHeader>
@@ -83,6 +156,9 @@ export function DataTable<TData, TValue>({
                         )}
                     </TableBody>
                 </Table>
+            </div>
+            <div>
+                <DataTablePagination table={table} />
             </div>
         </div>
     );

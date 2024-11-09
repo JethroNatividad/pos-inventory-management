@@ -10,10 +10,10 @@ export default function Layout({ children }: PropsWithChildren) {
         <SidebarProvider>
             <AppSidebar user={user} />
             <main className="w-full">
-                <div className="shadow-sm p-1">
+                <div className="shadow-sm p-2">
                     <SidebarTrigger />
                 </div>
-                <div className="p-2">{children}</div>
+                <div className="px-6 py-4">{children}</div>
             </main>
         </SidebarProvider>
     );

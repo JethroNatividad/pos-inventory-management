@@ -13,7 +13,7 @@ Route::get('/', function () {
     return Inertia::render('Home');
 })->middleware(['auth'])->name('home');
 
-Route::resource('users', UsersController::class)->only(['index'])->middleware(['auth']);
+Route::resource('users', UsersController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy'])->middleware(['auth']);
 
 Route::get('/pos', function () {
     return Inertia::render('POS/Index');
