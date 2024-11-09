@@ -73,7 +73,11 @@ export const columns: ColumnDef<User>[] = [
                         <DropdownMenuContent align="end">
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
                             <DropdownMenuItem asChild>
-                                <Link href={route("home")}>Edit</Link>
+                                <Link
+                                    href={route("users.edit", row.original.id)}
+                                >
+                                    Edit
+                                </Link>
                             </DropdownMenuItem>
                             <AlertDialogTrigger asChild>
                                 <DropdownMenuItem>Delete</DropdownMenuItem>

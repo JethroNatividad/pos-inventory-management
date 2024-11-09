@@ -77,7 +77,10 @@ class UsersController extends Controller
      */
     public function edit(User $user)
     {
-        //
+        return Inertia::render('Users/Edit', [
+            'user' => $user,
+            'roles' => Role::all()
+        ]);
     }
 
     /**
