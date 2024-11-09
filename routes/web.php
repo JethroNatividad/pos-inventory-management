@@ -17,7 +17,12 @@ Route::resource('users', UsersController::class)->only(['index'])->middleware(['
 
 Route::get('/pos', function () {
     return Inertia::render('POS/Index');
-});
+})->name('pos')->middleware(['auth']);
+
+Route::get('/inventory', function () {
+    return Inertia::render('Inventory/Index');
+})->name('pos')->middleware(['inventory']);
+
 
 // Route::get('/testroute', function () {
 //     $name = "Funny Coder";
