@@ -1,5 +1,7 @@
+import Layout from "@/Layouts/Layout";
+
 const Index = () => {
-    return <div>POS page</div>;
+    return <Layout>POS page</Layout>;
 };
 
 export default Index;
