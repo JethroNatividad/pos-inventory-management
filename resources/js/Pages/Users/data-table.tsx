@@ -2,6 +2,7 @@ import {
     ColumnDef,
     flexRender,
     getCoreRowModel,
+    getFilteredRowModel,
     useReactTable,
 } from "@tanstack/react-table";
 
@@ -14,6 +15,9 @@ import {
     TableRow,
 } from "@/Components/ui/table";
 import { DataTablePagination } from "@/Components/data-table-pagination";
+import { Label } from "@/Components/ui/label";
+import { Input } from "@/Components/ui/input";
+import { useState } from "react";
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
@@ -24,14 +28,32 @@ export function DataTable<TData, TValue>({
     columns,
     data,
 }: DataTableProps<TData, TValue>) {
+    const [globalFilter, setGlobalFilter] = useState("");
+
     const table = useReactTable({
         data,
         columns,
         getCoreRowModel: getCoreRowModel(),
+        getFilteredRowModel: getFilteredRowModel(),
+        state: {
+            globalFilter,
+        },
+        onGlobalFilterChange: setGlobalFilter,
     });
 
     return (
-        <div className="grid auto-rows-max">
+        <div className="grid auto-rows-max space-y-4">
+            <div>
+                <div className="max-w-xs space-y-2">
+                    <Label>Search</Label>
+                    <Input
+                        type="text"
+                        placeholder="Search..."
+                        value={globalFilter}
+                        onChange={(e) => table.setGlobalFilter(e.target.value)}
+                    />
+                </div>
+            </div>
             <div className="overflow-x-auto rounded-md border">
                 <Table>
                     <TableHeader>
@@ -85,7 +107,7 @@ export function DataTable<TData, TValue>({
                     </TableBody>
                 </Table>
             </div>
-            <div className="mt-4">
+            <div>
                 <DataTablePagination table={table} />
             </div>
         </div>
