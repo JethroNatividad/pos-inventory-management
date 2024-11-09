@@ -102,7 +102,17 @@ export const columns: ColumnDef<User>[] = [
                                 variant="destructive"
                                 asChild
                             >
-                                <AlertDialogAction>Delete</AlertDialogAction>
+                                <AlertDialogAction asChild>
+                                    <Link
+                                        method="delete"
+                                        href={route(
+                                            "users.destroy",
+                                            row.original.id
+                                        )}
+                                    >
+                                        Delete
+                                    </Link>
+                                </AlertDialogAction>
                             </Button>
                         </AlertDialogFooter>
                     </AlertDialogContent>
