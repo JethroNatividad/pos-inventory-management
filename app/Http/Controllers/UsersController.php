@@ -6,6 +6,7 @@ use App\Mail\UserInvite;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Mail;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -18,6 +19,8 @@ class UsersController extends Controller
      */
     public function index(): Response
     {
+        Gate::authorize('viewAny', User::class);
+
         return Inertia::render('Users/Index', [
             'users' => User::all(),
             'roles' => Role::all()
@@ -29,6 +32,7 @@ class UsersController extends Controller
      */
     public function create()
     {
+        Gate::authorize('create', User::class);
         return Inertia::render('Users/Create', [
             'roles' => Role::all()
         ]);
@@ -39,6 +43,9 @@ class UsersController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+
+        Gate::authorize('create', User::class);
+
         $request->validate([
             'first_name' => 'required|string|max:255',
             'middle_name' => 'max:255',
@@ -77,6 +84,8 @@ class UsersController extends Controller
      */
     public function edit(User $user)
     {
+        Gate::authorize('update', User::class);
+
         return Inertia::render('Users/Edit', [
             'user' => $user,
             'roles' => Role::all()
@@ -88,7 +97,27 @@ class UsersController extends Controller
      */
     public function update(Request $request, User $user)
     {
-        //
+
+        Gate::authorize('update', User::class);
+
+        $request->validate([
+            'first_name' => 'required|string|max:255',
+            'middle_name' => 'max:255',
+            'last_name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+            'role' => 'required|string|exists:roles,name',
+        ]);
+
+        $user->update([
+            'first_name' => $request->first_name,
+            'middle_name' => $request->middle_name,
+            'last_name' => $request->last_name,
+            'email' => $request->email,
+        ]);
+
+        $user->syncRoles([$request->role]);
+
+        return redirect()->route('users.index');
     }
 
     /**
