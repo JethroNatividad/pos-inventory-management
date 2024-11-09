@@ -21,7 +21,11 @@ Route::get('/pos', function () {
 
 Route::get('/inventory', function () {
     return Inertia::render('Inventory/Index');
-})->name('pos')->middleware(['inventory']);
+})->name('inventory')->middleware(['inventory']);
+
+Route::get('/recipes', function () {
+    return Inertia::render('Recipes/Index');
+})->name('recipes')->middleware(['recipes']);
 
 
 // Route::get('/testroute', function () {
