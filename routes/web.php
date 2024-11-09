@@ -21,15 +21,15 @@ Route::get('/pos', function () {
 
 Route::get('/inventory', function () {
     return Inertia::render('Inventory/Index');
-})->name('inventory')->middleware(['inventory']);
+})->name('inventory')->middleware(['auth']);
 
 Route::get('/recipes', function () {
     return Inertia::render('Recipes/Index');
-})->name('recipes')->middleware(['recipes']);
+})->name('recipes')->middleware(['auth']);
 
 Route::get('/reports', function () {
     return Inertia::render('Reports/Index');
-})->name('reports')->middleware(['reports']);
+})->name('reports')->middleware(['auth']);
 
 
 // Route::get('/testroute', function () {
