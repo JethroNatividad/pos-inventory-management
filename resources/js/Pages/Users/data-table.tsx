@@ -99,7 +99,7 @@ export function DataTable<TData, TValue>({
                     </div>
                 </div>
 
-                <Button>
+                <Button asChild>
                     <Link href={route("users.create")}>Create User</Link>
                 </Button>
             </div>
