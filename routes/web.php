@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UsersController;
+use App\Http\Middleware\FirstLoginRedirect;
 use App\Mail\MyTestEmail;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Mail;
@@ -11,25 +12,25 @@ use Inertia\Inertia;
 
 Route::get('/', function () {
     return Inertia::render('Home');
-})->middleware(['auth'])->name('home');
+})->middleware(['auth', FirstLoginRedirect::class])->name('home');
 
-Route::resource('users', UsersController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy'])->middleware(['auth']);
+Route::resource('users', UsersController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy'])->middleware(['auth', FirstLoginRedirect::class]);
 
 Route::get('/pos', function () {
     return Inertia::render('POS/Index');
-})->name('pos')->middleware(['auth']);
+})->name('pos')->middleware(['auth', FirstLoginRedirect::class]);
 
 Route::get('/inventory', function () {
     return Inertia::render('Inventory/Index');
-})->name('inventory')->middleware(['auth']);
+})->name('inventory')->middleware(['auth', FirstLoginRedirect::class]);
 
 Route::get('/recipes', function () {
     return Inertia::render('Recipes/Index');
-})->name('recipes')->middleware(['auth']);
+})->name('recipes')->middleware(['auth', FirstLoginRedirect::class]);
 
 Route::get('/reports', function () {
     return Inertia::render('Reports/Index');
-})->name('reports')->middleware(['auth']);
+})->name('reports')->middleware(['auth', FirstLoginRedirect::class]);
 
 
 // Route::get('/testroute', function () {
