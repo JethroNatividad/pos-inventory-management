@@ -13,6 +13,7 @@ import Layout from "@/Layouts/Layout";
 import { Role } from "@/types";
 import { Link, useForm } from "@inertiajs/react";
 import { ChevronLeft } from "lucide-react";
+import { FormEventHandler } from "react";
 
 type Props = {
     roles: Role[];
@@ -24,12 +25,23 @@ const Create = ({ roles }: Props) => {
         middle_name: "",
         last_name: "",
         email: "",
+        password: "",
         role: roles[0].name,
     });
 
+    const submit: FormEventHandler = (e) => {
+        e.preventDefault();
+        post(route("users.store"), {
+            onFinish: () => reset(),
+        });
+    };
+
     return (
         <Layout>
-            <form className="max-w-md w-full mx-auto space-y-4">
+            <form
+                onSubmit={submit}
+                className="max-w-md w-full mx-auto space-y-4"
+            >
                 <div className="flex items-center space-x-2">
                     <Button size="icon" variant="outline" asChild>
                         <Link href={route("users.index")}>
@@ -101,6 +113,21 @@ const Create = ({ roles }: Props) => {
                     </div>
 
                     <div className="space-y-2">
+                        <Label htmlFor="password">Password</Label>
+                        <Input
+                            id="password"
+                            type="password"
+                            name="password"
+                            value={data.password}
+                            onChange={(e) =>
+                                setData("password", e.target.value)
+                            }
+                            placeholder="********"
+                        />
+                        <InputError message={errors.password} />
+                    </div>
+
+                    <div className="space-y-2">
                         <Label htmlFor="roleId">Role</Label>
                         <Select
                             onValueChange={(value) => setData("role", value)}
@@ -124,8 +151,8 @@ const Create = ({ roles }: Props) => {
                     </div>
 
                     <div className="flex justify-end">
-                        <Button asChild>
-                            <Link href={route("users.index")}>Create User</Link>
+                        <Button type="submit" disabled={processing}>
+                            Create User
                         </Button>
                     </div>
                 </div>
