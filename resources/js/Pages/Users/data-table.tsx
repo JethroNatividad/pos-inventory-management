@@ -13,6 +13,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/Components/ui/table";
+import { DataTablePagination } from "@/Components/data-table-pagination";
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
@@ -83,6 +84,9 @@ export function DataTable<TData, TValue>({
                         )}
                     </TableBody>
                 </Table>
+            </div>
+            <div className="mt-4">
+                <DataTablePagination table={table} />
             </div>
         </div>
     );
