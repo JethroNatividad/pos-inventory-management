@@ -9,6 +9,11 @@ export interface User {
     password_set: boolean;
 }
 
+export interface Role {
+    id: number;
+    name: string;
+}
+
 export type PageProps<
     T extends Record<string, unknown> = Record<string, unknown>
 > = T & {

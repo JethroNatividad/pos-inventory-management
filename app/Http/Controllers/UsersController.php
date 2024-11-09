@@ -6,7 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
-
+use Spatie\Permission\Models\Role;
 
 class UsersController extends Controller
 {
@@ -17,6 +17,7 @@ class UsersController extends Controller
     {
         return Inertia::render('Users/Index', [
             'users' => User::all(),
+            'roles' => Role::all()
         ]);
     }
 

@@ -1,17 +1,18 @@
 import Layout from "@/Layouts/Layout";
-import type { User } from "@/types";
+import type { Role, User } from "@/types";
 import { DataTable } from "./data-table";
 import { columns } from "./columns";
 
 type Props = {
     users: User[];
+    roles: Role[];
 };
 
-const Index = ({ users }: Props) => {
+const Index = ({ users, roles }: Props) => {
     return (
         <Layout>
             <h1 className="text-xl font-medium mb-2">Manage Users</h1>
-            <DataTable columns={columns} data={users} />
+            <DataTable roles={roles} columns={columns} data={users} />
         </Layout>
     );
 };
