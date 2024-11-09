@@ -15,6 +15,10 @@ Route::get('/', function () {
 
 Route::resource('users', UsersController::class)->only(['index'])->middleware(['auth']);
 
+Route::get('/pos', function () {
+    return Inertia::render('POS/Index');
+});
+
 // Route::get('/testroute', function () {
 //     $name = "Funny Coder";
 
