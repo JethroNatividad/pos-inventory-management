@@ -27,6 +27,7 @@ import {
 } from "@/Components/ui/select";
 import { Role } from "@/types";
 import { Button } from "@/Components/ui/button";
+import { Link } from "@inertiajs/react";
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
@@ -98,7 +99,9 @@ export function DataTable<TData, TValue>({
                     </div>
                 </div>
 
-                <Button>Create User</Button>
+                <Button>
+                    <Link href={route("users.create")}>Create User</Link>
+                </Button>
             </div>
 
             <div className="overflow-x-auto rounded-md border">
