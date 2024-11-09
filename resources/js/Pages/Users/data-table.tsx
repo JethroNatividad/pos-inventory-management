@@ -26,6 +26,7 @@ import {
     SelectValue,
 } from "@/Components/ui/select";
 import { Role } from "@/types";
+import { Button } from "@/Components/ui/button";
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
@@ -53,43 +54,53 @@ export function DataTable<TData, TValue>({
 
     return (
         <div className="grid auto-rows-max space-y-4">
-            <div className="flex space-x-2">
-                <div className="max-w-xs w-full space-y-2">
-                    <Label>Search</Label>
-                    <Input
-                        type="text"
-                        placeholder="Search..."
-                        value={globalFilter}
-                        onChange={(e) => table.setGlobalFilter(e.target.value)}
-                    />
+            <div className="flex justify-between items-end">
+                <div className="flex space-x-2 w-full">
+                    <div className="max-w-xs w-full space-y-2">
+                        <Label>Search</Label>
+                        <Input
+                            type="text"
+                            placeholder="Search..."
+                            value={globalFilter}
+                            onChange={(e) =>
+                                table.setGlobalFilter(e.target.value)
+                            }
+                        />
+                    </div>
+
+                    <div className="max-w-52 w-full space-y-2">
+                        <Label>Role</Label>
+                        <Select
+                            onValueChange={(value) => {
+                                table
+                                    .getColumn("role")
+                                    ?.setFilterValue(
+                                        value === "all" ? undefined : value
+                                    );
+                            }}
+                            defaultValue="all"
+                        >
+                            <SelectTrigger>
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All</SelectItem>
+                                {roles.map((role) => (
+                                    <SelectItem
+                                        key={role.name}
+                                        value={role.name}
+                                    >
+                                        {role.name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
                 </div>
 
-                <div className="max-w-52 w-full space-y-2">
-                    <Label>Role</Label>
-                    <Select
-                        onValueChange={(value) => {
-                            table
-                                .getColumn("role")
-                                ?.setFilterValue(
-                                    value === "all" ? undefined : value
-                                );
-                        }}
-                        defaultValue="all"
-                    >
-                        <SelectTrigger>
-                            <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">All</SelectItem>
-                            {roles.map((role) => (
-                                <SelectItem key={role.name} value={role.name}>
-                                    {role.name}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                </div>
+                <Button>Create User</Button>
             </div>
+
             <div className="overflow-x-auto rounded-md border">
                 <Table>
                     <TableHeader>
