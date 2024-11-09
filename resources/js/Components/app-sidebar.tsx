@@ -34,26 +34,22 @@ const items = [
     {
         title: "POS",
         icon: LayoutDashboard,
-        name: "home",
-        // name: "pos",
+        name: "pos",
     },
     {
         title: "Inventory",
         icon: Box,
-        // name: "inventory",
-        name: "home",
+        name: "inventory",
     },
     {
         title: "Recipes",
         icon: Boxes,
-        // name: "recipes",
-        name: "home",
+        name: "recipes",
     },
     {
         title: "Reports",
         icon: Notebook,
-        // name: "reports",
-        name: "home",
+        name: "reports",
     },
     {
         title: "Manage Users",
