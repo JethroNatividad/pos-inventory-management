@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UsersController;
 use App\Http\Middleware\FirstLoginRedirect;
@@ -16,9 +17,9 @@ Route::middleware(['auth', FirstLoginRedirect::class])->group(function () {
 
     Route::resource('users', UsersController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
 
-    Route::get('/inventory', function () {
-        return Inertia::render('Inventory/Index');
-    })->name('inventory');
+    Route::get('inventory', [InventoryController::class, 'index'])->name('inventory.index');
+
+    Route::post('stock-entry', [InventoryController::class, 'storeStockEntry'])->name('stock-entry.store');
 
     Route::get('/pos', function () {
         return Inertia::render('POS/Index');
