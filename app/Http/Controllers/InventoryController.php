@@ -25,7 +25,7 @@ class InventoryController extends Controller
      */
     public function createStockEntry(): Response
     {
-        return inertia('Inventory/CreateStockEntry');
+        return Inertia::render('Inventory/Create');
     }
 
     public function storeStockEntry(Request $request)
