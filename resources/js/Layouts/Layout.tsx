@@ -1,13 +1,19 @@
 import { AppSidebar } from "@/Components/app-sidebar";
-import { SidebarProvider, SidebarTrigger } from "@/Components/ui/sidebar";
+import {
+    SidebarProvider,
+    SidebarTrigger,
+    useSidebar,
+} from "@/Components/ui/sidebar";
 import { usePage } from "@inertiajs/react";
 import { PropsWithChildren } from "react";
+import Cookies from "js-cookie";
 
 export default function Layout({ children }: PropsWithChildren) {
     const user = usePage().props.auth.user;
+    const defaultOpen = Cookies.get("sidebar:state") === "true";
 
     return (
-        <SidebarProvider>
+        <SidebarProvider defaultOpen={defaultOpen}>
             <AppSidebar user={user} />
             <main className="w-full">
                 <div className="shadow-sm p-2">
