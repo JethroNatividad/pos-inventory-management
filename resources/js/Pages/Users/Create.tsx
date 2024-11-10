@@ -11,7 +11,7 @@ import {
 } from "@/Components/ui/select";
 import Layout from "@/Layouts/Layout";
 import { Role } from "@/types";
-import { Link, useForm } from "@inertiajs/react";
+import { Head, Link, useForm } from "@inertiajs/react";
 import { ChevronLeft } from "lucide-react";
 import { FormEventHandler } from "react";
 
@@ -36,6 +36,8 @@ const Create = ({ roles }: Props) => {
 
     return (
         <Layout>
+            <Head title="Create User" />
+
             <form
                 onSubmit={submit}
                 className="max-w-md w-full mx-auto space-y-4"
