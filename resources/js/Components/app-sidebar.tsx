@@ -68,7 +68,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
             <SidebarHeader>
                 <Link href="/">
                     <SidebarMenuButton className="flex">
-                        <ApplicationLogo className="w-20" />
+                        <ApplicationLogo className="w-20 fill-sidebar-primary-foreground group-hover/menu-button:fill-sidebar-accent-foreground" />
                         <h1 className="text-xl font-bold truncate">
                             Paso Cafe
                         </h1>
