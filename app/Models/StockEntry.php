@@ -23,10 +23,53 @@ class StockEntry extends Model
         return $this->hasMany(Stock::class);
     }
 
-    protected $appends = ['quantity'];
+    protected $appends = ['quantity', 'quantity_status', 'upcoming_expiry', 'average_price'];
 
     public function getQuantityAttribute()
     {
         return $this->stocks->sum('quantity');
+    }
+
+    public function getQuantityStatusAttribute()
+    {
+        if ($this->quantity <= 0) {
+            return 'Out of stock';
+        } elseif ($this->quantity < $this->warn_stock_level) {
+            return 'Low stock';
+        } else {
+            return 'In stock';
+        }
+    }
+
+    public function getUpcomingExpiryAttribute()
+    {
+        if (!$this->perishable) {
+            return null;
+        }
+
+        $expiryDates = $this->stocks->pluck('expiry_date')->filter();
+
+        if ($expiryDates->isEmpty()) {
+            return null;
+        }
+
+        $expiryDates = $expiryDates->sort();
+
+        $expiryDate = $expiryDates->first();
+
+        $daysRemaining = $expiryDate->diffInDays(now());
+
+        $unit = match ($this->type) {
+            'liquid' => 'ml',
+            'powder' => 'g',
+            'item' => 'pcs',
+        };
+
+        return $this->quantity . $unit . ' (' . $daysRemaining . ' days left)';
+    }
+
+    public function getAveragePriceAttribute()
+    {
+        return $this->stocks->avg('price');
     }
 }
