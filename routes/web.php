@@ -9,28 +9,32 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
+Route::middleware(['auth', FirstLoginRedirect::class])->group(function () {
+    Route::get('/', function () {
+        return Inertia::render('Home');
+    })->name('home');
 
-Route::get('/', function () {
-    return Inertia::render('Home');
-})->middleware(['auth', FirstLoginRedirect::class])->name('home');
+    Route::resource('users', UsersController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
 
-Route::resource('users', UsersController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy'])->middleware(['auth', FirstLoginRedirect::class]);
+    Route::get('/inventory', function () {
+        return Inertia::render('Inventory/Index');
+    })->name('inventory');
 
-Route::get('/pos', function () {
-    return Inertia::render('POS/Index');
-})->name('pos')->middleware(['auth', FirstLoginRedirect::class]);
+    Route::get('/pos', function () {
+        return Inertia::render('POS/Index');
+    })->name('pos');
 
-Route::get('/inventory', function () {
-    return Inertia::render('Inventory/Index');
-})->name('inventory')->middleware(['auth', FirstLoginRedirect::class]);
 
-Route::get('/recipes', function () {
-    return Inertia::render('Recipes/Index');
-})->name('recipes')->middleware(['auth', FirstLoginRedirect::class]);
+    Route::get('/recipes', function () {
+        return Inertia::render('Recipes/Index');
+    })->name('recipes');
 
-Route::get('/reports', function () {
-    return Inertia::render('Reports/Index');
-})->name('reports')->middleware(['auth', FirstLoginRedirect::class]);
+    Route::get('/reports', function () {
+        return Inertia::render('Reports/Index');
+    })->name('reports');
+});
+
+
 
 
 // Route::get('/testroute', function () {
