@@ -23,7 +23,9 @@ class StockEntry extends Model
         return $this->hasMany(Stock::class);
     }
 
-    public function quantity()
+    protected $appends = ['quantity'];
+
+    public function getQuantityAttribute()
     {
         return $this->stocks->sum('quantity');
     }
