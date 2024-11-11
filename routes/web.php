@@ -23,6 +23,8 @@ Route::middleware(['auth', FirstLoginRedirect::class])->group(function () {
 
     Route::post('inventory/store', [InventoryController::class, 'storeStockEntry'])->name('inventory.store');
 
+    Route::get('inventory/{stockEntry}/edit', [InventoryController::class, 'editStockEntry'])->name('inventory.edit');
+
     Route::get('/pos', function () {
         return Inertia::render('POS/Index');
     })->name('pos');

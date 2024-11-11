@@ -21,12 +21,16 @@ class InventoryController extends Controller
     }
 
     /**
-     * Store a newly created stock entry in storage.
+     * Display the form for creating a new stock entry.
      */
     public function createStockEntry(): Response
     {
         return Inertia::render('Inventory/Create');
     }
+
+    /**
+     * Store a newly created stock entry in storage.
+     */
 
     public function storeStockEntry(Request $request)
     {
@@ -42,5 +46,16 @@ class InventoryController extends Controller
         StockEntry::create($validated);
 
         return redirect()->route('inventory.index');
+    }
+
+    /**
+     * Display the form for editing the specified resource.
+     */
+
+    public function editStockEntry(StockEntry $stockEntry): Response
+    {
+        return Inertia::render('Inventory/Edit', [
+            'stockEntry' => $stockEntry
+        ]);
     }
 }
