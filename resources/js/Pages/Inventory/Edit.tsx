@@ -21,7 +21,7 @@ type Props = {
 };
 
 const Edit = ({ stockEntry }: Props) => {
-    const { data, setData, post, processing, errors, reset } = useForm({
+    const { data, setData, put, processing, errors, reset } = useForm({
         name: stockEntry.name,
         description: stockEntry.description,
         type: stockEntry.type,
@@ -32,7 +32,7 @@ const Edit = ({ stockEntry }: Props) => {
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
-        post(route("inventory.store"));
+        put(route("inventory.update", stockEntry.id));
     };
 
     const types = [
@@ -43,7 +43,7 @@ const Edit = ({ stockEntry }: Props) => {
 
     return (
         <Layout>
-            <Head title="Create Stock Entry" />
+            <Head title="Edit Stock Entry" />
 
             <form
                 onSubmit={submit}
@@ -55,7 +55,9 @@ const Edit = ({ stockEntry }: Props) => {
                             <ChevronLeft />
                         </Link>
                     </Button>
-                    <h1 className="text-xl font-medium">Create Stock Entry</h1>
+                    <h1 className="text-xl font-medium">
+                        Edit {stockEntry.name}
+                    </h1>
                 </div>
 
                 <div className="space-y-4 rounded-md p-4 border">

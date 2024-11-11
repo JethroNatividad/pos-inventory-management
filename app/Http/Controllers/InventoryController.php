@@ -58,4 +58,24 @@ class InventoryController extends Controller
             'stockEntry' => $stockEntry
         ]);
     }
+
+    /**
+     * Update the specified resource in storage.
+     */
+
+    public function updateStockEntry(Request $request, StockEntry $stockEntry)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string',
+            'description' => 'nullable|string',
+            'type' => 'required|in:liquid,powder,item',
+            'perishable' => 'required|boolean',
+            'warn_stock_level' => 'required|integer',
+            'warn_days_remaining' => 'required_if:perishable,true|nullable|integer',
+        ]);
+
+        $stockEntry->update($validated);
+
+        return redirect()->route('inventory.index');
+    }
 }
