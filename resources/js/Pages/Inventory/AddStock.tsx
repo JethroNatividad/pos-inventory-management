@@ -25,12 +25,14 @@ const AddStock = ({ stockEntry }: Props) => {
         batch_label: "",
         quantity: 0,
         price: 0,
-        expiry_date: new Date(new Date().setDate(new Date().getDate() + 1)),
+        expiry_date: stockEntry.perishable
+            ? new Date(new Date().setDate(new Date().getDate() + 1))
+            : null,
     });
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
-        post(route("inventory.store"));
+        post(route("inventory.store-stock", stockEntry.id));
     };
 
     return (
@@ -83,6 +85,21 @@ const AddStock = ({ stockEntry }: Props) => {
                         <InputError message={errors.quantity} />
                     </div>
 
+                    <div className="space-y-2">
+                        <Label htmlFor="price">Price</Label>
+                        <Input
+                            id="price"
+                            type="number"
+                            name="price"
+                            value={data.price}
+                            onChange={(e) =>
+                                setData("price", Number(e.target.value))
+                            }
+                            placeholder="Brown Sugar"
+                        />
+                        <InputError message={errors.price} />
+                    </div>
+
                     {stockEntry.perishable && (
                         <div className="space-y-2">
                             <Label htmlFor="expiry_date">Expiry Date</Label>
@@ -111,7 +128,9 @@ const AddStock = ({ stockEntry }: Props) => {
                                     >
                                         <Calendar
                                             mode="single"
-                                            selected={data.expiry_date}
+                                            selected={
+                                                data.expiry_date || undefined
+                                            }
                                             onSelect={(date) =>
                                                 date &&
                                                 setData("expiry_date", date)

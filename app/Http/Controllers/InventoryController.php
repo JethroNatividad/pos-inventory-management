@@ -101,4 +101,24 @@ class InventoryController extends Controller
             'stockEntry' => $stockEntry
         ]);
     }
+
+    /**
+     * Store a newly created stock in storage.
+     */
+
+    public function storeStock(Request $request, StockEntry $stockEntry)
+    {
+        $validated = $request->validate([
+            'quantity' => 'required|numeric',
+            'price' => 'required|numeric',
+            'batch_label' => 'required|string|unique:stocks,batch_label',
+            'expiry_date' => 'required_if:is_perishable,true|nullable|date',
+        ]);
+
+        $validated['is_perishable'] = $stockEntry->perishable;
+
+        $stockEntry->stocks()->create($validated);
+
+        return redirect()->route('inventory.index');
+    }
 }
