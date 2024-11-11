@@ -17,7 +17,7 @@ Route::middleware(['auth', FirstLoginRedirect::class])->group(function () {
 
     Route::resource('users', UsersController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
 
-    Route::get('inventory', [InventoryController::class, 'index'])->name('inventory');
+    Route::get('inventory', [InventoryController::class, 'index'])->name('inventory.index');
 
     Route::get('inventory/create', [InventoryController::class, 'createStockEntry'])->name('inventory.create');
 
