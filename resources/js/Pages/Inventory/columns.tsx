@@ -61,7 +61,10 @@ const ActionsCell = ({ row }: { row: Row<StockEntry> }) => {
                         <AlertDialogAction asChild>
                             <Link
                                 method="delete"
-                                href={route("users.destroy", row.original.id)}
+                                href={route(
+                                    "inventory.destroy",
+                                    row.original.id
+                                )}
                             >
                                 Delete
                             </Link>

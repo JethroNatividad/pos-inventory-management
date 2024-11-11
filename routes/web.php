@@ -27,6 +27,8 @@ Route::middleware(['auth', FirstLoginRedirect::class])->group(function () {
 
     Route::put('inventory/{stockEntry}', [InventoryController::class, 'updateStockEntry'])->name('inventory.update');
 
+    Route::delete('inventory/{stockEntry}', [InventoryController::class, 'destroyStockEntry'])->name('inventory.destroy');
+
     Route::get('/pos', function () {
         return Inertia::render('POS/Index');
     })->name('pos');

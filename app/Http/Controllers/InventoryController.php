@@ -78,4 +78,15 @@ class InventoryController extends Controller
 
         return redirect()->route('inventory.index');
     }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+
+    public function destroyStockEntry(StockEntry $stockEntry)
+    {
+        $stockEntry->delete();
+
+        return redirect()->route('inventory.index');
+    }
 }
