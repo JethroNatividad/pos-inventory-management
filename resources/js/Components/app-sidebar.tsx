@@ -39,7 +39,7 @@ const items = [
     {
         title: "Inventory",
         icon: Box,
-        name: "inventory",
+        name: "inventory.index",
     },
     {
         title: "Recipes",

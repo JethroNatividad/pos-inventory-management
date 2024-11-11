@@ -9,6 +9,20 @@ export interface User {
     password_set: boolean;
 }
 
+export interface StockEntry {
+    id: number;
+    name: string;
+    description: string;
+    type: string;
+    perishable: boolean;
+    warn_stock_level: number;
+    warn_days_remaining: number;
+    quantity: number;
+    quantity_status: string;
+    upcoming_expiry: string;
+    average_price: number;
+}
+
 export interface Role {
     id: number;
     name: string;
