@@ -89,4 +89,16 @@ class InventoryController extends Controller
 
         return redirect()->route('inventory.index');
     }
+
+
+    /**
+     * Display the form for creating a new stock.
+     */
+
+    public function createStock(StockEntry $stockEntry): Response
+    {
+        return Inertia::render('Inventory/AddStock', [
+            'stockEntry' => $stockEntry
+        ]);
+    }
 }
