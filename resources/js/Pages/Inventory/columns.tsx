@@ -125,6 +125,10 @@ export const columns: ColumnDef<StockEntry>[] = [
     {
         accessorKey: "average_price",
         header: "Average Price",
+        cell: ({ row }) => {
+            // round to 2 decimal places
+            return `₱${row.original.average_price.toFixed(2)}`;
+        },
     },
 
     {
