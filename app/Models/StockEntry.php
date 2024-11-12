@@ -30,10 +30,10 @@ class StockEntry extends Model
     {
         // if perishable, get sum of quantity of stocks that are not expired
         if ($this->perishable) {
-            return $this->stocks->where('expiry_date', '>=', now())->sum('quantity') . $this->unit;
+            return $this->stocks->where('expiry_date', '>=', now())->sum('quantity');
         }
 
-        return $this->stocks->sum('quantity') . $this->unit;
+        return $this->stocks->sum('quantity');
     }
 
     public function getQuantityStatusAttribute()

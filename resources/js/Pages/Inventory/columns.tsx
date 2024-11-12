@@ -106,6 +106,9 @@ export const columns: ColumnDef<StockEntry>[] = [
     {
         accessorKey: "quantity",
         header: "Quantity",
+        cell: ({ row }) => {
+            return `${row.original.quantity}${row.original.unit}`;
+        },
     },
     {
         accessorKey: "quantity_status",

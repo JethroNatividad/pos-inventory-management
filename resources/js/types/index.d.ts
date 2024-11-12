@@ -21,6 +21,7 @@ export interface StockEntry {
     quantity_status: string;
     upcoming_expiry: string;
     average_price: number;
+    unit: string;
 }
 
 export interface Role {
