@@ -21,8 +21,8 @@ const Index = () => {
         description: "",
         type: "powder",
         perishable: false,
-        warn_stock_level: 100,
-        warn_days_remaining: 3,
+        warn_stock_level: "100",
+        warn_days_remaining: "3",
     });
 
     const submit: FormEventHandler = (e) => {
@@ -130,12 +130,9 @@ const Index = () => {
                             name="warn_stock_level"
                             value={data.warn_stock_level}
                             onChange={(e) =>
-                                setData(
-                                    "warn_stock_level",
-                                    Number(e.target.value)
-                                )
+                                setData("warn_stock_level", e.target.value)
                             }
-                            placeholder="Brown Sugar"
+                            placeholder="0"
                         />
                         <InputError message={errors.warn_stock_level} />
                     </div>
@@ -153,10 +150,10 @@ const Index = () => {
                                 onChange={(e) =>
                                     setData(
                                         "warn_days_remaining",
-                                        Number(e.target.value)
+                                        e.target.value
                                     )
                                 }
-                                placeholder="Brown Sugar"
+                                placeholder="0"
                             />
                             <InputError message={errors.warn_days_remaining} />
                         </div>
