@@ -23,8 +23,8 @@ type Props = {
 const AddStock = ({ stockEntry }: Props) => {
     const { data, setData, post, processing, errors, reset } = useForm({
         batch_label: "",
-        quantity: 0,
-        price: 0,
+        quantity: "",
+        price: "",
         expiry_date: stockEntry.perishable
             ? new Date(new Date().setDate(new Date().getDate() + 1))
             : null,
@@ -78,9 +78,9 @@ const AddStock = ({ stockEntry }: Props) => {
                             name="quantity"
                             value={data.quantity}
                             onChange={(e) =>
-                                setData("quantity", Number(e.target.value))
+                                setData("quantity", e.target.value)
                             }
-                            placeholder="Brown Sugar"
+                            placeholder="0"
                         />
                         <InputError message={errors.quantity} />
                     </div>
@@ -92,10 +92,8 @@ const AddStock = ({ stockEntry }: Props) => {
                             type="number"
                             name="price"
                             value={data.price}
-                            onChange={(e) =>
-                                setData("price", Number(e.target.value))
-                            }
-                            placeholder="Brown Sugar"
+                            onChange={(e) => setData("price", e.target.value)}
+                            placeholder="0"
                         />
                         <InputError message={errors.price} />
                     </div>
