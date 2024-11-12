@@ -117,6 +117,9 @@ export const columns: ColumnDef<StockEntry>[] = [
     {
         accessorKey: "perishable",
         header: "Is Perishable",
+        cell: ({ row }) => {
+            return row.original.perishable ? "Yes" : "No";
+        },
     },
     {
         accessorKey: "upcoming_expiry",
