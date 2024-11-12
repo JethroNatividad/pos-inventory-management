@@ -35,12 +35,7 @@ const ActionsCell = ({ row }: { row: Row<StockEntry> }) => {
                 <DropdownMenuContent align="end">
                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
                     <DropdownMenuItem asChild>
-                        <Link
-                            href={route(
-                                "inventory.create-stock",
-                                row.original.id
-                            )}
-                        >
+                        <Link href={route("stock.create", row.original.id)}>
                             Add Stock
                         </Link>
                     </DropdownMenuItem>

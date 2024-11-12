@@ -32,7 +32,7 @@ const AddStock = ({ stockEntry }: Props) => {
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
-        post(route("inventory.store-stock", stockEntry.id));
+        post(route("stock.store", stockEntry.id));
     };
 
     return (

@@ -23,7 +23,7 @@ class InventoryController extends Controller
     /**
      * Display the form for creating a new stock entry.
      */
-    public function createStockEntry(): Response
+    public function create(): Response
     {
         return Inertia::render('Inventory/Create');
     }
@@ -32,7 +32,7 @@ class InventoryController extends Controller
      * Store a newly created stock entry in storage.
      */
 
-    public function storeStockEntry(Request $request)
+    public function store(Request $request)
     {
         $validated = $request->validate([
             'name' => 'required|string',
@@ -52,7 +52,7 @@ class InventoryController extends Controller
      * Display the form for editing the specified resource.
      */
 
-    public function editStockEntry(StockEntry $stockEntry): Response
+    public function edit(StockEntry $stockEntry): Response
     {
         return Inertia::render('Inventory/Edit', [
             'stockEntry' => $stockEntry
@@ -63,7 +63,7 @@ class InventoryController extends Controller
      * Update the specified resource in storage.
      */
 
-    public function updateStockEntry(Request $request, StockEntry $stockEntry)
+    public function update(Request $request, StockEntry $stockEntry)
     {
         $validated = $request->validate([
             'name' => 'required|string',
@@ -83,41 +83,9 @@ class InventoryController extends Controller
      * Remove the specified resource from storage.
      */
 
-    public function destroyStockEntry(StockEntry $stockEntry)
+    public function destroy(StockEntry $stockEntry)
     {
         $stockEntry->delete();
-
-        return redirect()->route('inventory.index');
-    }
-
-
-    /**
-     * Display the form for creating a new stock.
-     */
-
-    public function createStock(StockEntry $stockEntry): Response
-    {
-        return Inertia::render('Inventory/AddStock', [
-            'stockEntry' => $stockEntry
-        ]);
-    }
-
-    /**
-     * Store a newly created stock in storage.
-     */
-
-    public function storeStock(Request $request, StockEntry $stockEntry)
-    {
-        $validated = $request->validate([
-            'quantity' => 'required|numeric',
-            'price' => 'required|numeric',
-            'batch_label' => 'required|string|unique:stocks,batch_label',
-            'expiry_date' => 'required_if:is_perishable,true|nullable|date',
-        ]);
-
-        $validated['is_perishable'] = $stockEntry->perishable;
-
-        $stockEntry->stocks()->create($validated);
 
         return redirect()->route('inventory.index');
     }

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\StockController;
 use App\Http\Controllers\UsersController;
 use App\Http\Middleware\FirstLoginRedirect;
 use App\Mail\MyTestEmail;
@@ -19,19 +20,19 @@ Route::middleware(['auth', FirstLoginRedirect::class])->group(function () {
 
     Route::get('inventory', [InventoryController::class, 'index'])->name('inventory.index');
 
-    Route::get('inventory/create', [InventoryController::class, 'createStockEntry'])->name('inventory.create');
+    Route::get('inventory/create', [InventoryController::class, 'create'])->name('inventory.create');
 
-    Route::post('inventory/store', [InventoryController::class, 'storeStockEntry'])->name('inventory.store');
+    Route::post('inventory/store', [InventoryController::class, 'store'])->name('inventory.store');
 
-    Route::get('inventory/{stockEntry}/edit', [InventoryController::class, 'editStockEntry'])->name('inventory.edit');
+    Route::get('inventory/{stockEntry}/edit', [InventoryController::class, 'edit'])->name('inventory.edit');
 
-    Route::put('inventory/{stockEntry}', [InventoryController::class, 'updateStockEntry'])->name('inventory.update');
+    Route::put('inventory/{stockEntry}', [InventoryController::class, 'update'])->name('inventory.update');
 
-    Route::delete('inventory/{stockEntry}', [InventoryController::class, 'destroyStockEntry'])->name('inventory.destroy');
+    Route::delete('inventory/{stockEntry}', [InventoryController::class, 'destroy'])->name('inventory.destroy');
 
-    Route::get('inventory/{stockEntry}/create-stock', [InventoryController::class, 'createStock'])->name('inventory.create-stock');
+    Route::get('inventory/{stockEntry}/stocks/create', [StockController::class, 'create'])->name('stock.create');
 
-    Route::post('inventory/{stockEntry}/store-stock', [InventoryController::class, 'storeStock'])->name('inventory.store-stock');
+    Route::post('inventory/{stockEntry}/stocks/store', [StockController::class, 'store'])->name('stock.store');
 
     Route::get('/pos', function () {
         return Inertia::render('POS/Index');
