@@ -14,26 +14,34 @@ import Layout from "@/Layouts/Layout";
 import type { StockEntry } from "@/types";
 import { Head, Link, useForm } from "@inertiajs/react";
 import { ChevronLeft } from "lucide-react";
-import { FormEventHandler } from "react";
+import { FormEventHandler, useEffect } from "react";
+import { InventoryFormData } from "./Create";
+import { units } from "@/data/units";
 
 type Props = {
     stockEntry: StockEntry;
 };
 
 const Edit = ({ stockEntry }: Props) => {
-    const { data, setData, put, processing, errors, reset } = useForm({
-        name: stockEntry.name,
-        description: stockEntry.description,
-        type: stockEntry.type,
-        perishable: stockEntry.perishable,
-        warn_stock_level: stockEntry.warn_stock_level,
-        warn_days_remaining: stockEntry.warn_days_remaining,
-    });
+    const { data, setData, put, processing, errors, reset } =
+        useForm<InventoryFormData>("editInventoryForm", {
+            name: stockEntry.name,
+            description: stockEntry.description,
+            type: stockEntry.type,
+            perishable: stockEntry.perishable,
+            warn_stock_level: String(stockEntry.warn_stock_level),
+            warn_days_remaining: String(stockEntry.warn_days_remaining),
+            unit: stockEntry.unit,
+        });
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
         put(route("inventory.update", stockEntry.id));
     };
+
+    useEffect(() => {
+        setData("unit", units[data.type][0]);
+    }, [data.type]);
 
     const types = [
         { name: "Liquid", id: "liquid" },
@@ -91,7 +99,12 @@ const Edit = ({ stockEntry }: Props) => {
                     <div className="space-y-2">
                         <Label htmlFor="type">Type</Label>
                         <Select
-                            onValueChange={(value) => setData("type", value)}
+                            onValueChange={(value) =>
+                                setData(
+                                    "type",
+                                    value as "liquid" | "powder" | "item"
+                                )
+                            }
                             value={data.type}
                         >
                             <SelectTrigger>
@@ -131,19 +144,38 @@ const Edit = ({ stockEntry }: Props) => {
                         <Label htmlFor="warn_stock_level">
                             Warn when stock is below
                         </Label>
-                        <Input
-                            id="warn_stock_level"
-                            type="number"
-                            name="warn_stock_level"
-                            value={data.warn_stock_level}
-                            onChange={(e) =>
-                                setData(
-                                    "warn_stock_level",
-                                    Number(e.target.value)
-                                )
-                            }
-                            placeholder="Brown Sugar"
-                        />
+                        <div className="flex space-x-2">
+                            <Input
+                                id="warn_stock_level"
+                                type="number"
+                                name="warn_stock_level"
+                                value={data.warn_stock_level}
+                                onChange={(e) =>
+                                    setData("warn_stock_level", e.target.value)
+                                }
+                                className="w-3/4"
+                                placeholder="0"
+                            />
+                            <div className="w-1/4">
+                                <Select
+                                    onValueChange={(value) =>
+                                        setData("unit", value)
+                                    }
+                                    value={data.unit}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {units[data.type].map((unit) => (
+                                            <SelectItem key={unit} value={unit}>
+                                                {unit}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
                         <InputError message={errors.warn_stock_level} />
                     </div>
 
@@ -160,7 +192,7 @@ const Edit = ({ stockEntry }: Props) => {
                                 onChange={(e) =>
                                     setData(
                                         "warn_days_remaining",
-                                        Number(e.target.value)
+                                        e.target.value
                                     )
                                 }
                                 placeholder="Brown Sugar"

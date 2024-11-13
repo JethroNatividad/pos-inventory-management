@@ -16,7 +16,7 @@ import { Head, Link, useForm } from "@inertiajs/react";
 import { ChevronLeft } from "lucide-react";
 import { FormEventHandler, useEffect } from "react";
 
-type FormData = {
+export type InventoryFormData = {
     name: string;
     description: string;
     type: "liquid" | "powder" | "item";
@@ -28,7 +28,7 @@ type FormData = {
 
 const Index = () => {
     const { data, setData, post, processing, errors, reset } =
-        useForm<FormData>({
+        useForm<InventoryFormData>({
             name: "",
             description: "",
             type: "powder",
