@@ -73,6 +73,11 @@ class StockEntry extends Model
             ->filter(fn($stock) => Carbon::parse($stock->expiry_date)->toDateString() === $expiryDate->toDateString())
             ->sum('quantity');
 
+        // if days remaining is 0, return the hours remaining
+        if ($daysRemaining <= 0) {
+            $hoursRemaining = round(abs($expiryDate->diffInHours(now())));
+            return $quantity . $this->unit . ' (' . $hoursRemaining . ' hours left)';
+        }
 
         return $quantity . $this->unit . ' (' . $daysRemaining . ' days left)';
     }
