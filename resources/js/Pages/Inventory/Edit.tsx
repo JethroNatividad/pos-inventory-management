@@ -214,7 +214,7 @@ const Edit = ({ stockEntry }: Props) => {
 
                     <div className="flex justify-end">
                         <Button type="submit" disabled={processing}>
-                            Create
+                            Update
                         </Button>
                     </div>
                 </div>
