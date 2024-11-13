@@ -13,7 +13,7 @@ export interface StockEntry {
     id: number;
     name: string;
     description: string;
-    type: string;
+    type: "liquid" | "powder" | "item";
     perishable: boolean;
     warn_stock_level: number;
     warn_days_remaining: number;

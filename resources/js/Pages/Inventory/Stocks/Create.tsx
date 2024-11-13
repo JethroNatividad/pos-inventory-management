@@ -8,6 +8,14 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/Components/ui/popover";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/Components/ui/select";
+import { units } from "@/data/units";
 import Layout from "@/Layouts/Layout";
 import { cn } from "@/lib/utils";
 import type { StockEntry } from "@/types";
@@ -25,6 +33,7 @@ const AddStock = ({ stockEntry }: Props) => {
         batch_label: "",
         quantity: "",
         price: "",
+        unit: units[stockEntry.type][0],
         expiry_date: stockEntry.perishable
             ? new Date(new Date().setDate(new Date().getDate() + 1))
             : null,
@@ -72,17 +81,39 @@ const AddStock = ({ stockEntry }: Props) => {
 
                     <div className="space-y-2">
                         <Label htmlFor="quantity">Quantity</Label>
-                        <Input
-                            id="quantity"
-                            type="number"
-                            name="quantity"
-                            value={data.quantity}
-                            onChange={(e) =>
-                                setData("quantity", e.target.value)
-                            }
-                            placeholder="0"
-                        />
-                        <InputError message={errors.quantity} />
+                        <div className="flex space-x-2">
+                            <Input
+                                id="quantity"
+                                type="number"
+                                name="quantity"
+                                value={data.quantity}
+                                onChange={(e) =>
+                                    setData("quantity", e.target.value)
+                                }
+                                className="w-3/4"
+                                placeholder="0"
+                            />
+                            <div className="w-1/4">
+                                <Select
+                                    onValueChange={(value) =>
+                                        setData("unit", value)
+                                    }
+                                    value={data.unit}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {units[stockEntry.type].map((unit) => (
+                                            <SelectItem key={unit} value={unit}>
+                                                {unit}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+                        <InputError message={errors.quantity || errors.unit} />
                     </div>
 
                     <div className="space-y-2">
