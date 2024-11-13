@@ -41,7 +41,45 @@ class InventoryController extends Controller
             'perishable' => 'required|boolean',
             'warn_stock_level' => 'required|integer',
             'warn_days_remaining' => 'required_if:perishable,true|nullable|integer',
+            'unit' => [
+                'required',
+                function ($attribute, $value, $fail) use ($request) {
+                    $validUnits = match ($request->type) {
+                        'liquid' => ['ml', 'l', 'fl oz'],
+                        'powder' => ['g', 'kg', 'lb'],
+                        'item' => ['pcs', 'dozen'],
+                        default => [],
+                    };
+
+                    if (!in_array($value, $validUnits)) {
+                        $fail("The $attribute is invalid for type {$request->type}.");
+                    }
+                }
+            ],
         ]);
+
+        switch ($validated['type']) {
+            case 'liquid':
+                $validated['warn_stock_level'] = match ($validated['unit']) {
+                    'l' => $validated['warn_stock_level'] * 1000,   // Convert liters to ml
+                    'fl oz' => $validated['warn_stock_level'] * 29.5735, // Convert fluid ounces to ml
+                    default => $validated['warn_stock_level'], // If ml, no conversion needed
+                };
+                break;
+            case 'powder':
+                $validated['warn_stock_level'] = match ($validated['unit']) {
+                    'kg' => $validated['warn_stock_level'] * 1000,  // Convert kilograms to grams
+                    'lb' => $validated['warn_stock_level'] * 453.592, // Convert pounds to grams
+                    default => $validated['warn_stock_level'], // If grams, no conversion needed
+                };
+                break;
+            case 'item':
+                $validated['warn_stock_level'] = match ($validated['unit']) {
+                    'dozen' => $validated['warn_stock_level'] * 12, // Convert dozens to pieces
+                    default => $validated['warn_stock_level'], // If pieces, no conversion needed
+                };
+                break;
+        }
 
         StockEntry::create($validated);
 
@@ -72,7 +110,45 @@ class InventoryController extends Controller
             'perishable' => 'required|boolean',
             'warn_stock_level' => 'required|integer',
             'warn_days_remaining' => 'required_if:perishable,true|nullable|integer',
+            'unit' => [
+                'required',
+                function ($attribute, $value, $fail) use ($request) {
+                    $validUnits = match ($request->type) {
+                        'liquid' => ['ml', 'l', 'fl oz'],
+                        'powder' => ['g', 'kg', 'lb'],
+                        'item' => ['pcs', 'dozen'],
+                        default => [],
+                    };
+
+                    if (!in_array($value, $validUnits)) {
+                        $fail("The $attribute is invalid for type {$request->type}.");
+                    }
+                }
+            ],
         ]);
+
+        switch ($validated['type']) {
+            case 'liquid':
+                $validated['warn_stock_level'] = match ($validated['unit']) {
+                    'l' => $validated['warn_stock_level'] * 1000,   // Convert liters to ml
+                    'fl oz' => $validated['warn_stock_level'] * 29.5735, // Convert fluid ounces to ml
+                    default => $validated['warn_stock_level'], // If ml, no conversion needed
+                };
+                break;
+            case 'powder':
+                $validated['warn_stock_level'] = match ($validated['unit']) {
+                    'kg' => $validated['warn_stock_level'] * 1000,  // Convert kilograms to grams
+                    'lb' => $validated['warn_stock_level'] * 453.592, // Convert pounds to grams
+                    default => $validated['warn_stock_level'], // If grams, no conversion needed
+                };
+                break;
+            case 'item':
+                $validated['warn_stock_level'] = match ($validated['unit']) {
+                    'dozen' => $validated['warn_stock_level'] * 12, // Convert dozens to pieces
+                    default => $validated['warn_stock_level'], // If pieces, no conversion needed
+                };
+                break;
+        }
 
         $stockEntry->update($validated);
 
