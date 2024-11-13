@@ -10,25 +10,42 @@ import {
     SelectValue,
 } from "@/Components/ui/select";
 import { Textarea } from "@/Components/ui/textarea";
+import { units } from "@/data/units";
 import Layout from "@/Layouts/Layout";
 import { Head, Link, useForm } from "@inertiajs/react";
 import { ChevronLeft } from "lucide-react";
-import { FormEventHandler } from "react";
+import { FormEventHandler, useEffect } from "react";
+
+export type InventoryFormData = {
+    name: string;
+    description: string;
+    type: "liquid" | "powder" | "item";
+    perishable: boolean;
+    warn_stock_level: string;
+    warn_days_remaining: string;
+    unit: string;
+};
 
 const Index = () => {
-    const { data, setData, post, processing, errors, reset } = useForm({
-        name: "",
-        description: "",
-        type: "powder",
-        perishable: false,
-        warn_stock_level: 100,
-        warn_days_remaining: 3,
-    });
+    const { data, setData, post, processing, errors, reset } =
+        useForm<InventoryFormData>({
+            name: "",
+            description: "",
+            type: "powder",
+            perishable: false,
+            warn_stock_level: "100",
+            warn_days_remaining: "3",
+            unit: "g",
+        });
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
         post(route("inventory.store"));
     };
+
+    useEffect(() => {
+        setData("unit", units[data.type][0]);
+    }, [data.type]);
 
     const types = [
         { name: "Liquid", id: "liquid" },
@@ -84,7 +101,12 @@ const Index = () => {
                     <div className="space-y-2">
                         <Label htmlFor="type">Type</Label>
                         <Select
-                            onValueChange={(value) => setData("type", value)}
+                            onValueChange={(value) => {
+                                setData(
+                                    "type",
+                                    value as "liquid" | "powder" | "item"
+                                );
+                            }}
                             value={data.type}
                         >
                             <SelectTrigger>
@@ -124,19 +146,38 @@ const Index = () => {
                         <Label htmlFor="warn_stock_level">
                             Warn when stock is below
                         </Label>
-                        <Input
-                            id="warn_stock_level"
-                            type="number"
-                            name="warn_stock_level"
-                            value={data.warn_stock_level}
-                            onChange={(e) =>
-                                setData(
-                                    "warn_stock_level",
-                                    Number(e.target.value)
-                                )
-                            }
-                            placeholder="Brown Sugar"
-                        />
+                        <div className="flex space-x-2">
+                            <Input
+                                id="warn_stock_level"
+                                type="number"
+                                name="warn_stock_level"
+                                value={data.warn_stock_level}
+                                onChange={(e) =>
+                                    setData("warn_stock_level", e.target.value)
+                                }
+                                className="w-3/4"
+                                placeholder="0"
+                            />
+                            <div className="w-1/4">
+                                <Select
+                                    onValueChange={(value) =>
+                                        setData("unit", value)
+                                    }
+                                    value={data.unit}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {units[data.type].map((unit) => (
+                                            <SelectItem key={unit} value={unit}>
+                                                {unit}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
                         <InputError message={errors.warn_stock_level} />
                     </div>
 
@@ -153,10 +194,10 @@ const Index = () => {
                                 onChange={(e) =>
                                     setData(
                                         "warn_days_remaining",
-                                        Number(e.target.value)
+                                        e.target.value
                                     )
                                 }
-                                placeholder="Brown Sugar"
+                                placeholder="0"
                             />
                             <InputError message={errors.warn_days_remaining} />
                         </div>

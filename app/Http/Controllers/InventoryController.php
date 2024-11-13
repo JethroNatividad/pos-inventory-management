@@ -23,7 +23,7 @@ class InventoryController extends Controller
     /**
      * Display the form for creating a new stock entry.
      */
-    public function createStockEntry(): Response
+    public function create(): Response
     {
         return Inertia::render('Inventory/Create');
     }
@@ -32,7 +32,7 @@ class InventoryController extends Controller
      * Store a newly created stock entry in storage.
      */
 
-    public function storeStockEntry(Request $request)
+    public function store(Request $request)
     {
         $validated = $request->validate([
             'name' => 'required|string',
@@ -41,7 +41,45 @@ class InventoryController extends Controller
             'perishable' => 'required|boolean',
             'warn_stock_level' => 'required|integer',
             'warn_days_remaining' => 'required_if:perishable,true|nullable|integer',
+            'unit' => [
+                'required',
+                function ($attribute, $value, $fail) use ($request) {
+                    $validUnits = match ($request->type) {
+                        'liquid' => ['ml', 'l', 'fl oz'],
+                        'powder' => ['g', 'kg', 'lb'],
+                        'item' => ['pcs', 'dozen'],
+                        default => [],
+                    };
+
+                    if (!in_array($value, $validUnits)) {
+                        $fail("The $attribute is invalid for type {$request->type}.");
+                    }
+                }
+            ],
         ]);
+
+        switch ($validated['type']) {
+            case 'liquid':
+                $validated['warn_stock_level'] = match ($validated['unit']) {
+                    'l' => $validated['warn_stock_level'] * 1000,   // Convert liters to ml
+                    'fl oz' => $validated['warn_stock_level'] * 29.5735, // Convert fluid ounces to ml
+                    default => $validated['warn_stock_level'], // If ml, no conversion needed
+                };
+                break;
+            case 'powder':
+                $validated['warn_stock_level'] = match ($validated['unit']) {
+                    'kg' => $validated['warn_stock_level'] * 1000,  // Convert kilograms to grams
+                    'lb' => $validated['warn_stock_level'] * 453.592, // Convert pounds to grams
+                    default => $validated['warn_stock_level'], // If grams, no conversion needed
+                };
+                break;
+            case 'item':
+                $validated['warn_stock_level'] = match ($validated['unit']) {
+                    'dozen' => $validated['warn_stock_level'] * 12, // Convert dozens to pieces
+                    default => $validated['warn_stock_level'], // If pieces, no conversion needed
+                };
+                break;
+        }
 
         StockEntry::create($validated);
 
@@ -52,7 +90,7 @@ class InventoryController extends Controller
      * Display the form for editing the specified resource.
      */
 
-    public function editStockEntry(StockEntry $stockEntry): Response
+    public function edit(StockEntry $stockEntry): Response
     {
         return Inertia::render('Inventory/Edit', [
             'stockEntry' => $stockEntry
@@ -63,7 +101,7 @@ class InventoryController extends Controller
      * Update the specified resource in storage.
      */
 
-    public function updateStockEntry(Request $request, StockEntry $stockEntry)
+    public function update(Request $request, StockEntry $stockEntry)
     {
         $validated = $request->validate([
             'name' => 'required|string',
@@ -72,7 +110,45 @@ class InventoryController extends Controller
             'perishable' => 'required|boolean',
             'warn_stock_level' => 'required|integer',
             'warn_days_remaining' => 'required_if:perishable,true|nullable|integer',
+            'unit' => [
+                'required',
+                function ($attribute, $value, $fail) use ($request) {
+                    $validUnits = match ($request->type) {
+                        'liquid' => ['ml', 'l', 'fl oz'],
+                        'powder' => ['g', 'kg', 'lb'],
+                        'item' => ['pcs', 'dozen'],
+                        default => [],
+                    };
+
+                    if (!in_array($value, $validUnits)) {
+                        $fail("The $attribute is invalid for type {$request->type}.");
+                    }
+                }
+            ],
         ]);
+
+        switch ($validated['type']) {
+            case 'liquid':
+                $validated['warn_stock_level'] = match ($validated['unit']) {
+                    'l' => $validated['warn_stock_level'] * 1000,   // Convert liters to ml
+                    'fl oz' => $validated['warn_stock_level'] * 29.5735, // Convert fluid ounces to ml
+                    default => $validated['warn_stock_level'], // If ml, no conversion needed
+                };
+                break;
+            case 'powder':
+                $validated['warn_stock_level'] = match ($validated['unit']) {
+                    'kg' => $validated['warn_stock_level'] * 1000,  // Convert kilograms to grams
+                    'lb' => $validated['warn_stock_level'] * 453.592, // Convert pounds to grams
+                    default => $validated['warn_stock_level'], // If grams, no conversion needed
+                };
+                break;
+            case 'item':
+                $validated['warn_stock_level'] = match ($validated['unit']) {
+                    'dozen' => $validated['warn_stock_level'] * 12, // Convert dozens to pieces
+                    default => $validated['warn_stock_level'], // If pieces, no conversion needed
+                };
+                break;
+        }
 
         $stockEntry->update($validated);
 
@@ -83,41 +159,9 @@ class InventoryController extends Controller
      * Remove the specified resource from storage.
      */
 
-    public function destroyStockEntry(StockEntry $stockEntry)
+    public function destroy(StockEntry $stockEntry)
     {
         $stockEntry->delete();
-
-        return redirect()->route('inventory.index');
-    }
-
-
-    /**
-     * Display the form for creating a new stock.
-     */
-
-    public function createStock(StockEntry $stockEntry): Response
-    {
-        return Inertia::render('Inventory/AddStock', [
-            'stockEntry' => $stockEntry
-        ]);
-    }
-
-    /**
-     * Store a newly created stock in storage.
-     */
-
-    public function storeStock(Request $request, StockEntry $stockEntry)
-    {
-        $validated = $request->validate([
-            'quantity' => 'required|numeric',
-            'price' => 'required|numeric',
-            'batch_label' => 'required|string|unique:stocks,batch_label',
-            'expiry_date' => 'required_if:is_perishable,true|nullable|date',
-        ]);
-
-        $validated['is_perishable'] = $stockEntry->perishable;
-
-        $stockEntry->stocks()->create($validated);
 
         return redirect()->route('inventory.index');
     }

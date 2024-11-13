@@ -30,10 +30,10 @@ class StockEntry extends Model
     {
         // if perishable, get sum of quantity of stocks that are not expired
         if ($this->perishable) {
-            return $this->stocks->where('expiry_date', '>=', now())->sum('quantity') . $this->unit;
+            return $this->stocks->where('expiry_date', '>=', now())->sum('quantity');
         }
 
-        return $this->stocks->sum('quantity') . $this->unit;
+        return $this->stocks->sum('quantity');
     }
 
     public function getQuantityStatusAttribute()
@@ -73,6 +73,11 @@ class StockEntry extends Model
             ->filter(fn($stock) => Carbon::parse($stock->expiry_date)->toDateString() === $expiryDate->toDateString())
             ->sum('quantity');
 
+        // if days remaining is 0, return the hours remaining
+        if ($daysRemaining <= 0) {
+            $hoursRemaining = round(abs($expiryDate->diffInHours(now())));
+            return $quantity . $this->unit . ' (' . $hoursRemaining . ' hours left)';
+        }
 
         return $quantity . $this->unit . ' (' . $daysRemaining . ' days left)';
     }

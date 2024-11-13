@@ -35,12 +35,7 @@ const ActionsCell = ({ row }: { row: Row<StockEntry> }) => {
                 <DropdownMenuContent align="end">
                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
                     <DropdownMenuItem asChild>
-                        <Link
-                            href={route(
-                                "inventory.create-stock",
-                                row.original.id
-                            )}
-                        >
+                        <Link href={route("stock.create", row.original.id)}>
                             Add Stock
                         </Link>
                     </DropdownMenuItem>
@@ -106,6 +101,9 @@ export const columns: ColumnDef<StockEntry>[] = [
     {
         accessorKey: "quantity",
         header: "Quantity",
+        cell: ({ row }) => {
+            return `${row.original.quantity}${row.original.unit}`;
+        },
     },
     {
         accessorKey: "quantity_status",
@@ -114,6 +112,9 @@ export const columns: ColumnDef<StockEntry>[] = [
     {
         accessorKey: "perishable",
         header: "Is Perishable",
+        cell: ({ row }) => {
+            return row.original.perishable ? "Yes" : "No";
+        },
     },
     {
         accessorKey: "upcoming_expiry",
