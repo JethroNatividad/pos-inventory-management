@@ -17,6 +17,7 @@ import { ChevronLeft } from "lucide-react";
 import { FormEventHandler, useEffect } from "react";
 import { InventoryFormData } from "./Create";
 import { units } from "@/data/units";
+import { convert } from "@/lib/utils";
 
 type Props = {
     stockEntry: StockEntry;
@@ -158,9 +159,19 @@ const Edit = ({ stockEntry }: Props) => {
                             />
                             <div className="w-1/4">
                                 <Select
-                                    onValueChange={(value) =>
-                                        setData("unit", value)
-                                    }
+                                    onValueChange={(value) => {
+                                        const converted = convert(
+                                            data.type,
+                                            data.unit,
+                                            value,
+                                            Number(data.warn_stock_level)
+                                        );
+                                        setData("unit", value);
+                                        setData(
+                                            "warn_stock_level",
+                                            String(converted)
+                                        );
+                                    }}
                                     value={data.unit}
                                 >
                                     <SelectTrigger>
