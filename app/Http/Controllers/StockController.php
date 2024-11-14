@@ -164,6 +164,12 @@ class StockController extends Controller
                 break;
         }
 
+        // must not be greater than quantity
+
+        if ($validated['quantity'] > $stockEntry->quantity) {
+            return back()->withErrors(['quantity' => 'The quantity to be removed exceeds the available stock.']);
+        }
+
         $stock->decrement('quantity', $validated['quantity']);
 
 
