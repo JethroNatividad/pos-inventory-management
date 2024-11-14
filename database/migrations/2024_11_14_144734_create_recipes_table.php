@@ -18,7 +18,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::create('serving_sizes', function (Blueprint $table) {
+        Schema::create('serving', function (Blueprint $table) {
             $table->id();
             $table->foreignId('recipe_id')->constrained()->onDelete('cascade');
             $table->string('name'); // e.g., "Small", "Medium", "Large"
@@ -28,8 +28,8 @@ return new class extends Migration
 
         Schema::create('recipe_ingredients', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('recipe_id')->constrained()->onDelete('cascade');
             $table->foreignId('stock_entry_id')->constrained()->onDelete('cascade');
+            $table->foreignId('serving_id')->constrained()->onDelete('cascade');
             $table->decimal('quantity', 10, 2); // Quantity of the ingredient needed for the recipe
             $table->timestamps();
         });
