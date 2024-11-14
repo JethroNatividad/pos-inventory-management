@@ -25,6 +25,7 @@ class User extends Authenticatable
         'email',
         'password',
         'password_set',
+        'status'
     ];
 
     /**
@@ -66,5 +67,20 @@ class User extends Authenticatable
     public function getRoleAttribute()
     {
         return $this->getRoleNames()->first();
+    }
+
+    public function deleteUser()
+    {
+        $this->update([
+            'first_name' => 'Deleted',
+            'middle_name' => null,
+            'last_name' => 'User',
+            'email' => 'deleted_user_' . $this->id . '@example.com',
+            'password' => 'deleted_user',
+            'password_set' => false,
+            'status' => 'deleted'
+        ]);
+
+        $this->syncRoles([]);
     }
 }

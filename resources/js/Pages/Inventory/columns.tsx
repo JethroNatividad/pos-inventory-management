@@ -39,6 +39,14 @@ const ActionsCell = ({ row }: { row: Row<StockEntry> }) => {
                             Add Stock
                         </Link>
                     </DropdownMenuItem>
+                    <DropdownMenuItem
+                        asChild
+                        disabled={row.original.quantity <= 0}
+                    >
+                        <Link href={route("stock.removeForm", row.original.id)}>
+                            Remove Stock
+                        </Link>
+                    </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                         <Link href={route("inventory.edit", row.original.id)}>
                             Edit

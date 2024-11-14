@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\StockEntry;
+use App\Models\StockEntryLogs;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -16,7 +17,8 @@ class InventoryController extends Controller
     public function index(): Response
     {
         return Inertia::render('Inventory/Index', [
-            'stockEntries' => StockEntry::all()
+            'stockEntries' => StockEntry::where('is_deleted', false)->get()
+
         ]);
     }
 
@@ -81,7 +83,13 @@ class InventoryController extends Controller
                 break;
         }
 
-        StockEntry::create($validated);
+        $stockEntry = StockEntry::create($validated);
+
+        StockEntryLogs::create([
+            'stock_entry_id' => $stockEntry->id,
+            'user_id' => $request->user()->id,
+            'action' => 'create'
+        ]);
 
         return redirect()->route('inventory.index');
     }
@@ -150,7 +158,24 @@ class InventoryController extends Controller
                 break;
         }
 
+        $original = $stockEntry->getOriginal();
+
         $stockEntry->update($validated);
+
+        $changes = $stockEntry->getChanges();
+        unset($changes['updated_at']);
+
+        $fieldsEdited = array_map(function ($field) use ($original, $changes) {
+            return ['field' => $field, 'old' => $original[$field], 'new' => $changes[$field]];
+        }, array_keys($changes));
+
+
+        StockEntryLogs::create([
+            'stock_entry_id' => $stockEntry->id,
+            'user_id' => $request->user()->id,
+            'action' => 'update',
+            'fields_edited' => json_encode($fieldsEdited)
+        ]);
 
         return redirect()->route('inventory.index');
     }
@@ -159,9 +184,15 @@ class InventoryController extends Controller
      * Remove the specified resource from storage.
      */
 
-    public function destroy(StockEntry $stockEntry)
+    public function destroy(Request $request, StockEntry $stockEntry)
     {
-        $stockEntry->delete();
+        $stockEntry->deleteStockEntry();
+
+        StockEntryLogs::create([
+            'stock_entry_id' => $stockEntry->id,
+            'user_id' => $request->user()->id,
+            'action' => 'delete'
+        ]);
 
         return redirect()->route('inventory.index');
     }

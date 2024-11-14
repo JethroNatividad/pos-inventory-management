@@ -16,7 +16,8 @@ class StockEntry extends Model
         'type',
         'perishable',
         'warn_stock_level',
-        'warn_days_remaining'
+        'warn_days_remaining',
+        'is_deleted'
     ];
 
     public function stocks()
@@ -47,14 +48,22 @@ class StockEntry extends Model
         }
     }
 
+    public function deleteStockEntry()
+    {
+        $this->stocks()->delete();
+        $this->update([
+            'is_deleted' => true
+        ]);
+    }
+
     public function getUpcomingExpiryAttribute()
     {
         if (!$this->perishable) {
             return null;
         }
 
-        // Collect and filter non-null expiry dates
-        $expiryDates = $this->stocks->pluck('expiry_date')->filter();
+        // Collect and filter non-null expiry dates that are not yet expired
+        $expiryDates = $this->stocks->pluck('expiry_date')->filter(fn($date) => $date >= now());
 
         if ($expiryDates->isEmpty()) {
             return null;
