@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\StockActivityLogs;
 use App\Models\StockEntry;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -86,7 +87,18 @@ class StockController extends Controller
 
         $validated['is_perishable'] = $stockEntry->perishable;
 
-        $stockEntry->stocks()->create($validated);
+        $stock = $stockEntry->stocks()->create($validated);
+
+        StockActivityLogs::create([
+            'stock_id' => $stock->id,
+            'user_id' => $request->user()->id,
+            'action' => 'stock_in',
+            'quantity' => $stock->quantity,
+            'price' => $stock->price,
+            'batch_label' => $stock->batch_label,
+            'expiry_date' => $stock->expiry_date,
+            'is_perishable' => $stock->is_perishable,
+        ]);
 
         return redirect()->route('inventory.index');
     }
