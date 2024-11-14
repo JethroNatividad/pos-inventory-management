@@ -22,8 +22,8 @@ class UsersController extends Controller
         Gate::authorize('viewAny', User::class);
 
         return Inertia::render('Users/Index', [
-            'users' => User::all(),
-            'roles' => Role::all()
+            'roles' => Role::all(),
+            'users' => User::where('status', '!=', 'deleted')->get()
         ]);
     }
 
