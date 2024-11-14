@@ -158,18 +158,23 @@ class InventoryController extends Controller
                 break;
         }
 
+        $original = $stockEntry->getOriginal();
+
         $stockEntry->update($validated);
 
-        // Fields edited = ['name' => ['old' => 'old name', 'new' => 'new name'], 'description' => ['old' => 'old description', 'new' => 'new description'], ...] only for fields that were edited
-        $fieldsEdited = collect($validated)->map(function ($value, $key) use ($stockEntry) {
-            return $stockEntry->getOriginal($key) !== $value ? ['old' => $stockEntry->getOriginal($key), 'new' => $value] : null;
-        })->filter()->toArray();
+        $changes = $stockEntry->getChanges();
+        unset($changes['updated_at']);
+
+        $fieldsEdited = array_map(function ($field) use ($original, $changes) {
+            return ['field' => $field, 'old' => $original[$field], 'new' => $changes[$field]];
+        }, array_keys($changes));
+
 
         StockEntryLogs::create([
             'stock_entry_id' => $stockEntry->id,
             'user_id' => $request->user()->id,
             'action' => 'update',
-            'fields_edited' => $fieldsEdited
+            'fields_edited' => json_encode($fieldsEdited)
         ]);
 
         return redirect()->route('inventory.index');
