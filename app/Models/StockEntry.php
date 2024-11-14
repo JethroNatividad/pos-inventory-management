@@ -62,8 +62,8 @@ class StockEntry extends Model
             return null;
         }
 
-        // Collect and filter non-null expiry dates
-        $expiryDates = $this->stocks->pluck('expiry_date')->filter();
+        // Collect and filter non-null expiry dates that are not yet expired
+        $expiryDates = $this->stocks->pluck('expiry_date')->filter(fn($date) => $date >= now());
 
         if ($expiryDates->isEmpty()) {
             return null;
