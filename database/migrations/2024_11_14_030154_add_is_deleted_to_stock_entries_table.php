@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('stock_entries', function (Blueprint $table) {
-            $table->string('is_deleted')->default(false);
+            $table->boolean('is_deleted')->default(false);
         });
     }
 

@@ -17,7 +17,8 @@ class InventoryController extends Controller
     public function index(): Response
     {
         return Inertia::render('Inventory/Index', [
-            'stockEntries' => StockEntry::all()
+            'stockEntries' => StockEntry::where('is_deleted', false)->get()
+
         ]);
     }
 
