@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\StockEntry;
+use App\Models\StockEntryLogs;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -81,7 +82,13 @@ class InventoryController extends Controller
                 break;
         }
 
-        StockEntry::create($validated);
+        $stockEntry = StockEntry::create($validated);
+
+        StockEntryLogs::create([
+            'stock_entry_id' => $stockEntry->id,
+            'user_id' => $request->user()->id,
+            'action' => 'create'
+        ]);
 
         return redirect()->route('inventory.index');
     }
@@ -152,6 +159,18 @@ class InventoryController extends Controller
 
         $stockEntry->update($validated);
 
+        // Fields edited = ['name' => ['old' => 'old name', 'new' => 'new name'], 'description' => ['old' => 'old description', 'new' => 'new description'], ...] only for fields that were edited
+        $fieldsEdited = collect($validated)->map(function ($value, $key) use ($stockEntry) {
+            return $stockEntry->getOriginal($key) !== $value ? ['old' => $stockEntry->getOriginal($key), 'new' => $value] : null;
+        })->filter()->toArray();
+
+        StockEntryLogs::create([
+            'stock_entry_id' => $stockEntry->id,
+            'user_id' => $request->user()->id,
+            'action' => 'update',
+            'fields_edited' => $fieldsEdited
+        ]);
+
         return redirect()->route('inventory.index');
     }
 
@@ -159,9 +178,15 @@ class InventoryController extends Controller
      * Remove the specified resource from storage.
      */
 
-    public function destroy(StockEntry $stockEntry)
+    public function destroy(Request $request, StockEntry $stockEntry)
     {
         $stockEntry->deleteStockEntry();
+
+        StockEntryLogs::create([
+            'stock_entry_id' => $stockEntry->id,
+            'user_id' => $request->user()->id,
+            'action' => 'delete'
+        ]);
 
         return redirect()->route('inventory.index');
     }
