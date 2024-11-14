@@ -127,6 +127,6 @@ class UsersController extends Controller
     {
         Gate::authorize('delete', User::class);
 
-        $user->delete();
+        $user->deleteUser();
     }
 }
