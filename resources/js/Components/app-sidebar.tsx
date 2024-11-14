@@ -44,7 +44,7 @@ const items = [
     {
         title: "Recipes",
         icon: Boxes,
-        name: "recipes",
+        name: "recipes.index",
     },
     {
         title: "Reports",

@@ -29,6 +29,13 @@ export interface Role {
     name: string;
 }
 
+export interface Recipe {
+    id: number;
+    name: string;
+    description: string;
+    serving_names: string;
+}
+
 export type PageProps<
     T extends Record<string, unknown> = Record<string, unknown>
 > = T & {
