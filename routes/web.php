@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\RecipeController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\UsersController;
 use App\Http\Middleware\FirstLoginRedirect;
@@ -38,14 +39,13 @@ Route::middleware(['auth', FirstLoginRedirect::class])->group(function () {
 
     Route::post('inventory/{stockEntry}/stocks/remove', [StockController::class, 'remove'])->name('stock.remove');
 
+    Route::get('recipes', [RecipeController::class, 'index'])->name('recipes.index');
+
     Route::get('/pos', function () {
         return Inertia::render('POS/Index');
     })->name('pos');
 
 
-    Route::get('/recipes', function () {
-        return Inertia::render('Recipes/Index');
-    })->name('recipes');
 
     Route::get('/reports', function () {
         return Inertia::render('Reports/Index');
