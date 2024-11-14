@@ -41,6 +41,8 @@ Route::middleware(['auth', FirstLoginRedirect::class])->group(function () {
 
     Route::get('recipes', [RecipeController::class, 'index'])->name('recipes.index');
 
+    Route::get('recipes/create', [RecipeController::class, 'create'])->name('recipes.create');
+
     Route::get('/pos', function () {
         return Inertia::render('POS/Index');
     })->name('pos');
