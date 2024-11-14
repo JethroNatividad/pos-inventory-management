@@ -11,8 +11,16 @@ class Recipe extends Model
 
     protected $fillable = ['name', 'description'];
 
+    protected $appends = ['serving_names'];
+
     public function servings()
     {
         return $this->hasMany(Serving::class);
+    }
+
+    public function getServingNamesAttribute()
+    {
+        $serving_names = $this->servings->pluck('name');
+        return $serving_names->implode(', ');
     }
 }
