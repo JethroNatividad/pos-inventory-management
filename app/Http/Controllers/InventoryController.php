@@ -161,7 +161,7 @@ class InventoryController extends Controller
 
     public function destroy(StockEntry $stockEntry)
     {
-        $stockEntry->delete();
+        $stockEntry->deleteStockEntry();
 
         return redirect()->route('inventory.index');
     }

@@ -47,6 +47,14 @@ class StockEntry extends Model
         }
     }
 
+    public function deleteStockEntry()
+    {
+        $this->stocks()->delete();
+        $this->update([
+            'is_deleted' => true
+        ]);
+    }
+
     public function getUpcomingExpiryAttribute()
     {
         if (!$this->perishable) {
