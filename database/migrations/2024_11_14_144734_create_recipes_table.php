@@ -18,7 +18,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::create('serving', function (Blueprint $table) {
+        Schema::create('servings', function (Blueprint $table) {
             $table->id();
             $table->foreignId('recipe_id')->constrained()->onDelete('cascade');
             $table->string('name'); // e.g., "Small", "Medium", "Large"
