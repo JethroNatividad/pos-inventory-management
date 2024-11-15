@@ -9,9 +9,16 @@ type Props = {
     index: number;
     setData: (key: string, value: string) => void;
     errors: Partial<Record<string | number, string>>;
+    ingredientOptions: { label: string; value: string }[];
 };
 
-const ServingSizeForm = ({ serving, index, setData, errors }: Props) => {
+const ServingSizeForm = ({
+    serving,
+    index,
+    setData,
+    errors,
+    ingredientOptions,
+}: Props) => {
     return (
         <div className="border rounded-md p-4 mb-4 space-y-4">
             <div className="space-y-2">
@@ -47,10 +54,12 @@ const ServingSizeForm = ({ serving, index, setData, errors }: Props) => {
                 {serving.ingredients.map((ingredient, ingIndex) => (
                     <ServingIngredientForm
                         ingredient={ingredient}
-                        index={ingIndex}
+                        index={index}
+                        ingIndex={ingIndex}
                         key={ingIndex}
                         setData={setData}
                         errors={errors}
+                        ingredientOptions={ingredientOptions}
                     />
                 ))}
             </div>

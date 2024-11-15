@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Recipe;
+use App\Models\StockEntry;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -25,7 +26,9 @@ class RecipeController extends Controller
      */
     public function create(): Response
     {
-        return Inertia::render('Recipes/Create');
+        return Inertia::render('Recipes/Create', [
+            'stockEntries' => StockEntry::where('is_deleted', false)->get()
+        ]);
     }
 
     /**

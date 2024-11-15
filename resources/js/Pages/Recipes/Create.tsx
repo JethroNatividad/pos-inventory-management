@@ -13,12 +13,16 @@ import {
 import { Textarea } from "@/Components/ui/textarea";
 import { units } from "@/data/units";
 import Layout from "@/Layouts/Layout";
-import type { RecipeFormData } from "@/types";
+import type { RecipeFormData, StockEntry } from "@/types";
 import { Head, Link, useForm } from "@inertiajs/react";
 import { ChevronLeft } from "lucide-react";
-import { FormEventHandler, useEffect } from "react";
+import { FormEventHandler } from "react";
 
-const Index = () => {
+type Props = {
+    stockEntries: StockEntry[];
+};
+
+const Index = ({ stockEntries }: Props) => {
     const { data, setData, post, processing, errors, reset } = useForm<
         RecipeFormData & { [key: string]: any }
     >("inventoryForm", {
@@ -42,6 +46,32 @@ const Index = () => {
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
         post(route("inventory.store"));
+    };
+
+    const ingredientOptions = stockEntries.map((entry) => ({
+        label: entry.name,
+        value: entry.id.toString(),
+    }));
+
+    const setNestedData = (path: string, value: string) => {
+        const keys = path.split(".");
+        setData((prevData) => {
+            let updatedData = { ...prevData };
+            let pointer = updatedData;
+
+            // Traverse the keys and drill down into the object
+            for (let i = 0; i < keys.length - 1; i++) {
+                if (!pointer[keys[i]]) {
+                    pointer[keys[i]] = isNaN(Number(keys[i + 1])) ? {} : [];
+                }
+                pointer = pointer[keys[i]];
+            }
+
+            // Set the value for the last key
+            pointer[keys[keys.length - 1]] = value;
+
+            return updatedData;
+        });
     };
 
     return (
@@ -92,10 +122,11 @@ const Index = () => {
                     <h2 className="text-xl font-medium">Serving Sizes</h2>
                     {data.servings.map((serving, index) => (
                         <ServingSizeForm
+                            ingredientOptions={ingredientOptions}
                             serving={serving}
                             index={index}
                             key={index}
-                            setData={setData}
+                            setData={setNestedData}
                             errors={errors}
                         />
                     ))}
