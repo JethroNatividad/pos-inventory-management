@@ -11,7 +11,7 @@ import {
     SelectValue,
 } from "./ui/select";
 import { units } from "@/data/units";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 type Props = {
     ingredient: IngredientFormData;
@@ -116,7 +116,16 @@ const ServingIngredientForm = ({
                             </Select>
                         </div>
                     </div>
-                    <InputError message={errors.quantity || errors.unit} />
+                    <InputError
+                        message={
+                            errors[
+                                `servings.${index}.ingredients.${ingIndex}.unit`
+                            ] ||
+                            errors[
+                                `servings.${index}.ingredients.${ingIndex}.quantity`
+                            ]
+                        }
+                    />
                 </div>
             )}
         </div>
