@@ -45,7 +45,7 @@ const Index = ({ stockEntries }: Props) => {
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
-        post(route("inventory.store"));
+        post(route("recipes.store"));
     };
 
     const ingredientOptions = stockEntries.map((entry) => ({
