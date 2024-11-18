@@ -9,7 +9,11 @@ type Props = {
     index: number;
     setData: (key: string, value: string) => void;
     errors: Partial<Record<string | number, string>>;
-    ingredientOptions: { label: string; value: string }[];
+    ingredientOptions: {
+        label: string;
+        value: string;
+        type: "liquid" | "powder" | "item";
+    }[];
 };
 
 const ServingSizeForm = ({

@@ -51,6 +51,7 @@ const Index = ({ stockEntries }: Props) => {
     const ingredientOptions = stockEntries.map((entry) => ({
         label: entry.name,
         value: entry.id.toString(),
+        type: entry.type,
     }));
 
     const setNestedData = (path: string, value: string) => {
