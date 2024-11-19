@@ -36,6 +36,28 @@ class RecipeController extends Controller
      */
     public function store(Request $request)
     {
+
+        $messages = [
+            'servings.required' => 'Please provide at least one serving.',
+            'servings.array' => 'Servings should be an array.',
+            'servings.*.name.required' => 'The name field is required.',
+            'servings.*.name.string' => 'The name must be a string.',
+            'servings.*.name.max' => 'The name must not exceed 255 characters.',
+            'servings.*.price.required' => 'The price field is required.',
+            'servings.*.price.numeric' => 'The price must be a number.',
+            'servings.*.ingredients.required' => 'The ingredients field is required.',
+            'servings.*.ingredients.array' => 'Ingredients should be an array.',
+            'servings.*.ingredients.*.id.required' => 'Please select an ingredient.',
+            'servings.*.ingredients.*.id.integer' => 'The ingredient ID must be an integer.',
+            'servings.*.ingredients.*.id.exists' => 'The selected ingredient does not exist.',
+            'servings.*.ingredients.*.quantity.required' => 'The quantity field is required.',
+            'servings.*.ingredients.*.quantity.numeric' => 'The quantity must be a number.',
+            'servings.*.ingredients.*.quantity.min' => 'The quantity must be at least 0.',
+            'servings.*.ingredients.*.unit.required' => 'The unit field is required.',
+            'servings.*.ingredients.*.unit.string' => 'The unit must be a string.',
+            'servings.*.ingredients.*.unit.max' => 'The unit must not exceed 255 characters.',
+        ];
+
         $request->validate([
             'servings' => ['required', 'array'],
             'servings.*.name' => ['required', 'string', 'max:255'],
@@ -44,7 +66,7 @@ class RecipeController extends Controller
             'servings.*.ingredients.*.id' => ['required', 'integer', 'exists:stock_entries,id'],
             'servings.*.ingredients.*.quantity' => ['required', 'numeric', 'min:0'],
             'servings.*.ingredients.*.unit' => ['required', 'string', 'max:255'],
-        ]);
+        ], $messages);
 
         foreach ($request->input('servings') as $serving) {
             foreach ($serving['ingredients'] as $ingredient) {
