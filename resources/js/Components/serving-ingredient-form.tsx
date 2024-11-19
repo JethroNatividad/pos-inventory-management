@@ -12,18 +12,21 @@ import {
 } from "./ui/select";
 import { units } from "@/data/units";
 import { useEffect } from "react";
+import { Button } from "./ui/button";
+import { X } from "lucide-react";
 
 type Props = {
     ingredient: IngredientFormData;
     index: number;
     ingIndex: number;
-    setData: (key: string, value: string) => void;
+    setData: (key: string, value: any) => void;
     errors: Partial<Record<string | number, string>>;
     ingredientOptions: {
         label: string;
         value: string;
         type: "liquid" | "powder" | "item";
     }[];
+    removeIngredient: () => void;
 };
 
 const ServingIngredientForm = ({
@@ -33,6 +36,7 @@ const ServingIngredientForm = ({
     setData,
     errors,
     ingredientOptions,
+    removeIngredient,
 }: Props) => {
     useEffect(() => {
         const currentIngredient = ingredientOptions.find(
@@ -52,7 +56,21 @@ const ServingIngredientForm = ({
     );
 
     return (
-        <div className="space-y-4 border rounded-md p-4" key={index}>
+        <div className="space-y-4 border rounded-md p-4">
+            <div className="flex justify-between">
+                <p className="font-medium">Ingredient {ingIndex + 1}</p>
+
+                {ingIndex > 0 && (
+                    <Button
+                        variant="outline"
+                        onClick={removeIngredient}
+                        type="button"
+                        size="icon"
+                    >
+                        <X className="h-4 w-4" />
+                    </Button>
+                )}
+            </div>
             <div className="space-y-2">
                 <SearchableSelect
                     options={ingredientOptions}

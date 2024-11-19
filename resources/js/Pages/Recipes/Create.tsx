@@ -15,7 +15,7 @@ import { units } from "@/data/units";
 import Layout from "@/Layouts/Layout";
 import type { RecipeFormData, StockEntry } from "@/types";
 import { Head, Link, useForm } from "@inertiajs/react";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Plus } from "lucide-react";
 import { FormEventHandler } from "react";
 
 type Props = {
@@ -54,7 +54,7 @@ const Index = ({ stockEntries }: Props) => {
         type: entry.type,
     }));
 
-    const setNestedData = (path: string, value: string) => {
+    const setNestedData = (path: string, value: any) => {
         const keys = path.split(".");
         setData((prevData) => {
             let updatedData = { ...prevData };
@@ -73,6 +73,30 @@ const Index = ({ stockEntries }: Props) => {
 
             return updatedData;
         });
+    };
+
+    const addServing = () => {
+        setData("servings", [
+            ...data.servings,
+            {
+                name: "",
+                price: "",
+                ingredients: [
+                    {
+                        id: "",
+                        quantity: "",
+                        unit: "",
+                    },
+                ],
+            },
+        ]);
+    };
+
+    const removeServing = (index: number) => {
+        setData(
+            "servings",
+            data.servings.filter((_, i) => i !== index)
+        );
     };
 
     return (
@@ -120,7 +144,17 @@ const Index = ({ stockEntries }: Props) => {
                         <InputError message={errors.description} />
                     </div>
 
-                    <h2 className="text-xl font-medium">Serving Sizes</h2>
+                    <div className="flex justify-between items-center">
+                        <h2 className="text-xl font-medium">Serving Sizes</h2>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            onClick={addServing}
+                        >
+                            <Plus />
+                        </Button>
+                    </div>
                     {data.servings.map((serving, index) => (
                         <ServingSizeForm
                             ingredientOptions={ingredientOptions}
@@ -128,6 +162,7 @@ const Index = ({ stockEntries }: Props) => {
                             index={index}
                             key={index}
                             setData={setNestedData}
+                            removeServing={() => removeServing(index)}
                             errors={errors}
                         />
                     ))}
