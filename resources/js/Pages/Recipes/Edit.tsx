@@ -13,34 +13,33 @@ import {
 import { Textarea } from "@/Components/ui/textarea";
 import { units } from "@/data/units";
 import Layout from "@/Layouts/Layout";
-import type { RecipeFormData, StockEntry } from "@/types";
+import type { Recipe, RecipeFormData, StockEntry } from "@/types";
 import { Head, Link, useForm } from "@inertiajs/react";
 import { ChevronLeft, Plus } from "lucide-react";
 import { FormEventHandler } from "react";
 
 type Props = {
     stockEntries: StockEntry[];
+    recipe: Recipe;
 };
 
-const Index = ({ stockEntries }: Props) => {
+const Edit = ({ stockEntries, recipe }: Props) => {
     const { data, setData, post, processing, errors, reset } = useForm<
         RecipeFormData & { [key: string]: any }
     >("inventoryForm", {
-        name: "",
-        description: "",
-        servings: [
-            {
-                name: "",
-                price: "",
-                ingredients: [
-                    {
-                        stock_entry_id: "",
-                        quantity: "",
-                        unit: "",
-                    },
-                ],
-            },
-        ],
+        name: recipe.name,
+        description: recipe.description,
+        servings: recipe.servings.map((serving) => ({
+            id: String(serving.id),
+            name: serving.name,
+            price: String(serving.price),
+            ingredients: serving.recipe_ingredients.map((ingredient) => ({
+                id: String(ingredient.id),
+                stock_entry_id: String(ingredient.stock_entry_id),
+                quantity: String(ingredient.quantity),
+                unit: ingredient.unit,
+            })),
+        })),
     });
 
     const submit: FormEventHandler = (e) => {
@@ -178,4 +177,4 @@ const Index = ({ stockEntries }: Props) => {
     );
 };
 
-export default Index;
+export default Edit;

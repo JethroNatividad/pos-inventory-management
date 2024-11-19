@@ -31,7 +31,7 @@ const ServingSizeForm = ({
         setData(`servings.${index}.ingredients`, [
             ...serving.ingredients,
             {
-                id: "",
+                stock_entry_id: "",
                 quantity: "",
                 unit: "",
             },

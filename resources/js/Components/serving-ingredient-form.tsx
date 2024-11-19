@@ -40,7 +40,7 @@ const ServingIngredientForm = ({
 }: Props) => {
     useEffect(() => {
         const currentIngredient = ingredientOptions.find(
-            (option) => option.value === ingredient.id
+            (option) => option.value === ingredient.stock_entry_id
         );
 
         if (currentIngredient) {
@@ -49,10 +49,10 @@ const ServingIngredientForm = ({
                 units[currentIngredient.type][0]
             );
         }
-    }, [ingredient.id]);
+    }, [ingredient.stock_entry_id]);
 
     const currentIngredient = ingredientOptions.find(
-        (option) => option.value === ingredient.id
+        (option) => option.value === ingredient.stock_entry_id
     );
 
     return (
@@ -74,17 +74,19 @@ const ServingIngredientForm = ({
             <div className="space-y-2">
                 <SearchableSelect
                     options={ingredientOptions}
-                    value={ingredient.id}
+                    value={ingredient.stock_entry_id}
                     setValue={(value) =>
                         setData(
-                            `servings.${index}.ingredients.${ingIndex}.id`,
+                            `servings.${index}.ingredients.${ingIndex}.stock_entry_id`,
                             value
                         )
                     }
                 />
                 <InputError
                     message={
-                        errors[`servings.${index}.ingredients.${ingIndex}.id`]
+                        errors[
+                            `servings.${index}.ingredients.${ingIndex}.stock_entry_id`
+                        ]
                     }
                 />
             </div>
