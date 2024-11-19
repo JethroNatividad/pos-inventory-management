@@ -42,7 +42,16 @@ class StockController extends Controller
         $validated = $request->validate([
             'quantity' => 'required|numeric',
             'price' => 'required|numeric',
-            'batch_label' => 'required|string|unique:stocks,batch_label',
+            'batch_label' => [
+                'required',
+                'string',
+                function ($attribute, $value, $fail) use ($stockEntry) {
+                    $exists = $stockEntry->stocks()->where('batch_label', $value)->exists();
+                    if ($exists) {
+                        $fail("The batch label has already been taken for this stock entry.");
+                    }
+                },
+            ],
             'expiry_date' => 'required_if:is_perishable,true|nullable|date',
             'unit' => [
                 'required',
