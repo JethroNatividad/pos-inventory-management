@@ -9,7 +9,7 @@ class RecipeIngredient extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['quantity'];
+    protected $fillable = ['quantity', 'stock_entry_id'];
 
     public function stockEntry()
     {

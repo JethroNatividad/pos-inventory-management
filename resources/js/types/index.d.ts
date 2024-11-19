@@ -36,6 +36,24 @@ export interface Recipe {
     serving_names: string;
 }
 
+export type IngredientFormData = {
+    id: string;
+    quantity: string;
+    unit: string;
+};
+
+export type ServingFormData = {
+    name: string;
+    price: string;
+    ingredients: IngredientFormData[];
+};
+
+export type RecipeFormData = {
+    name: string;
+    description: string;
+    servings: ServingFormData[];
+};
+
 export type PageProps<
     T extends Record<string, unknown> = Record<string, unknown>
 > = T & {

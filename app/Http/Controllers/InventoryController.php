@@ -18,7 +18,6 @@ class InventoryController extends Controller
     {
         return Inertia::render('Inventory/Index', [
             'stockEntries' => StockEntry::where('is_deleted', false)->get()
-
         ]);
     }
 

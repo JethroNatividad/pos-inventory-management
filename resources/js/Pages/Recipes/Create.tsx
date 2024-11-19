@@ -1,4 +1,5 @@
 import InputError from "@/Components/input-error";
+import ServingSizeForm from "@/Components/serving-size-form";
 import { Button } from "@/Components/ui/button";
 import { Input } from "@/Components/ui/input";
 import { Label } from "@/Components/ui/label";
@@ -12,27 +13,18 @@ import {
 import { Textarea } from "@/Components/ui/textarea";
 import { units } from "@/data/units";
 import Layout from "@/Layouts/Layout";
+import type { RecipeFormData, StockEntry } from "@/types";
 import { Head, Link, useForm } from "@inertiajs/react";
-import { ChevronLeft } from "lucide-react";
-import { FormEventHandler, useEffect } from "react";
+import { ChevronLeft, Plus } from "lucide-react";
+import { FormEventHandler } from "react";
 
-export type InventoryFormData = {
-    name: string;
-    description: string;
-    servings: {
-        name: string;
-        price: string;
-        ingredients: {
-            id: string;
-            quantity: string;
-            unit: string;
-        }[];
-    }[];
+type Props = {
+    stockEntries: StockEntry[];
 };
 
-const Index = () => {
+const Index = ({ stockEntries }: Props) => {
     const { data, setData, post, processing, errors, reset } = useForm<
-        InventoryFormData & { [key: string]: any }
+        RecipeFormData & { [key: string]: any }
     >("inventoryForm", {
         name: "",
         description: "",
@@ -53,7 +45,58 @@ const Index = () => {
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
-        post(route("inventory.store"));
+        post(route("recipes.store"));
+    };
+
+    const ingredientOptions = stockEntries.map((entry) => ({
+        label: entry.name,
+        value: entry.id.toString(),
+        type: entry.type,
+    }));
+
+    const setNestedData = (path: string, value: any) => {
+        const keys = path.split(".");
+        setData((prevData) => {
+            let updatedData = { ...prevData };
+            let pointer = updatedData;
+
+            // Traverse the keys and drill down into the object
+            for (let i = 0; i < keys.length - 1; i++) {
+                if (!pointer[keys[i]]) {
+                    pointer[keys[i]] = isNaN(Number(keys[i + 1])) ? {} : [];
+                }
+                pointer = pointer[keys[i]];
+            }
+
+            // Set the value for the last key
+            pointer[keys[keys.length - 1]] = value;
+
+            return updatedData;
+        });
+    };
+
+    const addServing = () => {
+        setData("servings", [
+            ...data.servings,
+            {
+                name: "",
+                price: "",
+                ingredients: [
+                    {
+                        id: "",
+                        quantity: "",
+                        unit: "",
+                    },
+                ],
+            },
+        ]);
+    };
+
+    const removeServing = (index: number) => {
+        setData(
+            "servings",
+            data.servings.filter((_, i) => i !== index)
+        );
     };
 
     return (
@@ -70,7 +113,7 @@ const Index = () => {
                             <ChevronLeft />
                         </Link>
                     </Button>
-                    <h1 className="text-xl font-medium">Create Stock Entry</h1>
+                    <h1 className="text-xl font-medium">Create Recipe</h1>
                 </div>
 
                 <div className="space-y-4 rounded-md p-4 border">
@@ -82,7 +125,7 @@ const Index = () => {
                             name="name"
                             value={data.name}
                             onChange={(e) => setData("name", e.target.value)}
-                            placeholder="Brown Sugar"
+                            placeholder="Recipe Name"
                         />
                         <InputError message={errors.name} />
                     </div>
@@ -96,142 +139,32 @@ const Index = () => {
                             onChange={(e) =>
                                 setData("description", e.target.value)
                             }
-                            placeholder="Brown Sugar"
+                            placeholder="Recipe Description"
                         />
                         <InputError message={errors.description} />
                     </div>
 
-                    <h2>Serving Sizes</h2>
+                    <div className="flex justify-between items-center">
+                        <h2 className="text-xl font-medium">Serving Sizes</h2>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            onClick={addServing}
+                        >
+                            <Plus />
+                        </Button>
+                    </div>
                     {data.servings.map((serving, index) => (
-                        <div className="border rounded-md p-4 mb-4" key={index}>
-                            <div className="space-y-2">
-                                <Label htmlFor={`serving-name-${index}`}>
-                                    Name
-                                </Label>
-                                <Input
-                                    id={`serving-name-${index}`}
-                                    type="text"
-                                    name={`servings[${index}].name`}
-                                    value={serving.name}
-                                    onChange={(e) =>
-                                        setData(
-                                            `servings.${index}.name`,
-                                            e.target.value
-                                        )
-                                    }
-                                    placeholder="Serving Name"
-                                />
-                                <InputError
-                                    message={errors[`servings.${index}.name`]}
-                                />
-
-                                <Label htmlFor={`serving-price-${index}`}>
-                                    Price
-                                </Label>
-                                <Input
-                                    id={`serving-price-${index}`}
-                                    type="text"
-                                    name={`servings[${index}].price`}
-                                    value={serving.price}
-                                    onChange={(e) =>
-                                        setData(
-                                            `servings.${index}.price`,
-                                            e.target.value
-                                        )
-                                    }
-                                    placeholder="Serving Price"
-                                />
-                                <InputError
-                                    message={errors[`servings.${index}.price`]}
-                                />
-                                <h3>Ingredients</h3>
-                                {serving.ingredients.map(
-                                    (ingredient, ingIndex) => (
-                                        <div
-                                            className="space-y-2"
-                                            key={ingIndex}
-                                        >
-                                            <Label
-                                                htmlFor={`ingredient-id-${index}-${ingIndex}`}
-                                            >
-                                                Ingredient ID
-                                            </Label>
-                                            <Input
-                                                id={`ingredient-id-${index}-${ingIndex}`}
-                                                type="text"
-                                                name={`servings[${index}].ingredients[${ingIndex}].id`}
-                                                value={ingredient.id}
-                                                onChange={(e) =>
-                                                    setData(
-                                                        `servings.${index}.ingredients.${ingIndex}.id`,
-                                                        e.target.value
-                                                    )
-                                                }
-                                                placeholder="Ingredient ID"
-                                            />
-                                            <InputError
-                                                message={
-                                                    errors[
-                                                        `servings.${index}.ingredients.${ingIndex}.id`
-                                                    ]
-                                                }
-                                            />
-
-                                            <Label
-                                                htmlFor={`ingredient-quantity-${index}-${ingIndex}`}
-                                            >
-                                                Quantity
-                                            </Label>
-                                            <Input
-                                                id={`ingredient-quantity-${index}-${ingIndex}`}
-                                                type="text"
-                                                name={`servings[${index}].ingredients[${ingIndex}].quantity`}
-                                                value={ingredient.quantity}
-                                                onChange={(e) =>
-                                                    setData(
-                                                        `servings.${index}.ingredients.${ingIndex}.quantity`,
-                                                        e.target.value
-                                                    )
-                                                }
-                                                placeholder="Quantity"
-                                            />
-                                            <InputError
-                                                message={
-                                                    errors[
-                                                        `servings.${index}.ingredients.${ingIndex}.quantity`
-                                                    ]
-                                                }
-                                            />
-                                            <Label
-                                                htmlFor={`ingredient-unit-${index}-${ingIndex}`}
-                                            >
-                                                Unit
-                                            </Label>
-                                            <Input
-                                                id={`ingredient-unit-${index}-${ingIndex}`}
-                                                type="text"
-                                                name={`servings[${index}].ingredients[${ingIndex}].unit`}
-                                                value={ingredient.unit}
-                                                onChange={(e) =>
-                                                    setData(
-                                                        `servings.${index}.ingredients.${ingIndex}.unit`,
-                                                        e.target.value
-                                                    )
-                                                }
-                                                placeholder="Unit"
-                                            />
-                                            <InputError
-                                                message={
-                                                    errors[
-                                                        `servings.${index}.ingredients.${ingIndex}.unit`
-                                                    ]
-                                                }
-                                            />
-                                        </div>
-                                    )
-                                )}
-                            </div>
-                        </div>
+                        <ServingSizeForm
+                            ingredientOptions={ingredientOptions}
+                            serving={serving}
+                            index={index}
+                            key={index}
+                            setData={setNestedData}
+                            removeServing={() => removeServing(index)}
+                            errors={errors}
+                        />
                     ))}
 
                     <div className="flex justify-end">
