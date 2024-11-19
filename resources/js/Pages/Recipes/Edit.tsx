@@ -24,9 +24,9 @@ type Props = {
 };
 
 const Edit = ({ stockEntries, recipe }: Props) => {
-    const { data, setData, post, processing, errors, reset } = useForm<
+    const { data, setData, put, processing, errors, reset } = useForm<
         RecipeFormData & { [key: string]: any }
-    >("inventoryForm", {
+    >("editRecipeForm", {
         name: recipe.name,
         description: recipe.description,
         servings: recipe.servings.map((serving) => ({
@@ -44,7 +44,7 @@ const Edit = ({ stockEntries, recipe }: Props) => {
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
-        post(route("recipes.store"));
+        put(route("recipes.update", recipe.id));
     };
 
     const ingredientOptions = stockEntries.map((entry) => ({
@@ -108,11 +108,11 @@ const Edit = ({ stockEntries, recipe }: Props) => {
             >
                 <div className="flex items-center space-x-2">
                     <Button size="icon" variant="outline" asChild>
-                        <Link href={route("inventory.index")}>
+                        <Link href={route("recipes.index")}>
                             <ChevronLeft />
                         </Link>
                     </Button>
-                    <h1 className="text-xl font-medium">Create Recipe</h1>
+                    <h1 className="text-xl font-medium">Edit Recipe</h1>
                 </div>
 
                 <div className="space-y-4 rounded-md p-4 border">
@@ -168,7 +168,7 @@ const Edit = ({ stockEntries, recipe }: Props) => {
 
                     <div className="flex justify-end">
                         <Button type="submit" disabled={processing}>
-                            Create
+                            Update
                         </Button>
                     </div>
                 </div>

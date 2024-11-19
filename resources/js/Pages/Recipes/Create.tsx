@@ -25,7 +25,7 @@ type Props = {
 const Index = ({ stockEntries }: Props) => {
     const { data, setData, post, processing, errors, reset } = useForm<
         RecipeFormData & { [key: string]: any }
-    >("inventoryForm", {
+    >("createRecipeForm", {
         name: "",
         description: "",
         servings: [
@@ -109,7 +109,7 @@ const Index = ({ stockEntries }: Props) => {
             >
                 <div className="flex items-center space-x-2">
                     <Button size="icon" variant="outline" asChild>
-                        <Link href={route("inventory.index")}>
+                        <Link href={route("recipes.index")}>
                             <ChevronLeft />
                         </Link>
                     </Button>
