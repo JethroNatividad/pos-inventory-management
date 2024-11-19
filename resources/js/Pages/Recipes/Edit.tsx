@@ -13,39 +13,38 @@ import {
 import { Textarea } from "@/Components/ui/textarea";
 import { units } from "@/data/units";
 import Layout from "@/Layouts/Layout";
-import type { RecipeFormData, StockEntry } from "@/types";
+import type { Recipe, RecipeFormData, StockEntry } from "@/types";
 import { Head, Link, useForm } from "@inertiajs/react";
 import { ChevronLeft, Plus } from "lucide-react";
 import { FormEventHandler } from "react";
 
 type Props = {
     stockEntries: StockEntry[];
+    recipe: Recipe;
 };
 
-const Index = ({ stockEntries }: Props) => {
-    const { data, setData, post, processing, errors, reset } = useForm<
+const Edit = ({ stockEntries, recipe }: Props) => {
+    const { data, setData, put, processing, errors, reset } = useForm<
         RecipeFormData & { [key: string]: any }
-    >("createRecipeForm", {
-        name: "",
-        description: "",
-        servings: [
-            {
-                name: "",
-                price: "",
-                ingredients: [
-                    {
-                        stock_entry_id: "",
-                        quantity: "",
-                        unit: "",
-                    },
-                ],
-            },
-        ],
+    >("editRecipeForm", {
+        name: recipe.name,
+        description: recipe.description,
+        servings: recipe.servings.map((serving) => ({
+            id: String(serving.id),
+            name: serving.name,
+            price: String(serving.price),
+            ingredients: serving.recipe_ingredients.map((ingredient) => ({
+                id: String(ingredient.id),
+                stock_entry_id: String(ingredient.stock_entry_id),
+                quantity: String(ingredient.quantity),
+                unit: ingredient.unit,
+            })),
+        })),
     });
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
-        post(route("recipes.store"));
+        put(route("recipes.update", recipe.id));
     };
 
     const ingredientOptions = stockEntries.map((entry) => ({
@@ -113,7 +112,7 @@ const Index = ({ stockEntries }: Props) => {
                             <ChevronLeft />
                         </Link>
                     </Button>
-                    <h1 className="text-xl font-medium">Create Recipe</h1>
+                    <h1 className="text-xl font-medium">Edit Recipe</h1>
                 </div>
 
                 <div className="space-y-4 rounded-md p-4 border">
@@ -169,7 +168,7 @@ const Index = ({ stockEntries }: Props) => {
 
                     <div className="flex justify-end">
                         <Button type="submit" disabled={processing}>
-                            Create
+                            Update
                         </Button>
                     </div>
                 </div>
@@ -178,4 +177,4 @@ const Index = ({ stockEntries }: Props) => {
     );
 };
 
-export default Index;
+export default Edit;

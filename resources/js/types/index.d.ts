@@ -34,15 +34,32 @@ export interface Recipe {
     name: string;
     description: string;
     serving_names: string;
+    servings: Serving[];
+}
+
+export interface Serving {
+    id: number;
+    name: string;
+    price: number;
+    recipe_ingredients: Ingredient[];
+}
+
+export interface Ingredient {
+    stock_entry_id: number;
+    id: number;
+    quantity: number;
+    unit: string;
 }
 
 export type IngredientFormData = {
-    id: string;
+    stock_entry_id: string;
+    id?: string;
     quantity: string;
     unit: string;
 };
 
 export type ServingFormData = {
+    id?: string;
     name: string;
     price: string;
     ingredients: IngredientFormData[];
