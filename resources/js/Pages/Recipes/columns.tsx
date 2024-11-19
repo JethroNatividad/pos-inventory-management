@@ -51,7 +51,7 @@ const ActionsCell = ({ row }: { row: Row<Recipe> }) => {
                     </AlertDialogTitle>
                     <AlertDialogDescription>
                         This action cannot be undone. This will permanently
-                        delete the user '{row.getValue("first_name")}' from the
+                        delete the recipe '{row.getValue("name")}' from the
                         database.
                     </AlertDialogDescription>
                 </AlertDialogHeader>
@@ -61,7 +61,7 @@ const ActionsCell = ({ row }: { row: Row<Recipe> }) => {
                         <AlertDialogAction asChild>
                             <Link
                                 method="delete"
-                                href={route("users.destroy", row.original.id)}
+                                href={route("recipes.destroy", row.original.id)}
                             >
                                 Delete
                             </Link>
