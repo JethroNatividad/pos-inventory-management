@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Recipe;
+use App\Models\RecipeLogs;
 use App\Models\StockEntry;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -125,6 +126,12 @@ class RecipeController extends Controller
             }
         }
 
+        RecipeLogs::Create([
+            'recipe_id' => $recipe->id,
+            'user_id' => $request->user()->id,
+            'action' => 'create',
+        ]);
+
 
         return redirect()->route('recipes.index');
     }
@@ -230,15 +237,28 @@ class RecipeController extends Controller
 
         $recipe->servings()->whereNotIn('id', $updatedServingIds)->delete();
 
+        RecipeLogs::Create([
+            'recipe_id' => $recipe->id,
+            'user_id' => $request->user()->id,
+            'action' => 'update',
+        ]);
+
         return redirect()->route('recipes.index');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Recipe $recipe)
+    public function destroy(Request $request, Recipe $recipe)
     {
         $recipe->delete();
+
+        RecipeLogs::Create([
+            'recipe_id' => $recipe->id,
+            'user_id' => $request->user()->id,
+            'action' => 'delete',
+        ]);
+
         return redirect()->route('recipes.index');
     }
 }
