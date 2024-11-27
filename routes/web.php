@@ -52,11 +52,9 @@ Route::middleware(['auth', FirstLoginRedirect::class])->group(function () {
 
     Route::get('/pos', function () {
         return Inertia::render('POS/Index', [
-            'recipes' => Recipe::all()
+            'recipes' => Recipe::all()->load('servings.recipeIngredients')
         ]);
     })->name('pos');
-
-
 
     Route::get('/reports', function () {
         return Inertia::render('Reports/Index');
