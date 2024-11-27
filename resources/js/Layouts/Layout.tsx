@@ -16,10 +16,10 @@ export default function Layout({ children }: PropsWithChildren) {
         <SidebarProvider defaultOpen={defaultOpen}>
             <AppSidebar user={user} />
             <main className="w-full">
-                <div className="shadow-sm p-2">
+                <div className="shadow-sm p-2 fixed w-full bg-background">
                     <SidebarTrigger />
                 </div>
-                <div className="px-6 py-4">{children}</div>
+                <div className="px-6 pt-16 pb-4">{children}</div>
             </main>
         </SidebarProvider>
     );
