@@ -29,7 +29,7 @@ const Index = ({ recipes }: Props) => {
                         <Items recipes={recipes} />
                     </div>
                     <div className="max-w-14 lg:max-w-sm w-full">
-                        <div className="md:hidden">
+                        <div className="lg:hidden">
                             <Sheet>
                                 <SheetTrigger asChild>
                                     <Button variant="outline" size="icon">
@@ -46,7 +46,7 @@ const Index = ({ recipes }: Props) => {
                                 </SheetContent>
                             </Sheet>
                         </div>
-                        <div className="hidden md:block">
+                        <div className="hidden lg:block">
                             <Orders />
                         </div>
                     </div>
