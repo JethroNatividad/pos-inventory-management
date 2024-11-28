@@ -9,10 +9,9 @@ import {
     DialogTrigger,
 } from "@/Components/ui/dialog";
 import { useOrder } from "@/contexts/orderContext";
-import { v4 as uuidv4 } from "uuid";
 import { useState } from "react";
 
-const Item = ({ name, description, servings }: Recipe) => {
+const Item = ({ name, description, servings, id }: Recipe) => {
     const { addOrder } = useOrder();
     const [open, setOpen] = useState(false);
     return (
@@ -41,9 +40,10 @@ const Item = ({ name, description, servings }: Recipe) => {
                                     key={serving.id}
                                     onClick={() => {
                                         addOrder({
+                                            recipeName: name,
                                             serving,
                                             quantity: 1,
-                                            id: uuidv4(),
+                                            id: `${id}-${serving.id}`,
                                         });
                                         setOpen(false);
                                     }}

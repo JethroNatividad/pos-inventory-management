@@ -2,7 +2,6 @@ import Layout from "@/Layouts/Layout";
 import { Recipe } from "@/types";
 import { Head } from "@inertiajs/react";
 import Items from "./items";
-import Basket from "./basket";
 import {
     Sheet,
     SheetContent,
@@ -12,8 +11,9 @@ import {
     SheetTrigger,
 } from "@/Components/ui/sheet";
 import { Button } from "@/Components/ui/button";
-import { ShoppingBag, ShoppingCart } from "lucide-react";
+import { ShoppingCart } from "lucide-react";
 import { OrderProvider } from "@/contexts/orderContext";
+import Orders from "./orders";
 
 type Props = {
     recipes: Recipe[];
@@ -28,10 +28,10 @@ const Index = ({ recipes }: Props) => {
                     <div className="flex-1">
                         <Items recipes={recipes} />
                     </div>
-                    <div className="max-w-14 md:max-w-sm w-full">
+                    <div className="max-w-14 lg:max-w-sm w-full">
                         <div className="md:hidden">
                             <Sheet>
-                                <SheetTrigger>
+                                <SheetTrigger asChild>
                                     <Button variant="outline" size="icon">
                                         <ShoppingCart />
                                     </Button>
@@ -47,7 +47,7 @@ const Index = ({ recipes }: Props) => {
                             </Sheet>
                         </div>
                         <div className="hidden md:block">
-                            <Basket />
+                            <Orders />
                         </div>
                     </div>
                 </div>

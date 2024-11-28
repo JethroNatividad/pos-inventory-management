@@ -1,10 +1,11 @@
 import type { Serving } from "@/types";
 import React, { createContext, useContext, useState, useEffect } from "react";
 
-type OrderItem = {
+export type OrderItem = {
     id: string;
     quantity: number;
     serving: Serving;
+    recipeName: string;
 };
 
 type OrderContextType = {
@@ -12,6 +13,9 @@ type OrderContextType = {
     addOrder: (item: OrderItem) => void;
     removeOrder: (id: string) => void;
     clearOrders: () => void;
+    incrementOrder: (id: string) => void;
+    decrementOrder: (id: string) => void;
+    updateOrder: (id: string, quantity: number) => void;
 };
 
 const OrderContext = createContext<OrderContextType | undefined>(undefined);
@@ -29,15 +33,11 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({
     }, [orders]);
 
     const addOrder = (item: OrderItem) => {
-        const existingOrder = orders.find((order) => order.id === item.id);
-        if (existingOrder) {
-            setOrders(
-                orders.map((order) =>
-                    order.id === item.id
-                        ? { ...order, quantity: order.quantity + 1 }
-                        : order
-                )
-            );
+        const orderIndex = orders.findIndex((order) => order.id === item.id);
+        if (orderIndex !== -1) {
+            const newOrders = [...orders];
+            newOrders[orderIndex].quantity += 1;
+            setOrders(newOrders);
         } else {
             setOrders([...orders, item]);
         }
@@ -46,11 +46,44 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({
     const removeOrder = (id: string) =>
         setOrders(orders.filter((order) => order.id !== id));
 
+    const incrementOrder = (id: string) =>
+        setOrders(
+            orders.map((order) =>
+                order.id === id
+                    ? { ...order, quantity: order.quantity + 1 }
+                    : order
+            )
+        );
+
+    const decrementOrder = (id: string) =>
+        setOrders(
+            orders.map((order) =>
+                order.id === id
+                    ? { ...order, quantity: order.quantity - 1 }
+                    : order
+            )
+        );
+
+    const updateOrder = (id: string, quantity: number) =>
+        setOrders(
+            orders.map((order) =>
+                order.id === id ? { ...order, quantity } : order
+            )
+        );
+
     const clearOrders = () => setOrders([]);
 
     return (
         <OrderContext.Provider
-            value={{ orders, addOrder, removeOrder, clearOrders }}
+            value={{
+                orders,
+                addOrder,
+                removeOrder,
+                clearOrders,
+                incrementOrder,
+                decrementOrder,
+                updateOrder,
+            }}
         >
             {children}
         </OrderContext.Provider>
