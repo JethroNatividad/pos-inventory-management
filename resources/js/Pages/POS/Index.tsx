@@ -13,6 +13,7 @@ import {
 } from "@/Components/ui/sheet";
 import { Button } from "@/Components/ui/button";
 import { ShoppingBag, ShoppingCart } from "lucide-react";
+import { OrderProvider } from "@/contexts/orderContext";
 
 type Props = {
     recipes: Recipe[];
@@ -21,34 +22,36 @@ type Props = {
 const Index = ({ recipes }: Props) => {
     return (
         <Layout>
-            <Head title="POS" />
-            <div className="flex space-x-4 h-full">
-                <div className="flex-1">
-                    <Items recipes={recipes} />
-                </div>
-                <div className="max-w-14 md:max-w-sm w-full">
-                    <div className="md:hidden">
-                        <Sheet>
-                            <SheetTrigger>
-                                <Button variant="outline" size="icon">
-                                    <ShoppingCart />
-                                </Button>
-                            </SheetTrigger>
-                            <SheetContent>
-                                <SheetHeader>
-                                    <SheetTitle>Cart</SheetTitle>
-                                    <SheetDescription>
-                                        Cart Contents!
-                                    </SheetDescription>
-                                </SheetHeader>
-                            </SheetContent>
-                        </Sheet>
+            <OrderProvider>
+                <Head title="POS" />
+                <div className="flex space-x-4 h-full">
+                    <div className="flex-1">
+                        <Items recipes={recipes} />
                     </div>
-                    <div className="hidden md:block">
-                        <Basket />
+                    <div className="max-w-14 md:max-w-sm w-full">
+                        <div className="md:hidden">
+                            <Sheet>
+                                <SheetTrigger>
+                                    <Button variant="outline" size="icon">
+                                        <ShoppingCart />
+                                    </Button>
+                                </SheetTrigger>
+                                <SheetContent>
+                                    <SheetHeader>
+                                        <SheetTitle>Cart</SheetTitle>
+                                        <SheetDescription>
+                                            Cart Contents!
+                                        </SheetDescription>
+                                    </SheetHeader>
+                                </SheetContent>
+                            </Sheet>
+                        </div>
+                        <div className="hidden md:block">
+                            <Basket />
+                        </div>
                     </div>
                 </div>
-            </div>
+            </OrderProvider>
         </Layout>
     );
 };
