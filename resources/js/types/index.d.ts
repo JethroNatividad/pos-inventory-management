@@ -42,6 +42,7 @@ export interface Serving {
     name: string;
     price: number;
     recipe_ingredients: Ingredient[];
+    is_available: boolean;
 }
 
 export interface Ingredient {

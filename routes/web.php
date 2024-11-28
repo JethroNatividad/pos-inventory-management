@@ -7,6 +7,7 @@ use App\Http\Controllers\StockController;
 use App\Http\Controllers\UsersController;
 use App\Http\Middleware\FirstLoginRedirect;
 use App\Mail\MyTestEmail;
+use App\Models\Recipe;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
@@ -50,10 +51,10 @@ Route::middleware(['auth', FirstLoginRedirect::class])->group(function () {
     Route::delete('recipes/{recipe}', [RecipeController::class, 'destroy'])->name('recipes.destroy');
 
     Route::get('/pos', function () {
-        return Inertia::render('POS/Index');
+        return Inertia::render('POS/Index', [
+            'recipes' => Recipe::all()->load('servings.recipeIngredients')
+        ]);
     })->name('pos');
-
-
 
     Route::get('/reports', function () {
         return Inertia::render('Reports/Index');
