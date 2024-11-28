@@ -55,7 +55,11 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({
             )
         );
 
-    const decrementOrder = (id: string) =>
+    const decrementOrder = (id: string) => {
+        if (orders.find((order) => order.id === id)?.quantity === 1) {
+            return removeOrder(id);
+        }
+
         setOrders(
             orders.map((order) =>
                 order.id === id
@@ -63,6 +67,7 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({
                     : order
             )
         );
+    };
 
     const updateOrder = (id: string, quantity: number) =>
         setOrders(
