@@ -16,6 +16,7 @@ type OrderContextType = {
     incrementOrder: (id: string) => void;
     decrementOrder: (id: string) => void;
     updateOrder: (id: string, quantity: number) => void;
+    calculateTotal: () => number;
 };
 
 const OrderContext = createContext<OrderContextType | undefined>(undefined);
@@ -31,6 +32,12 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({
     useEffect(() => {
         localStorage.setItem("orders", JSON.stringify(orders));
     }, [orders]);
+
+    const calculateTotal = () =>
+        orders.reduce(
+            (total, order) => total + order.quantity * order.serving.price,
+            0
+        );
 
     const addOrder = (item: OrderItem) => {
         const orderIndex = orders.findIndex((order) => order.id === item.id);
@@ -88,6 +95,7 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({
                 incrementOrder,
                 decrementOrder,
                 updateOrder,
+                calculateTotal,
             }}
         >
             {children}
