@@ -4,6 +4,7 @@ import Order from "./order";
 import { ScrollArea } from "@/Components/ui/scroll-area";
 import { Button } from "@/Components/ui/button";
 import { Trash } from "lucide-react";
+import Checkout from "./checkout";
 
 const Orders = () => {
     const { orders, clearOrders, calculateTotal } = useOrder();
@@ -27,7 +28,7 @@ const Orders = () => {
                         ₱{calculateTotal().toFixed(2)}
                     </p>
                 </div>
-                <Button className="w-full">Checkout</Button>
+                <Checkout />
             </div>
         </div>
     );
