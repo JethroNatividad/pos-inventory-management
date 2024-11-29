@@ -12,7 +12,7 @@ import {
 } from "@/Components/ui/sheet";
 import { Button } from "@/Components/ui/button";
 import { ShoppingCart } from "lucide-react";
-import { OrderProvider } from "@/contexts/orderContext";
+import { OrderProvider } from "@/contexts/OrderContext";
 import Orders from "./orders";
 
 type Props = {

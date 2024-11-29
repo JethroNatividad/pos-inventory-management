@@ -1,4 +1,4 @@
-import { useOrder } from "@/contexts/orderContext";
+import { useOrder } from "@/contexts/OrderContext";
 import React from "react";
 import Order from "./order";
 import { ScrollArea } from "@/Components/ui/scroll-area";

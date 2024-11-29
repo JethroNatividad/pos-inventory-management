@@ -1,6 +1,6 @@
 import { Recipe } from "@/types";
 import Item from "./item";
-import { useOrder } from "@/contexts/orderContext";
+import { useOrder } from "@/contexts/OrderContext";
 
 type Props = {
     recipes: Recipe[];

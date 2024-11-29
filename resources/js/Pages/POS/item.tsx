@@ -8,7 +8,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/Components/ui/dialog";
-import { useOrder } from "@/contexts/orderContext";
+import { useOrder } from "@/contexts/OrderContext";
 import { useState } from "react";
 
 const Item = ({ name, description, servings, id, is_available }: Recipe) => {
