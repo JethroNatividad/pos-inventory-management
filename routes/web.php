@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\InventoryController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RecipeController;
 use App\Http\Controllers\StockController;
@@ -55,6 +56,8 @@ Route::middleware(['auth', FirstLoginRedirect::class])->group(function () {
             'recipes' => Recipe::all()->load('servings.recipeIngredients')
         ]);
     })->name('pos');
+
+    Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
 
     Route::get('/reports', function () {
         return Inertia::render('Reports/Index');

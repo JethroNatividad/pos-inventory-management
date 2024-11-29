@@ -19,33 +19,44 @@ import {
 } from "@/Components/ui/select";
 import { useOrder } from "@/contexts/orderContext";
 import { useForm } from "@inertiajs/react";
-import { FormEventHandler, useState } from "react";
+import { FormEventHandler, useState, useEffect } from "react";
 
 const Checkout = () => {
     const [open, setOpen] = useState(false);
-    const { orders, calculateSubtotal } = useOrder();
+    const { orders, calculateSubtotal, clearOrders } = useOrder();
     const { data, setData, post, processing, errors, reset } = useForm({
         type: "dine-in",
-        discountPercentage: "",
+        discountPercentage: "0",
         subtotal: 0,
         total: 0,
         orders: orders,
     });
 
+    useEffect(() => {
+        setData("orders", orders);
+        setData("subtotal", calculateSubtotal());
+    }, [orders]);
+
+    useEffect(() => {
+        const discountAmount =
+            Number(data.discountPercentage) * 0.01 * data.subtotal;
+        setData("total", data.subtotal - discountAmount);
+    }, [data.subtotal, data.discountPercentage]);
+
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
-        const discountAmount =
-            Number(data.discountPercentage) * 0.01 * subtotal;
 
-        setData("subtotal", calculateSubtotal());
-        setData("total", data.subtotal - discountAmount);
-
-        // post(route("inventory.store"));
+        post(route("orders.store"), {
+            onSuccess: () => {
+                reset();
+                clearOrders();
+                setOpen(false);
+            },
+        });
     };
 
-    const subtotal = calculateSubtotal();
-    const discountAmount = Number(data.discountPercentage) * 0.01 * subtotal;
-    const total = subtotal - discountAmount;
+    const discountAmount =
+        Number(data.discountPercentage) * 0.01 * data.subtotal;
 
     return (
         <Dialog open={open} onOpenChange={(state) => setOpen(state)}>
@@ -107,7 +118,7 @@ const Checkout = () => {
                     <div className="flex justify-between">
                         <p className="text-xl font-medium">Subtotal:</p>
                         <p className="text-xl font-medium">
-                            ₱{subtotal.toFixed(2)}
+                            ₱{data.subtotal.toFixed(2)}
                         </p>
                     </div>
 
@@ -124,7 +135,7 @@ const Checkout = () => {
                     <div className="flex justify-between">
                         <p className="text-xl font-medium">Total:</p>
                         <p className="text-xl font-medium text-green-700">
-                            ₱{total.toFixed(2)}
+                            ₱{data.total.toFixed(2)}
                         </p>
                     </div>
 
@@ -136,7 +147,9 @@ const Checkout = () => {
                         >
                             Cancel
                         </Button>
-                        <Button type="submit">Confirm Order</Button>
+                        <Button disabled={processing} type="submit">
+                            Confirm Order
+                        </Button>
                     </div>
                 </form>
             </DialogContent>

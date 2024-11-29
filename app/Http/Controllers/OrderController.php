@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Models\Serving;
+use App\Models\StockActivityLogs;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class OrderController extends Controller
 {
@@ -43,6 +46,41 @@ class OrderController extends Controller
                 'quantity' => $orderItem['quantity'],
                 'price' => $orderItem['serving']['price'],
             ]);
+
+            $ingredients = Serving::find($orderItem['serving']['id'])->recipeIngredients;
+
+            foreach ($ingredients as $ingredient) {
+                $requiredQuantity = $ingredient->quantity * $orderItem['quantity'];
+
+                $stocks = $ingredient->stockEntry->stocks()
+                    ->where('quantity', '>', 0)
+                    ->orderBy('expiry_date')
+                    ->orderBy('created_at')
+                    ->get();
+
+                $totalAvailable = $stocks->sum('quantity');
+                if ($totalAvailable < $requiredQuantity) {
+                    throw new \Exception("Insufficient stock for {$ingredient->stockEntry->name}.");
+                }
+
+                foreach ($stocks as $stock) {
+                    if ($requiredQuantity <= 0) break;
+
+                    $deductQuantity = min($stock->quantity, $requiredQuantity);
+
+                    $stock->decrement('quantity', $deductQuantity);
+
+                    StockActivityLogs::create([
+                        'stock_id' => $stock->id,
+                        'user_id' => $request->user()->id,
+                        'action' => 'stock_out',
+                        'quantity' => $deductQuantity,
+                        'reason' => 'Deducted from Order #' . $order->id,
+                    ]);
+
+                    $requiredQuantity -= $deductQuantity;
+                }
+            }
         }
     }
 

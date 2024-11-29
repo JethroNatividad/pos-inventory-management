@@ -11,7 +11,7 @@ import {
 import { useOrder } from "@/contexts/orderContext";
 import { useState } from "react";
 
-const Item = ({ name, description, servings, id }: Recipe) => {
+const Item = ({ name, description, servings, id, is_available }: Recipe) => {
     const { addOrder } = useOrder();
     const [open, setOpen] = useState(false);
     return (
@@ -23,8 +23,12 @@ const Item = ({ name, description, servings, id }: Recipe) => {
 
                 <Dialog open={open} onOpenChange={(state) => setOpen(state)}>
                     <DialogTrigger asChild>
-                        <Button className="w-full" size="sm">
-                            Add to Order
+                        <Button
+                            disabled={!is_available}
+                            className="w-full"
+                            size="sm"
+                        >
+                            {is_available ? "Add to Order" : "Not Available"}
                         </Button>
                     </DialogTrigger>
                     <DialogContent>
@@ -37,6 +41,7 @@ const Item = ({ name, description, servings, id }: Recipe) => {
                         <div className="flex space-y-4 flex-col">
                             {servings.map((serving) => (
                                 <Button
+                                    disabled={!serving.is_available}
                                     key={serving.id}
                                     onClick={() => {
                                         addOrder({
