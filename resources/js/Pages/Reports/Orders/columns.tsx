@@ -38,6 +38,10 @@ import { LucideMoreHorizontal } from "lucide-react";
 
 export const columns: ColumnDef<Order>[] = [
     {
+        accessorKey: "id",
+        header: "Order number",
+    },
+    {
         accessorKey: "created_at",
         header: "Date Time",
         cell: ({ row }) => new Date(row.original.created_at).toLocaleString(),

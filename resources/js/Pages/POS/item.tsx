@@ -16,7 +16,11 @@ const Item = ({ name, description, servings, id, is_available }: Recipe) => {
     const [open, setOpen] = useState(false);
     return (
         <div className="border rounded-lg overflow-hidden">
-            <div className="h-40 bg-gray-400" />
+            <img
+                className="h-40"
+                src="/images/coffee-template.png"
+                alt="Coffee"
+            />
             <div className="p-2">
                 <div className="mb-8">
                     <h2 className="text-xl">{name}</h2>
