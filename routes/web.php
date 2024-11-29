@@ -72,13 +72,15 @@ Route::middleware(['auth', FirstLoginRedirect::class])->group(function () {
 
     Route::get('/reports/recipes', function () {
         return Inertia::render('Reports/Recipes/Index', [
-            'recipeLogs' => RecipeLogs::all(),
+            'recipeLogs' => RecipeLogs::with(['recipe' => function ($query) {
+                $query->withTrashed();
+            }, 'user'])->get()
         ]);
     })->name('reports.recipes');
 
     Route::get('/reports/orders', function () {
         return Inertia::render('Reports/Orders/Index', [
-            'orders' => Order::all()
+            'orders' => Order::all()->load(['user', 'items.recipe'])
         ]);
     })->name('reports.orders');
 });
