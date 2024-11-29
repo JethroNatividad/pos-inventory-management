@@ -63,7 +63,7 @@ const Item = ({ name, description, servings, id, is_available }: Recipe) => {
                                     }}
                                     className="w-full"
                                 >
-                                    {serving.name}
+                                    {serving.name} - ₱{serving.price}
                                 </Button>
                             ))}
                         </div>
