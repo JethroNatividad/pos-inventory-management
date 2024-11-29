@@ -8,7 +8,11 @@ use App\Http\Controllers\StockController;
 use App\Http\Controllers\UsersController;
 use App\Http\Middleware\FirstLoginRedirect;
 use App\Mail\MyTestEmail;
+use App\Models\Order;
 use App\Models\Recipe;
+use App\Models\RecipeLogs;
+use App\Models\StockActivityLogs;
+use App\Models\StockEntryLogs;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
@@ -59,9 +63,24 @@ Route::middleware(['auth', FirstLoginRedirect::class])->group(function () {
 
     Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
 
-    Route::get('/reports', function () {
-        return Inertia::render('Reports/Index');
-    })->name('reports');
+    Route::get('/reports/stocks', function () {
+        return Inertia::render('Reports/Stocks/Index', [
+            'stockEntryLogs' => StockEntryLogs::all(),
+            'stockActivityLogs' => StockActivityLogs::all(),
+        ]);
+    })->name('reports.stocks');
+
+    Route::get('/reports/recipes', function () {
+        return Inertia::render('Reports/Recipes/Index', [
+            'recipeLogs' => RecipeLogs::all(),
+        ]);
+    })->name('reports.recipes');
+
+    Route::get('/reports/orders', function () {
+        return Inertia::render('Reports/Orders/Index', [
+            'orders' => Order::all()
+        ]);
+    })->name('reports.orders');
 });
 
 

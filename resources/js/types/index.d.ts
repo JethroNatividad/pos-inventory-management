@@ -74,6 +74,40 @@ export type RecipeFormData = {
     servings: ServingFormData[];
 };
 
+export type StockEntryLog = {
+    id: number;
+    stockEntry: StockEntry;
+    user: User;
+    action: string;
+};
+
+export type Stock = {
+    id: number;
+    stockEntry: StockEntry;
+    quantity: number;
+    price: number;
+    batch_label: string;
+    expiry_date?: string;
+};
+
+export type StockActivityLog = {
+    stock: Stock;
+    user: User;
+    action: string;
+    quantity: number;
+    price?: number;
+    batch_label?: string;
+    expiry_date?: string;
+    is_perishable?: boolean;
+    reason?: string;
+};
+
+export type RecipeLog = {
+    recipe: Recipe;
+    user: User;
+    action: string;
+};
+
 export type PageProps<
     T extends Record<string, unknown> = Record<string, unknown>
 > = T & {

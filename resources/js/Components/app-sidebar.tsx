@@ -17,12 +17,19 @@ import {
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
+    SidebarMenuSub,
+    SidebarMenuSubItem,
 } from "@/Components/ui/sidebar";
 
 import { Link } from "@inertiajs/react";
 import ApplicationLogo from "./application-logo";
 import { NavUser } from "./nav-user";
 import { User } from "@/types";
+import {
+    Collapsible,
+    CollapsibleTrigger,
+    CollapsibleContent,
+} from "@/Components/ui/collapsible";
 
 // Menu items.
 const items = [
@@ -50,6 +57,11 @@ const items = [
         title: "Reports",
         icon: Notebook,
         name: "reports",
+        children: [
+            { title: "Stock logs", name: "reports.stocks" },
+            { title: "Recipe logs", name: "reports.recipes" },
+            { title: "Order logs", name: "reports.orders" },
+        ],
     },
     {
         title: "Manage Users",
@@ -81,15 +93,63 @@ export function AppSidebar({ user }: AppSidebarProps) {
                         <SidebarMenu>
                             {items.map((item) => (
                                 <SidebarMenuItem key={item.title}>
-                                    <SidebarMenuButton
-                                        asChild
-                                        isActive={route().current(item.name)}
-                                    >
-                                        <Link href={route(item.name)}>
-                                            <item.icon />
-                                            <span>{item.title}</span>
-                                        </Link>
-                                    </SidebarMenuButton>
+                                    {item.children ? (
+                                        <Collapsible
+                                            defaultOpen
+                                            className="group/collapsible"
+                                        >
+                                            <CollapsibleTrigger asChild>
+                                                <SidebarMenuButton>
+                                                    <item.icon />
+                                                    <span>{item.title}</span>
+                                                </SidebarMenuButton>
+                                            </CollapsibleTrigger>
+                                            <CollapsibleContent>
+                                                <SidebarMenuSub>
+                                                    {item.children.map(
+                                                        (subItem) => (
+                                                            <SidebarMenuSubItem
+                                                                key={
+                                                                    subItem.title
+                                                                }
+                                                            >
+                                                                <SidebarMenuButton
+                                                                    asChild
+                                                                    isActive={route().current(
+                                                                        subItem.name
+                                                                    )}
+                                                                >
+                                                                    <Link
+                                                                        href={route(
+                                                                            subItem.name
+                                                                        )}
+                                                                    >
+                                                                        <span>
+                                                                            {
+                                                                                subItem.title
+                                                                            }
+                                                                        </span>
+                                                                    </Link>
+                                                                </SidebarMenuButton>
+                                                            </SidebarMenuSubItem>
+                                                        )
+                                                    )}
+                                                </SidebarMenuSub>
+                                            </CollapsibleContent>
+                                        </Collapsible>
+                                    ) : (
+                                        <SidebarMenuButton
+                                            asChild
+                                            isActive={route().current(
+                                                item.name
+                                            )}
+                                        >
+                                            <Link href={route(item.name)}>
+                                                <item.icon />
+                                                <span>{item.title}</span>
+                                            </Link>
+                                        </SidebarMenuButton>
+                                    )}
                                 </SidebarMenuItem>
                             ))}
                         </SidebarMenu>
