@@ -46,6 +46,7 @@ class Serving extends Model
                 $quantityAvailable = $quantity;
             }
         }
-        return $quantityAvailable;
+        // Round down to the nearest integer
+        return floor($quantityAvailable);
     }
 }

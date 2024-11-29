@@ -27,11 +27,16 @@ const Order = ({
                         className="w-12 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                         type="number"
                         value={quantity}
-                        max={quantityAvailable}
-                        min={1}
-                        onChange={(e) =>
-                            updateOrder(id, parseInt(e.target.value))
-                        }
+                        onChange={(e) => {
+                            if (parseInt(e.target.value) < 0) {
+                                return;
+                            }
+
+                            if (parseInt(e.target.value) > quantityAvailable) {
+                                return updateOrder(id, quantityAvailable);
+                            }
+                            updateOrder(id, parseInt(e.target.value) || 0);
+                        }}
                     />
                     <Button
                         disabled={quantity >= quantityAvailable}
