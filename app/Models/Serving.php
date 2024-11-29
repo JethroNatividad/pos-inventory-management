@@ -11,7 +11,7 @@ class Serving extends Model
 
     protected $fillable = ['name', 'price'];
 
-    protected $appends = ['is_available', 'quantity_available'];
+    protected $appends = ['is_available', 'quantity_available', 'cost'];
 
     public function recipe()
     {
@@ -48,5 +48,16 @@ class Serving extends Model
         }
         // Round down to the nearest integer
         return floor($quantityAvailable);
+    }
+
+    public function getCostAttribute()
+    {
+        // Get the total cost of all recipe ingredients
+        $recipeIngredients = $this->recipeIngredients;
+        $cost = 0;
+        foreach ($recipeIngredients as $recipeIngredient) {
+            $cost += $recipeIngredient->quantity * $recipeIngredient->stockEntry->average_price;
+        }
+        return $cost;
     }
 }
