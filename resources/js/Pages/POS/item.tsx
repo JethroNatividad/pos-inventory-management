@@ -15,11 +15,13 @@ const Item = ({ name, description, servings, id, is_available }: Recipe) => {
     const { addOrder, getOrder } = useOrder();
     const [open, setOpen] = useState(false);
     return (
-        <div className="border rounded-lg">
-            <div>Image</div>
+        <div className="border rounded-lg overflow-hidden">
+            <div className="h-40 bg-gray-400" />
             <div className="p-2">
-                <h2>{name}</h2>
-                <p>{description}</p>
+                <div className="mb-8">
+                    <h2 className="text-xl">{name}</h2>
+                    <p>{description}</p>
+                </div>
 
                 <Dialog open={open} onOpenChange={(state) => setOpen(state)}>
                     <DialogTrigger asChild>
