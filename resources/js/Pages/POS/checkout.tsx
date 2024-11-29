@@ -23,28 +23,29 @@ import { FormEventHandler, useState } from "react";
 
 const Checkout = () => {
     const [open, setOpen] = useState(false);
-    const { orders, calculateTotal } = useOrder();
+    const { orders, calculateSubtotal } = useOrder();
     const { data, setData, post, processing, errors, reset } = useForm({
         type: "dine-in",
         discountPercentage: "",
+        subtotal: 0,
         total: 0,
-        discountedTotal: 0,
         orders: orders,
     });
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
-        const discountAmount = Number(data.discountPercentage) * 0.01 * total;
+        const discountAmount =
+            Number(data.discountPercentage) * 0.01 * subtotal;
 
-        setData("total", calculateTotal());
-        setData("discountedTotal", data.total - discountAmount);
+        setData("subtotal", calculateSubtotal());
+        setData("total", data.subtotal - discountAmount);
 
         // post(route("inventory.store"));
     };
 
-    const total = calculateTotal();
-    const discountAmount = Number(data.discountPercentage) * 0.01 * total;
-    const discountedTotal = total - discountAmount;
+    const subtotal = calculateSubtotal();
+    const discountAmount = Number(data.discountPercentage) * 0.01 * subtotal;
+    const total = subtotal - discountAmount;
 
     return (
         <Dialog open={open} onOpenChange={(state) => setOpen(state)}>
@@ -104,9 +105,9 @@ const Checkout = () => {
                     ))}
 
                     <div className="flex justify-between">
-                        <p className="text-xl font-medium">Total:</p>
+                        <p className="text-xl font-medium">Subtotal:</p>
                         <p className="text-xl font-medium">
-                            ₱{total.toFixed(2)}
+                            ₱{subtotal.toFixed(2)}
                         </p>
                     </div>
 
@@ -118,17 +119,14 @@ const Checkout = () => {
                                     -₱{discountAmount.toFixed(2)}
                                 </p>
                             </div>
-
-                            <div className="flex justify-between">
-                                <p className="text-xl font-medium">
-                                    Discounted Total:
-                                </p>
-                                <p className="text-xl font-medium text-green-700">
-                                    ₱{discountedTotal.toFixed(2)}
-                                </p>
-                            </div>
                         </>
                     )}
+                    <div className="flex justify-between">
+                        <p className="text-xl font-medium">Total:</p>
+                        <p className="text-xl font-medium text-green-700">
+                            ₱{total.toFixed(2)}
+                        </p>
+                    </div>
 
                     <div className="space-x-2 self-end">
                         <Button

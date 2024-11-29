@@ -16,7 +16,7 @@ type OrderContextType = {
     incrementOrder: (id: string) => void;
     decrementOrder: (id: string) => void;
     updateOrder: (id: string, quantity: number) => void;
-    calculateTotal: () => number;
+    calculateSubtotal: () => number;
 };
 
 const OrderContext = createContext<OrderContextType | undefined>(undefined);
@@ -33,7 +33,7 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({
         localStorage.setItem("orders", JSON.stringify(orders));
     }, [orders]);
 
-    const calculateTotal = () =>
+    const calculateSubtotal = () =>
         orders.reduce(
             (total, order) => total + order.quantity * order.serving.price,
             0
@@ -95,7 +95,7 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({
                 incrementOrder,
                 decrementOrder,
                 updateOrder,
-                calculateTotal,
+                calculateSubtotal,
             }}
         >
             {children}

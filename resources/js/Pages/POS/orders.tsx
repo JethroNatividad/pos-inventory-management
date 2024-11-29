@@ -7,7 +7,7 @@ import { Trash } from "lucide-react";
 import Checkout from "./checkout";
 
 const Orders = () => {
-    const { orders, clearOrders, calculateTotal } = useOrder();
+    const { orders, clearOrders, calculateSubtotal } = useOrder();
     return (
         <div className="border rounded-lg w-full h-screen max-h-[90vh] overflow-y-scroll relative flex flex-col">
             <div className="sticky top-0 left-0 bg-background w-full p-4 border-b flex justify-between items-center">
@@ -25,7 +25,7 @@ const Orders = () => {
                 <div className="flex justify-between mb-4">
                     <p className="text-xl font-medium">Total:</p>
                     <p className="text-xl font-medium">
-                        ₱{calculateTotal().toFixed(2)}
+                        ₱{calculateSubtotal().toFixed(2)}
                     </p>
                 </div>
                 <Checkout />
