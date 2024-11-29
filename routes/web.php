@@ -65,8 +65,8 @@ Route::middleware(['auth', FirstLoginRedirect::class])->group(function () {
 
     Route::get('/reports/stocks', function () {
         return Inertia::render('Reports/Stocks/Index', [
-            'stockEntryLogs' => StockEntryLogs::all(),
-            'stockActivityLogs' => StockActivityLogs::all(),
+            'stockEntryLogs' => StockEntryLogs::all()->load(['stockEntry', 'user']),
+            'stockActivityLogs' => StockActivityLogs::all()->load(['stock.stockEntry', 'user']),
         ]);
     })->name('reports.stocks');
 

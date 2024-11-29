@@ -182,7 +182,8 @@ class StockController extends Controller
             'action' => 'stock_out',
             'quantity' => $validated['quantity'],
             'batch_label' => $stock->batch_label,
-            'reason' => $validated['reason']
+            'reason' => $validated['reason'],
+            'price' => $stock->price,
         ]);
 
         return redirect()->route('inventory.index');

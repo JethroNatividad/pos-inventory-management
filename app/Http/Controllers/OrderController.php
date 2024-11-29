@@ -76,6 +76,8 @@ class OrderController extends Controller
                         'action' => 'stock_out',
                         'quantity' => $deductQuantity,
                         'reason' => 'Deducted from Order #' . $order->id,
+                        'batch_label' => $stock->batch_label,
+                        'price' => $stock->price,
                     ]);
 
                     $requiredQuantity -= $deductQuantity;

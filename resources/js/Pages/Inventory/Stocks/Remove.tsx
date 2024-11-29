@@ -133,7 +133,7 @@ const AddStock = ({ stockEntry, batchLabels }: Props) => {
                             name="reason"
                             value={data.reason}
                             onChange={(e) => setData("reason", e.target.value)}
-                            placeholder="Brown Sugar"
+                            placeholder="Accidental Spillage"
                         />
                         <InputError message={errors.reason} />
                     </div>

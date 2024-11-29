@@ -76,14 +76,15 @@ export type RecipeFormData = {
 
 export type StockEntryLog = {
     id: number;
-    stockEntry: StockEntry;
+    stock_entry: StockEntry;
     user: User;
     action: string;
+    created_at: string;
 };
 
 export type Stock = {
     id: number;
-    stockEntry: StockEntry;
+    stock_entry: StockEntry;
     quantity: number;
     price: number;
     batch_label: string;
@@ -100,12 +101,14 @@ export type StockActivityLog = {
     expiry_date?: string;
     is_perishable?: boolean;
     reason?: string;
+    created_at: string;
 };
 
 export type RecipeLog = {
     recipe: Recipe;
     user: User;
     action: string;
+    created_at: string;
 };
 
 export type PageProps<
