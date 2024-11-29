@@ -136,7 +136,9 @@ export const columns: ColumnDef<StockEntry>[] = [
         header: "Average Price",
         cell: ({ row }) => {
             // round to 2 decimal places
-            return `₱${row.original.average_price.toFixed(2)}`;
+            return `₱${(
+                row.original.average_price * row.original.quantity
+            ).toFixed(2)}`;
         },
     },
 
