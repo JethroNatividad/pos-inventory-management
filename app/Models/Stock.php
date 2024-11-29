@@ -15,6 +15,7 @@ class Stock extends Model
         'price',
         'batch_label',
         'expiry_date',
+        'unit_price',
     ];
 
     public function stockEntry()

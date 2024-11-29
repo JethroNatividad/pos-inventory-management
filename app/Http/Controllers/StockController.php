@@ -97,6 +97,8 @@ class StockController extends Controller
 
         $validated['is_perishable'] = $stockEntry->perishable;
 
+        $validated['unit_price'] = $validated['price'] / $validated['quantity'];
+
         $stock = $stockEntry->stocks()->create($validated);
 
         StockActivityLogs::create([

@@ -89,6 +89,7 @@ export type Stock = {
     price: number;
     batch_label: string;
     expiry_date?: string;
+    unit_price: number;
 };
 
 export type StockActivityLog = {
