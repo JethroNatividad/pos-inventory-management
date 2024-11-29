@@ -11,7 +11,7 @@ class Serving extends Model
 
     protected $fillable = ['name', 'price'];
 
-    protected $appends = ['is_available'];
+    protected $appends = ['is_available', 'quantity_available'];
 
     public function recipe()
     {
@@ -33,5 +33,19 @@ class Serving extends Model
             }
         }
         return true;
+    }
+
+    public function getQuantityAvailableAttribute()
+    {
+        // Get the minimum quantity available
+        $recipeIngredients = $this->recipeIngredients;
+        $quantityAvailable = null;
+        foreach ($recipeIngredients as $recipeIngredient) {
+            $quantity = $recipeIngredient->stockEntry->quantity / $recipeIngredient->quantity;
+            if ($quantityAvailable === null || $quantity < $quantityAvailable) {
+                $quantityAvailable = $quantity;
+            }
+        }
+        return $quantityAvailable;
     }
 }

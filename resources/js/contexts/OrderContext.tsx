@@ -6,6 +6,7 @@ export type OrderItem = {
     quantity: number;
     serving: Serving;
     recipeName: string;
+    quantityAvailable: number;
 };
 
 type OrderContextType = {
@@ -16,6 +17,7 @@ type OrderContextType = {
     incrementOrder: (id: string) => void;
     decrementOrder: (id: string) => void;
     updateOrder: (id: string, quantity: number) => void;
+    getOrder: (id: string) => OrderItem | undefined;
     calculateSubtotal: () => number;
 };
 
@@ -38,6 +40,8 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({
             (total, order) => total + order.quantity * order.serving.price,
             0
         );
+
+    const getOrder = (id: string) => orders.find((order) => order.id === id);
 
     const addOrder = (item: OrderItem) => {
         const orderIndex = orders.findIndex((order) => order.id === item.id);
@@ -96,6 +100,7 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({
                 decrementOrder,
                 updateOrder,
                 calculateSubtotal,
+                getOrder,
             }}
         >
             {children}

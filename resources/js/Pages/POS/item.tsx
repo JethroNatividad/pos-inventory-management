@@ -12,7 +12,7 @@ import { useOrder } from "@/contexts/OrderContext";
 import { useState } from "react";
 
 const Item = ({ name, description, servings, id, is_available }: Recipe) => {
-    const { addOrder } = useOrder();
+    const { addOrder, getOrder } = useOrder();
     const [open, setOpen] = useState(false);
     return (
         <div className="border rounded-lg">
@@ -41,13 +41,20 @@ const Item = ({ name, description, servings, id, is_available }: Recipe) => {
                         <div className="flex space-y-4 flex-col">
                             {servings.map((serving) => (
                                 <Button
-                                    disabled={!serving.is_available}
+                                    disabled={
+                                        !serving.is_available ||
+                                        (getOrder(`${id}-${serving.id}`)
+                                            ?.quantity ?? 0) >=
+                                            serving.quantity_available
+                                    }
                                     key={serving.id}
                                     onClick={() => {
                                         addOrder({
                                             recipeName: name,
                                             serving,
                                             quantity: 1,
+                                            quantityAvailable:
+                                                serving.quantity_available,
                                             id: `${id}-${serving.id}`,
                                         });
                                         setOpen(false);

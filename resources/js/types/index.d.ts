@@ -44,6 +44,7 @@ export interface Serving {
     price: number;
     recipe_ingredients: Ingredient[];
     is_available: boolean;
+    quantity_available: number;
 }
 
 export interface Ingredient {
