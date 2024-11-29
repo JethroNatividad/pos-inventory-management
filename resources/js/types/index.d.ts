@@ -111,6 +111,25 @@ export type RecipeLog = {
     created_at: string;
 };
 
+export type Order = {
+    id: number;
+    subtotal: number;
+    discountPercentage: number;
+    total: number;
+    type: string;
+    user: User;
+    created_at: string;
+};
+
+export type OrderItem = {
+    id: number;
+    order: Order;
+    serving: Serving;
+    quantity: number;
+    price: number;
+    created_at: string;
+};
+
 export type PageProps<
     T extends Record<string, unknown> = Record<string, unknown>
 > = T & {

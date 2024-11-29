@@ -80,7 +80,7 @@ Route::middleware(['auth', FirstLoginRedirect::class])->group(function () {
 
     Route::get('/reports/orders', function () {
         return Inertia::render('Reports/Orders/Index', [
-            'orders' => Order::all()->load(['user', 'items.recipe'])
+            'orders' => Order::all()->load(['user', 'items.serving'])
         ]);
     })->name('reports.orders');
 });
