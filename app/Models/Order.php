@@ -38,11 +38,7 @@ class Order extends Model
 
     public function getTotalIncomeAttribute()
     {
-        $total_income = 0;
-        $items = $this->items;
-        foreach ($items as $item) {
-            $total_income += $item->income;
-        }
+        $total_income = $this->total - $this->total_cost;
         return $total_income;
     }
 }

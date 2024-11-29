@@ -12,6 +12,7 @@ use App\Models\Order;
 use App\Models\Recipe;
 use App\Models\RecipeLogs;
 use App\Models\StockActivityLogs;
+use App\Models\StockEntry;
 use App\Models\StockEntryLogs;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Mail;
@@ -20,7 +21,11 @@ use Inertia\Inertia;
 
 Route::middleware(['auth', FirstLoginRedirect::class])->group(function () {
     Route::get('/', function () {
-        return Inertia::render('Home');
+        return Inertia::render('Home', [
+            'lowStocks' => StockEntry::where('is_deleted', false)->get()->filter(function ($stockEntry) {
+                return $stockEntry->quantity < $stockEntry->warn_stock_level;
+            })->values()->toArray(),
+        ]);
     })->name('home');
 
     Route::resource('users', UsersController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
