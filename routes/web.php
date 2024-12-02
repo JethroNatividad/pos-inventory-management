@@ -11,6 +11,7 @@ use App\Mail\MyTestEmail;
 use App\Models\Order;
 use App\Models\Recipe;
 use App\Models\RecipeLogs;
+use App\Models\Stock;
 use App\Models\StockActivityLogs;
 use App\Models\StockEntry;
 use App\Models\StockEntryLogs;
@@ -21,10 +22,16 @@ use Inertia\Inertia;
 
 Route::middleware(['auth', FirstLoginRedirect::class])->group(function () {
     Route::get('/', function () {
+        $stockEntries = StockEntry::where('is_deleted', false)->get();
         return Inertia::render('Home', [
-            'lowStocks' => StockEntry::where('is_deleted', false)->get()->filter(function ($stockEntry) {
+            'lowStocks' => $stockEntries->filter(function ($stockEntry) {
                 return $stockEntry->quantity < $stockEntry->warn_stock_level;
             })->values()->toArray(),
+
+            'expiringStocks' => Stock::where('expiry_date', '>=', now())->get()->filter(function ($stock) {
+                return $stock->expiry_date->diffInDays(now()) <= $stock->stockEntry->warn_days_remaining;
+            })->values()->toArray(),
+
         ]);
     })->name('home');
 

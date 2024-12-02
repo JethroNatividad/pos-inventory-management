@@ -1,34 +1,38 @@
 import React from "react";
 import Layout from "@/Layouts/Layout";
 import { Head, Link } from "@inertiajs/react";
-import { StockEntry } from "@/types";
+import { Stock, StockEntry } from "@/types";
 import { Button } from "@/Components/ui/button";
 import { StatisticChart } from "./chart";
+import { differenceInDays, differenceInMilliseconds, parseISO } from "date-fns";
 
 type Props = {
     lowStocks: StockEntry[];
+    expiringStocks: Stock[];
 };
 
-const Home = ({ lowStocks }: Props) => {
+const Home = ({ lowStocks, expiringStocks }: Props) => {
     return (
         <Layout>
             <Head title="Dashboard" />
 
             <div className="grid grid-cols-12 gap-4">
-                <div className="border rounded-lg col-span-12 lg:col-span-5 p-2">
+                <div className="border rounded-lg col-span-12 lg:col-span-5 p-2 space-y-4">
                     <h1 className="text-xl font-medium">Inventory Status</h1>
                     <div className="space-y-4">
-                        <p className="text-lg">Low Stock Alerts</p>
+                        <p className="text-lg">Low Stocks</p>
                         {lowStocks?.map((stock) => (
                             <div
                                 key={stock.id}
                                 className="border rounded-lg p-2 flex items-center justify-between"
                             >
-                                <p>{stock.name}</p>
-                                <p className="text-red-700">
-                                    {stock.quantity}
-                                    {stock.unit} left
-                                </p>
+                                <div className="flex items-center space-x-2">
+                                    <p>{stock.name}</p>
+                                    <p className="text-red-700">
+                                        {stock.quantity}
+                                        {stock.unit} left
+                                    </p>
+                                </div>
                                 <Button asChild>
                                     <Link
                                         href={route("stock.create", stock.id)}
@@ -39,9 +43,57 @@ const Home = ({ lowStocks }: Props) => {
                             </div>
                         ))}
                     </div>
-                    {/* <div>
-                        <p>Expiring Stocks</p>
-                    </div> */}
+
+                    <div className="space-y-4">
+                        <p className="text-lg">Expiring Stocks</p>
+                        {expiringStocks?.map((stock) => (
+                            <div
+                                key={stock.id}
+                                className="border rounded-lg p-2"
+                            >
+                                <div className="flex items-center space-x-2">
+                                    <p>{stock.stock_entry.name}</p>
+                                    <p className="text-red-700">
+                                        {stock.quantity}
+                                        {stock.stock_entry.unit}
+                                    </p>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                    <p>{stock.batch_label}</p>
+                                    <p>
+                                        <span className="text-red-700">
+                                            {(() => {
+                                                const diffInMs =
+                                                    differenceInMilliseconds(
+                                                        parseISO(
+                                                            stock.expiry_date ||
+                                                                ""
+                                                        ),
+                                                        new Date()
+                                                    );
+                                                const days = Math.floor(
+                                                    diffInMs /
+                                                        (1000 * 60 * 60 * 24)
+                                                );
+                                                const hours = Math.floor(
+                                                    (diffInMs %
+                                                        (1000 * 60 * 60 * 24)) /
+                                                        (1000 * 60 * 60)
+                                                );
+                                                const daysLabel =
+                                                    days === 1 ? "day" : "days";
+                                                const hoursLabel =
+                                                    hours === 1
+                                                        ? "hour"
+                                                        : "hours";
+                                                return `${days} ${daysLabel} ${hours} ${hoursLabel} remaining`;
+                                            })()}
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
                 <div className="border rounded-lg col-span-12 lg:col-span-7">
                     <StatisticChart />
