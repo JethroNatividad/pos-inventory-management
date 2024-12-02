@@ -74,6 +74,20 @@ export const columns: ColumnDef<Order>[] = [
         },
     },
     {
+        accessorKey: "total_cost",
+        header: "Total Cost",
+        cell: ({ row }) => {
+            return `₱${row.original.total_cost.toFixed(2)}`;
+        },
+    },
+    {
+        accessorKey: "total_income",
+        header: "Total Income",
+        cell: ({ row }) => {
+            return `₱${row.original.total_income.toFixed(2)}`;
+        },
+    },
+    {
         accessorKey: "type",
         header: "Type",
     },

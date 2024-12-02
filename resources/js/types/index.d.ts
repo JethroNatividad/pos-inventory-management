@@ -45,6 +45,7 @@ export interface Serving {
     recipe_ingredients: Ingredient[];
     is_available: boolean;
     quantity_available: number;
+    cost: number;
 }
 
 export interface Ingredient {
@@ -89,6 +90,7 @@ export type Stock = {
     price: number;
     batch_label: string;
     expiry_date?: string;
+    unit_price: number;
 };
 
 export type StockActivityLog = {
@@ -118,6 +120,8 @@ export type Order = {
     total: number;
     type: string;
     user: User;
+    total_cost: number;
+    total_income: number;
     created_at: string;
 };
 
@@ -128,6 +132,8 @@ export type OrderItem = {
     quantity: number;
     price: number;
     created_at: string;
+    cost: number;
+    income: number;
 };
 
 export type PageProps<
