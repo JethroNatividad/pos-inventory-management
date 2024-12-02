@@ -29,7 +29,7 @@ Route::middleware(['auth', FirstLoginRedirect::class])->group(function () {
             })->values()->toArray(),
 
             'expiringStocks' => Stock::where('expiry_date', '>=', now())->get()->filter(function ($stock) {
-                return $stock->expiry_date->diffInDays(now()) <= $stock->stockEntry->warn_days_remaining;
+                return $stock->expiry_date->diffInDays(now()) <= $stock->stockEntry->warn_days_remaining && $stock->quantity > 0;
             })->values()->toArray(),
 
         ]);

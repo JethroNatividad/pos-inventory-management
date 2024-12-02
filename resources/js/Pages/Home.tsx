@@ -21,6 +21,7 @@ const Home = ({ lowStocks, expiringStocks }: Props) => {
                     <h1 className="text-xl font-medium">Inventory Status</h1>
                     <div className="space-y-4">
                         <p className="text-lg">Low Stocks</p>
+                        {lowStocks?.length === 0 && <p>No low stocks</p>}
                         {lowStocks?.map((stock) => (
                             <div
                                 key={stock.id}
@@ -46,6 +47,9 @@ const Home = ({ lowStocks, expiringStocks }: Props) => {
 
                     <div className="space-y-4">
                         <p className="text-lg">Expiring Stocks</p>
+                        {expiringStocks?.length === 0 && (
+                            <p>No expiring stocks</p>
+                        )}
                         {expiringStocks?.map((stock) => (
                             <div
                                 key={stock.id}
