@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\Stock;
 use App\Models\StockEntry;
 use Carbon\Carbon;
@@ -20,6 +21,7 @@ class HomeController extends Controller
             'weeklySales' => $this->getWeeklySales(),
             'monthlySales' => $this->getMonthlySales(),
             'allTimeSales' => $this->getAllTimeSales(),
+            'topFiveSellingItems' => $this->topFiveSellingItems(),
         ]);
     }
 
@@ -161,5 +163,93 @@ class HomeController extends Controller
             $sale = $allTimeSales->firstWhere('label', $year);
             return $sale ?: ['label' => $year, 'count' => 0];
         })->values()->toArray();
+    }
+
+    private function topFiveSellingItems()
+    {
+        //{ daily: top 5 selling items
+        // weekly: top 5 selling items
+        // monthly: top 5 selling items, yearly, all time}
+        // label: item name, count: total quantity sold
+
+        $dailyTopFive = OrderItem::selectRaw('serving_id, SUM(quantity) as count')
+            ->whereHas('order', function ($query) {
+                $query->where('created_at', '>=', now()->startOfDay());
+            })
+            ->groupBy('serving_id')
+            ->orderByDesc('count')
+            ->limit(5)
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'label' => $item->serving->recipe->name  . ' (' . $item->serving->name . ')',
+                    'count' => $item->count
+                ];
+            });
+
+        $weeklyTopFive = OrderItem::selectRaw('serving_id, SUM(quantity) as count')
+            ->whereHas('order', function ($query) {
+                $query->where('created_at', '>=', now()->startOfWeek());
+            })
+            ->groupBy('serving_id')
+            ->orderByDesc('count')
+            ->limit(5)
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'label' => $item->serving->recipe->name  . ' (' . $item->serving->name . ')',
+                    'count' => $item->count
+                ];
+            });
+
+        $monthlyTopFive = OrderItem::selectRaw('serving_id, SUM(quantity) as count')
+            ->whereHas('order', function ($query) {
+                $query->where('created_at', '>=', now()->startOfMonth());
+            })
+            ->groupBy('serving_id')
+            ->orderByDesc('count')
+            ->limit(5)
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'label' => $item->serving->recipe->name  . ' (' . $item->serving->name . ')',
+                    'count' => $item->count
+                ];
+            });
+
+        $yearlyTopFive = OrderItem::selectRaw('serving_id, SUM(quantity) as count')
+            ->whereHas('order', function ($query) {
+                $query->whereYear('created_at', now()->year);
+            })
+            ->groupBy('serving_id')
+            ->orderByDesc('count')
+            ->limit(5)
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'label' => $item->serving->recipe->name  . ' (' . $item->serving->name . ')',
+                    'count' => $item->count
+                ];
+            });
+
+        $allTimeTopFive = OrderItem::selectRaw('serving_id, SUM(quantity) as count')
+            ->groupBy('serving_id')
+            ->orderByDesc('count')
+            ->limit(5)
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'label' => $item->serving->recipe->name  . ' (' . $item->serving->name . ')',
+                    'count' => $item->count
+                ];
+            });
+
+        return [
+            'daily' => $dailyTopFive,
+            'weekly' => $weeklyTopFive,
+            'monthly' => $monthlyTopFive,
+            'yearly' => $yearlyTopFive,
+            'allTime' => $allTimeTopFive,
+        ];
     }
 }

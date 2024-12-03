@@ -6,6 +6,7 @@ import { Button } from "@/Components/ui/button";
 import { differenceInDays, differenceInMilliseconds, parseISO } from "date-fns";
 import SalesChart from "./sales-chart";
 import axios from "axios";
+import MyBarChart from "./bar-chart";
 
 type SalesData = {
     label: string;
@@ -20,6 +21,13 @@ type Props = {
     weeklySales: SalesData[];
     monthlySales: SalesData[];
     allTimeSales: SalesData[];
+    topFiveSellingItems: {
+        daily: SalesData[];
+        weekly: SalesData[];
+        monthly: SalesData[];
+        yearly: SalesData[];
+        allTime: SalesData[];
+    };
 };
 
 const Home = ({
@@ -30,6 +38,7 @@ const Home = ({
     weeklySales,
     monthlySales,
     allTimeSales,
+    topFiveSellingItems,
 }: Props) => {
     const [range, setRange] = useState<
         "today" | "week" | "month" | "year" | "all"
@@ -170,6 +179,24 @@ const Home = ({
                                 : range === "year"
                                 ? monthlySales
                                 : allTimeSales
+                        }
+                    />
+
+                    <p className="text-lg">Top Five Selling Items</p>
+
+                    <MyBarChart
+                        data={
+                            topFiveSellingItems[
+                                range === "today"
+                                    ? "daily"
+                                    : range === "week"
+                                    ? "weekly"
+                                    : range === "month"
+                                    ? "monthly"
+                                    : range === "year"
+                                    ? "yearly"
+                                    : "allTime"
+                            ]
                         }
                     />
                 </div>
