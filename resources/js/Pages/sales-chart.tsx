@@ -25,7 +25,7 @@ export default function SalesChart({ data }: SalesChartProps) {
                     color: "hsl(var(--chart-1))",
                 },
             }}
-            className="h-[400px] w-full pr-6 py-4"
+            className="h-[200px] w-full pr-6 py-4"
         >
             <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={data}>
