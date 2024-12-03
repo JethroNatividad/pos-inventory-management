@@ -18,6 +18,10 @@ class Stock extends Model
         'unit_price',
     ];
 
+    protected $casts = [
+        'expiry_date' => 'date',
+    ];
+
     public function stockEntry()
     {
         return $this->belongsTo(StockEntry::class);
