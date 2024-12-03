@@ -1,13 +1,12 @@
 <?php
 
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\OrderController;
-use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RecipeController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\UsersController;
 use App\Http\Middleware\FirstLoginRedirect;
-use App\Mail\MyTestEmail;
 use App\Models\Order;
 use App\Models\Recipe;
 use App\Models\RecipeLogs;
@@ -15,25 +14,13 @@ use App\Models\Stock;
 use App\Models\StockActivityLogs;
 use App\Models\StockEntry;
 use App\Models\StockEntryLogs;
-use Illuminate\Foundation\Application;
-use Illuminate\Support\Facades\Mail;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::middleware(['auth', FirstLoginRedirect::class])->group(function () {
-    Route::get('/', function () {
-        $stockEntries = StockEntry::where('is_deleted', false)->get();
-        return Inertia::render('Home', [
-            'lowStocks' => $stockEntries->filter(function ($stockEntry) {
-                return $stockEntry->quantity < $stockEntry->warn_stock_level;
-            })->values()->toArray(),
+    Route::get('/', [HomeController::class, 'index'])->name('home');
 
-            'expiringStocks' => Stock::where('expiry_date', '>=', now())->get()->filter(function ($stock) {
-                return $stock->expiry_date->diffInDays(now()) <= $stock->stockEntry->warn_days_remaining && $stock->quantity > 0;
-            })->values()->toArray(),
-
-        ]);
-    })->name('home');
 
     Route::resource('users', UsersController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
 
