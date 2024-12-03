@@ -53,8 +53,9 @@ class HomeController extends Controller
             ];
         });
 
-        $hourlySales = Order::selectRaw('EXTRACT(HOUR FROM created_at) as label, COUNT(*) as count')
-            ->where('created_at', '>=', now()->subDay())
+        $hourlySales = OrderItem::selectRaw('EXTRACT(HOUR FROM orders.created_at) as label, SUM(quantity) as count')
+            ->join('orders', 'order_items.order_id', '=', 'orders.id')
+            ->where('orders.created_at', '>=', now()->subDay())
             ->groupBy('label')
             ->get()
             ->map(function ($item) {
@@ -77,8 +78,9 @@ class HomeController extends Controller
             ];
         });
 
-        $dailySales = Order::selectRaw('DATE(created_at) as label, COUNT(*) as count')
-            ->where('created_at', '>=', now()->startOfWeek())
+        $dailySales = OrderItem::selectRaw('DATE(orders.created_at) as label, SUM(quantity) as count')
+            ->join('orders', 'order_items.order_id', '=', 'orders.id')
+            ->where('orders.created_at', '>=', now()->startOfWeek())
             ->groupBy('label')
             ->get()
             ->map(function ($item) {
@@ -104,8 +106,9 @@ class HomeController extends Controller
             ];
         });
 
-        $weeklySales = Order::selectRaw('DATE_TRUNC(\'week\', created_at) as week_start, COUNT(*) as count')
-            ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
+        $weeklySales = OrderItem::selectRaw('DATE_TRUNC(\'week\', orders.created_at) as week_start, SUM(quantity) as count')
+            ->join('orders', 'order_items.order_id', '=', 'orders.id')
+            ->whereBetween('orders.created_at', [$startOfMonth, $endOfMonth])
             ->groupBy('week_start')
             ->orderBy('week_start')
             ->get()
@@ -129,8 +132,9 @@ class HomeController extends Controller
             ];
         });
 
-        $monthlySales = Order::selectRaw('EXTRACT(MONTH FROM created_at) as month, COUNT(*) as count')
-            ->whereYear('created_at', now()->year)
+        $monthlySales = OrderItem::selectRaw('EXTRACT(MONTH FROM orders.created_at) as month, SUM(quantity) as count')
+            ->join('orders', 'order_items.order_id', '=', 'orders.id')
+            ->whereYear('orders.created_at', now()->year)
             ->groupBy('month')
             ->get()
             ->map(function ($item) {
@@ -146,12 +150,14 @@ class HomeController extends Controller
 
     private function getAllTimeSales()
     {
-        $years = Order::selectRaw('EXTRACT(YEAR FROM created_at) as year')
+        $years = OrderItem::selectRaw('EXTRACT(YEAR FROM orders.created_at) as year')
+            ->join('orders', 'order_items.order_id', '=', 'orders.id')
             ->distinct()
             ->orderBy('year')
             ->pluck('year');
 
-        $allTimeSales = Order::selectRaw('EXTRACT(YEAR FROM created_at) as year, COUNT(*) as count')
+        $allTimeSales = OrderItem::selectRaw('EXTRACT(YEAR FROM orders.created_at) as year, SUM(quantity) as count')
+            ->join('orders', 'order_items.order_id', '=', 'orders.id')
             ->groupBy('year')
             ->orderBy('year')
             ->get()

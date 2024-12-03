@@ -28,6 +28,9 @@ class OrderItem extends Model
     public function getCostAttribute()
     {
         $serving = $this->serving;
+        if (!$serving) {
+            return 0;
+        }
         $cost = $serving->cost * $this->quantity;
         return $cost;
     }
