@@ -13,6 +13,14 @@ type SalesData = {
     count: number;
 };
 
+type SalesTotal = {
+    daily: number;
+    weekly: number;
+    monthly: number;
+    yearly: number;
+    allTime: number;
+};
+
 type Props = {
     lowStocks: StockEntry[];
     expiringStocks: Stock[];
@@ -28,6 +36,10 @@ type Props = {
         yearly: SalesData[];
         allTime: SalesData[];
     };
+
+    revenue: SalesTotal;
+    expenses: SalesTotal;
+    income: SalesTotal;
 };
 
 const Home = ({
@@ -39,6 +51,9 @@ const Home = ({
     monthlySales,
     allTimeSales,
     topFiveSellingItems,
+    revenue,
+    expenses,
+    income,
 }: Props) => {
     const [range, setRange] = useState<
         "today" | "week" | "month" | "year" | "all"
@@ -199,6 +214,61 @@ const Home = ({
                             ]
                         }
                     />
+
+                    <div className="border rounded-lg p-4">
+                        <p>Total Revenue</p>
+                        <p className="text-xl">
+                            ₱
+                            {
+                                revenue[
+                                    range === "today"
+                                        ? "daily"
+                                        : range === "week"
+                                        ? "weekly"
+                                        : range === "month"
+                                        ? "monthly"
+                                        : range === "year"
+                                        ? "yearly"
+                                        : "allTime"
+                                ]
+                            }
+                        </p>
+                    </div>
+                    <div className="border rounded-lg p-4">
+                        <p>Total Expenses</p>
+                        <p className="text-xl">
+                            ₱
+                            {expenses[
+                                range === "today"
+                                    ? "daily"
+                                    : range === "week"
+                                    ? "weekly"
+                                    : range === "month"
+                                    ? "monthly"
+                                    : range === "year"
+                                    ? "yearly"
+                                    : "allTime"
+                            ].toFixed(2)}
+                        </p>
+                    </div>
+
+                    <div className="border rounded-lg p-4">
+                        <p>Total Income</p>
+                        <p className="text-xl">
+                            ₱
+                            {income[
+                                range === "today"
+                                    ? "daily"
+                                    : range === "week"
+                                    ? "weekly"
+                                    : range === "month"
+                                    ? "monthly"
+                                    : range === "year"
+                                    ? "yearly"
+                                    : "allTime"
+                            ].toFixed(2)}
+                        </p>
+                    </div>
                 </div>
             </div>
         </Layout>

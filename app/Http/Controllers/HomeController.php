@@ -22,6 +22,9 @@ class HomeController extends Controller
             'monthlySales' => $this->getMonthlySales(),
             'allTimeSales' => $this->getAllTimeSales(),
             'topFiveSellingItems' => $this->topFiveSellingItems(),
+            'revenue' => $this->getRevenue(),
+            'expenses' => $this->getExpenses(),
+            'income' => $this->getIncome(),
         ]);
     }
 
@@ -250,6 +253,116 @@ class HomeController extends Controller
             'monthly' => $monthlyTopFive,
             'yearly' => $yearlyTopFive,
             'allTime' => $allTimeTopFive,
+        ];
+    }
+
+    // total revenue daily, weekly, monthly, yearly, all time
+    // total expenses daily, weekly, monthly, yearly, all time
+    // total income daily, weekly, monthly, yearly, all time
+
+    private function getRevenue()
+    {
+
+        $dailyRevenue = Order::selectRaw('SUM(total) as total')
+            ->where('created_at', '>=', now()->startOfDay())
+            ->first()
+            ->total;
+
+        $weeklyRevenue = Order::selectRaw('SUM(total) as total')
+            ->where('created_at', '>=', now()->startOfWeek())
+            ->first()
+            ->total;
+
+        $monthlyRevenue = Order::selectRaw('SUM(total) as total')
+            ->where('created_at', '>=', now()->startOfMonth())
+            ->first()
+            ->total;
+
+        $yearlyRevenue = Order::selectRaw('SUM(total) as total')
+            ->whereYear('created_at', now()->year)
+            ->first()
+            ->total;
+
+        $allTimeRevenue = Order::selectRaw('SUM(total) as total')
+            ->first()
+            ->total;
+
+        return [
+            'daily' => $dailyRevenue,
+            'weekly' => $weeklyRevenue,
+            'monthly' => $monthlyRevenue,
+            'yearly' => $yearlyRevenue,
+            'allTime' => $allTimeRevenue,
+        ];
+    }
+
+    private function getExpenses()
+    {
+        $dailyExpenses = Order::with('items')
+            ->where('created_at', '>=', now()->startOfDay())
+            ->get()
+            ->sum('total_cost');
+
+        $weeklyExpenses = Order::with('items')
+            ->where('created_at', '>=', now()->startOfWeek())
+            ->get()
+            ->sum('total_cost');
+
+        $monthlyExpenses = Order::with('items')
+            ->where('created_at', '>=', now()->startOfMonth())
+            ->get()
+            ->sum('total_cost');
+
+        $yearlyExpenses = Order::with('items')
+            ->whereYear('created_at', now()->year)
+            ->get()
+            ->sum('total_cost');
+
+        $allTimeExpenses = Order::with('items')
+            ->get()
+            ->sum('total_cost');
+
+        return [
+            'daily' => $dailyExpenses,
+            'weekly' => $weeklyExpenses,
+            'monthly' => $monthlyExpenses,
+            'yearly' => $yearlyExpenses,
+            'allTime' => $allTimeExpenses,
+        ];
+    }
+
+    private function getIncome()
+    {
+        $dailyIncome = Order::with('items')
+            ->where('created_at', '>=', now()->startOfDay())
+            ->get()
+            ->sum('total_income');
+
+        $weeklyIncome = Order::with('items')
+            ->where('created_at', '>=', now()->startOfWeek())
+            ->get()
+            ->sum('total_income');
+
+        $monthlyIncome = Order::with('items')
+            ->where('created_at', '>=', now()->startOfMonth())
+            ->get()
+            ->sum('total_income');
+
+        $yearlyIncome = Order::with('items')
+            ->whereYear('created_at', now()->year)
+            ->get()
+            ->sum('total_income');
+
+        $allTimeIncome = Order::with('items')
+            ->get()
+            ->sum('total_income');
+
+        return [
+            'daily' => $dailyIncome,
+            'weekly' => $weeklyIncome,
+            'monthly' => $monthlyIncome,
+            'yearly' => $yearlyIncome,
+            'allTime' => $allTimeIncome,
         ];
     }
 }
