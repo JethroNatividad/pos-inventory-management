@@ -19,6 +19,16 @@ return new class extends Migration
             $table->boolean('perishable');
             $table->integer('warn_stock_level');
             $table->integer('warn_days_remaining')->nullable();
+            $table->boolean('is_deleted')->default(false);
+            $table->timestamps();
+        });
+
+        Schema::create('stock_entry_logs', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('stock_entry_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->string('action');
+            $table->json('fields_edited')->nullable();
             $table->timestamps();
         });
     }
@@ -29,5 +39,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('stock_entries');
+        Schema::dropIfExists('stock_entry_logs');
     }
 };

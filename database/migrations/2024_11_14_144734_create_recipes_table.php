@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->text('description')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
 
@@ -33,6 +34,14 @@ return new class extends Migration
             $table->decimal('quantity', 10, 2); // Quantity of the ingredient needed for the recipe
             $table->timestamps();
         });
+
+        Schema::create('recipe_logs', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('recipe_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->string('action');
+            $table->timestamps();
+        });
     }
 
     /**
@@ -43,5 +52,6 @@ return new class extends Migration
         Schema::dropIfExists('recipes');
         Schema::dropIfExists('serving_sizes');
         Schema::dropIfExists('recipe_ingredients');
+        Schema::dropIfExists('recipe_logs');
     }
 };
