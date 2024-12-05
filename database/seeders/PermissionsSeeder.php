@@ -69,7 +69,7 @@ class PermissionsSeeder extends Seeder
         Role::create(['name' => 'store_manager'])->givePermissionTo($permissionsArray);
         Role::create(['name' => 'administrator'])->givePermissionTo($permissionsArray);
         Role::create(['name' => 'cashier'])->givePermissionTo($posPermissions);
-        Role::create(['name' => 'inventory_manager'])->givePermissionTo(array_merge($stockEntriesPermissions, $stocksPermissions));
+        Role::create(['name' => 'inventory_manager'])->givePermissionTo(array_merge($stockEntriesPermissions, $stocksPermissions, $recipesPermissions));
 
         $newOwner = User::create([
             'first_name' => 'store',

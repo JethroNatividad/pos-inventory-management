@@ -15,6 +15,8 @@ use App\Models\StockActivityLogs;
 use App\Models\StockEntry;
 use App\Models\StockEntryLogs;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -55,6 +57,9 @@ Route::middleware(['auth', FirstLoginRedirect::class])->group(function () {
     Route::delete('recipes/{recipe}', [RecipeController::class, 'destroy'])->name('recipes.destroy');
 
     Route::get('/pos', function () {
+
+        Gate::authorize('view pos');
+
         return Inertia::render('POS/Index', [
             'recipes' => Recipe::all()->load('servings.recipeIngredients')
         ]);
