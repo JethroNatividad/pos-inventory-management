@@ -62,6 +62,7 @@ class RecipeController extends Controller
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
+            'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,gif', 'max:2048'],
             'servings' => ['required', 'array'],
             'servings.*.name' => ['required', 'string', 'max:255'],
             'servings.*.price' => ['required', 'numeric'],
@@ -106,10 +107,16 @@ class RecipeController extends Controller
             }
         }
 
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('recipes', 'public'); // Store image in the 'recipes' directory
+        }
+
         // Create recipe, recipe->servings and recipe-servings-recipeIngredients
         $recipe = Recipe::create([
             'name' => $request->input('name'),
             'description' => $request->input('description'),
+            'image' => $imagePath,
         ]);
 
         foreach ($request->input('servings') as $serving) {

@@ -11,14 +11,23 @@ import {
 import { useOrder } from "@/contexts/OrderContext";
 import { useState } from "react";
 
-const Item = ({ name, description, servings, id, is_available }: Recipe) => {
+const Item = ({
+    name,
+    description,
+    servings,
+    id,
+    is_available,
+    image,
+}: Recipe) => {
     const { addOrder, getOrder } = useOrder();
     const [open, setOpen] = useState(false);
     return (
         <div className="border rounded-lg overflow-hidden">
             <img
-                className="h-40"
-                src="/images/coffee-template.png"
+                className="h-40 object-cover w-full"
+                src={
+                    image ? "/storage/" + image : "/images/coffee-template.png"
+                }
                 alt="Coffee"
             />
             <div className="p-2">

@@ -10,7 +10,7 @@ class Recipe extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['name', 'description'];
+    protected $fillable = ['name', 'description', 'image'];
 
     protected $appends = ['serving_names', 'is_available'];
 

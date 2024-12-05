@@ -28,6 +28,7 @@ const Index = ({ stockEntries }: Props) => {
     >("createRecipeForm", {
         name: "",
         description: "",
+        image: null,
         servings: [
             {
                 name: "",
@@ -142,6 +143,20 @@ const Index = ({ stockEntries }: Props) => {
                             placeholder="Recipe Description"
                         />
                         <InputError message={errors.description} />
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label htmlFor="image">Image</Label>
+                        <Input
+                            id="image"
+                            type="file"
+                            name="image"
+                            accept="image/*"
+                            onChange={(e) =>
+                                setData("image", e.target.files?.[0] || null)
+                            } // Update image in form data
+                        />
+                        <InputError message={errors.image} />
                     </div>
 
                     <div className="flex justify-between items-center">
