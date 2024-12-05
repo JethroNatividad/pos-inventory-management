@@ -17,7 +17,7 @@ return new class extends Migration
             $table->decimal('quantity', 10, 2);
             $table->decimal('price', 10, 2);
             $table->string('batch_label');
-            $table->decimal('unit_price', 10, 2)->default(0);
+            $table->decimal('unit_price', 10, 6)->default(0);
             $table->date('expiry_date')->nullable();
             $table->timestamps();
         });
