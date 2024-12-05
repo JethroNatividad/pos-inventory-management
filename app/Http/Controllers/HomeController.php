@@ -150,11 +150,21 @@ class HomeController extends Controller
 
     private function getAllTimeSales()
     {
+        $currentYear = now()->year;
         $years = OrderItem::selectRaw('EXTRACT(YEAR FROM orders.created_at) as year')
             ->join('orders', 'order_items.order_id', '=', 'orders.id')
             ->distinct()
             ->orderBy('year')
             ->pluck('year');
+
+        // Add at least 5 years blank
+        for ($i = 0; $i < 5; $i++) {
+            if (!$years->contains($currentYear + $i)) {
+                $years->push($currentYear + $i);
+            }
+        }
+
+        $years = $years->sort()->values();
 
         $allTimeSales = OrderItem::selectRaw('EXTRACT(YEAR FROM orders.created_at) as year, SUM(quantity) as count')
             ->join('orders', 'order_items.order_id', '=', 'orders.id')
