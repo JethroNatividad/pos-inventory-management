@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\StockEntry;
 use App\Models\StockEntryLogs;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -16,6 +17,8 @@ class InventoryController extends Controller
      */
     public function index(): Response
     {
+        Gate::authorize('viewAny', StockEntry::class);
+
         return Inertia::render('Inventory/Index', [
             'stockEntries' => StockEntry::where('is_deleted', false)->get()
         ]);
@@ -26,6 +29,8 @@ class InventoryController extends Controller
      */
     public function create(): Response
     {
+        Gate::authorize('create', StockEntry::class);
+
         return Inertia::render('Inventory/Create');
     }
 
@@ -35,6 +40,8 @@ class InventoryController extends Controller
 
     public function store(Request $request)
     {
+        Gate::authorize('create', StockEntry::class);
+
         $validated = $request->validate([
             'name' => 'required|string',
             'description' => 'nullable|string',
@@ -99,6 +106,8 @@ class InventoryController extends Controller
 
     public function edit(StockEntry $stockEntry): Response
     {
+        Gate::authorize('update', $stockEntry);
+
         return Inertia::render('Inventory/Edit', [
             'stockEntry' => $stockEntry
         ]);
@@ -110,6 +119,8 @@ class InventoryController extends Controller
 
     public function update(Request $request, StockEntry $stockEntry)
     {
+        Gate::authorize('update', $stockEntry);
+
         $validated = $request->validate([
             'name' => 'required|string',
             'description' => 'nullable|string',
@@ -185,6 +196,8 @@ class InventoryController extends Controller
 
     public function destroy(Request $request, StockEntry $stockEntry)
     {
+        Gate::authorize('delete', $stockEntry);
+
         $stockEntry->deleteStockEntry();
 
         StockEntryLogs::create([
