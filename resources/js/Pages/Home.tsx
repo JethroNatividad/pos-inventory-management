@@ -61,7 +61,6 @@ const Home = ({
     return (
         <Layout>
             <Head title="Dashboard" />
-
             <div className="grid grid-cols-12 gap-4">
                 <div className="border rounded-lg col-span-12 lg:col-span-5 p-4 space-y-4">
                     <h1 className="text-xl font-medium">Inventory Status</h1>
@@ -147,31 +146,27 @@ const Home = ({
                 </div>
                 <div className="border rounded-lg col-span-12 lg:col-span-7 p-4 space-y-4">
                     <h1 className="text-xl font-medium">Sales Overview</h1>
-                    <div className="flex border rounded-lg w-fit p-1">
+                    <div className="flex border rounded-lg w-fit p-1 flex-wrap gap-2">
                         <Button
                             variant={range === "today" ? "default" : "ghost"}
-                            className="mr-2"
                             onClick={() => setRange("today")}
                         >
                             Today
                         </Button>
                         <Button
                             variant={range === "week" ? "default" : "ghost"}
-                            className="mr-2"
                             onClick={() => setRange("week")}
                         >
                             This Week
                         </Button>
                         <Button
                             variant={range === "month" ? "default" : "ghost"}
-                            className="mr-2"
                             onClick={() => setRange("month")}
                         >
                             This Month
                         </Button>
                         <Button
                             variant={range === "year" ? "default" : "ghost"}
-                            className="mr-2"
                             onClick={() => setRange("year")}
                         >
                             This Year
@@ -197,7 +192,7 @@ const Home = ({
                         }
                     />
 
-                    <p className="text-lg">Top Five Selling Items</p>
+                    <p className="text-lg">Top Selling Items</p>
 
                     <MyBarChart
                         data={
@@ -219,19 +214,17 @@ const Home = ({
                         <p>Total Revenue</p>
                         <p className="text-xl">
                             ₱
-                            {
-                                revenue[
-                                    range === "today"
-                                        ? "daily"
-                                        : range === "week"
-                                        ? "weekly"
-                                        : range === "month"
-                                        ? "monthly"
-                                        : range === "year"
-                                        ? "yearly"
-                                        : "allTime"
-                                ]
-                            }
+                            {revenue[
+                                range === "today"
+                                    ? "daily"
+                                    : range === "week"
+                                    ? "weekly"
+                                    : range === "month"
+                                    ? "monthly"
+                                    : range === "year"
+                                    ? "yearly"
+                                    : "allTime"
+                            ] || "0.00"}
                         </p>
                     </div>
                     <div className="border rounded-lg p-4">
