@@ -36,6 +36,7 @@ export interface Recipe {
     serving_names: string;
     servings: Serving[];
     is_available: boolean;
+    image?: string;
 }
 
 export interface Serving {
