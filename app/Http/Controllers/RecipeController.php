@@ -6,6 +6,7 @@ use App\Models\Recipe;
 use App\Models\RecipeLogs;
 use App\Models\StockEntry;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -172,6 +173,7 @@ class RecipeController extends Controller
      */
     public function update(Request $request, Recipe $recipe)
     {
+
         $messages = [
             'servings.required' => 'Please provide at least one serving.',
             'servings.array' => 'Servings should be an array.',
@@ -196,6 +198,7 @@ class RecipeController extends Controller
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
+            'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,gif', 'max:2048'],
             'servings' => ['required', 'array'],
             'servings.*.id' => ['nullable', 'integer', 'exists:servings,id'],
             'servings.*.name' => ['required', 'string', 'max:255'],
@@ -207,9 +210,16 @@ class RecipeController extends Controller
             'servings.*.ingredients.*.unit' => ['required', 'string', 'max:255'],
         ], $messages);
 
+        $imagePath = $recipe->image;
+
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('recipes', 'public');
+        }
+
         $recipe->update([
             'name' => $request->input('name'),
             'description' => $request->input('description'),
+            'image' => $imagePath,
         ]);
 
         $updatedServingIds = [];

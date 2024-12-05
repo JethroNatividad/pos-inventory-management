@@ -25,7 +25,7 @@ type Props = {
 const Index = ({ stockEntries }: Props) => {
     const { data, setData, post, processing, errors, reset } = useForm<
         RecipeFormData & { [key: string]: any }
-    >("createRecipeForm", {
+    >({
         name: "",
         description: "",
         image: null,

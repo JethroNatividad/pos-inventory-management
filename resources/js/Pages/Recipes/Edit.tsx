@@ -24,11 +24,12 @@ type Props = {
 };
 
 const Edit = ({ stockEntries, recipe }: Props) => {
-    const { data, setData, put, processing, errors, reset } = useForm<
+    const { data, setData, post, processing, errors, reset } = useForm<
         RecipeFormData & { [key: string]: any }
-    >("editRecipeForm", {
+    >({
         name: recipe.name,
         description: recipe.description,
+        image: null,
         servings: recipe.servings.map((serving) => ({
             id: String(serving.id),
             name: serving.name,
@@ -44,7 +45,7 @@ const Edit = ({ stockEntries, recipe }: Props) => {
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
-        put(route("recipes.update", recipe.id));
+        post(route("recipes.update", recipe.id));
     };
 
     const ingredientOptions = stockEntries.map((entry) => ({
@@ -101,6 +102,7 @@ const Edit = ({ stockEntries, recipe }: Props) => {
     return (
         <Layout>
             <Head title="Create Stock Entry" />
+            <p>{JSON.stringify(errors)}</p>
 
             <form
                 onSubmit={submit}
@@ -141,6 +143,20 @@ const Edit = ({ stockEntries, recipe }: Props) => {
                             placeholder="Recipe Description"
                         />
                         <InputError message={errors.description} />
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label htmlFor="image">Image</Label>
+                        <Input
+                            id="image"
+                            type="file"
+                            name="image"
+                            accept="image/*"
+                            onChange={(e) =>
+                                setData("image", e.target.files?.[0] || null)
+                            }
+                        />
+                        <InputError message={errors.image} />
                     </div>
 
                     <div className="flex justify-between items-center">
