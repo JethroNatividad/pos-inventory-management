@@ -19,12 +19,46 @@ class PermissionsSeeder extends Seeder
         //
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
-        $permissionsArray = [
+        $usersPermissions = [
             'view users',
             'create users',
             'edit users',
-            'delete users'
+            'delete users',
         ];
+
+        $stockEntriesPermissions = [
+            'view stock entries',
+            'create stock entries',
+            'edit stock entries',
+            'delete stock entries',
+        ];
+
+        $stocksPermissions = [
+            'view stocks',
+            'create stocks',
+            'edit stocks',
+            'delete stocks',
+        ];
+
+        $recipesPermissions = [
+            'view recipes',
+            'create recipes',
+            'edit recipes',
+            'delete recipes',
+        ];
+
+        $posPermissions = [
+            'view pos',
+            'create orders',
+        ];
+
+        $permissionsArray = array_merge(
+            $usersPermissions,
+            $stockEntriesPermissions,
+            $stocksPermissions,
+            $recipesPermissions,
+            $posPermissions
+        );
 
         $permissions = collect($permissionsArray)->map(function ($permission) {
             return ['name' => $permission, 'guard_name' => 'web'];
@@ -34,44 +68,16 @@ class PermissionsSeeder extends Seeder
 
         Role::create(['name' => 'store_manager'])->givePermissionTo($permissionsArray);
         Role::create(['name' => 'administrator'])->givePermissionTo($permissionsArray);
-        Role::create(['name' => 'cashier']);
-        Role::create(['name' => 'inventory_manager']);
+        Role::create(['name' => 'cashier'])->givePermissionTo($posPermissions);
+        Role::create(['name' => 'inventory_manager'])->givePermissionTo(array_merge($stockEntriesPermissions, $stocksPermissions));
 
         $newOwner = User::create([
-            'first_name' => 'owner',
+            'first_name' => 'store',
             'last_name' => 'owner',
             'email' => 'owner@email.com',
             'password' => bcrypt('password123'),
         ]);
 
         $newOwner->assignRole('store_manager');
-
-        $newAdmin = User::create([
-            'first_name' => 'admin',
-            'last_name' => 'admin',
-            'email' => 'admin@email.com',
-            'password' => bcrypt('password123'),
-
-        ]);
-
-        $newAdmin->assignRole('administrator');
-
-        $newCashier = User::create([
-            'first_name' => 'cashier',
-            'last_name' => 'cashier',
-            'email' => 'cashier@email.com',
-            'password' => bcrypt('password123'),
-        ]);
-
-        $newCashier->assignRole('cashier');
-
-        $newInventoryManager = User::create([
-            'first_name' => 'inventory',
-            'last_name' => 'manager',
-            'email' => 'inventorymanager@email.com',
-            'password' => bcrypt('password123'),
-        ]);
-
-        $newInventoryManager->assignRole('inventory_manager');
     }
 }

@@ -18,6 +18,9 @@ interface MyBarChartProps {
 }
 
 export default function MyBarChart({ data }: MyBarChartProps) {
+    if (data.length === 0) {
+        return <div>No data</div>;
+    }
     return (
         <ChartContainer
             config={{
