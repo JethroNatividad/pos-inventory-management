@@ -6,6 +6,7 @@ use App\Models\Recipe;
 use App\Models\RecipeLogs;
 use App\Models\StockEntry;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -18,6 +19,7 @@ class RecipeController extends Controller
      */
     public function index(): Response
     {
+        Gate::authorize('viewAny', Recipe::class);
         return Inertia::render('Recipes/Index', [
             'recipes' => Recipe::all()
         ]);
@@ -28,6 +30,7 @@ class RecipeController extends Controller
      */
     public function create(): Response
     {
+        Gate::authorize('create', Recipe::class);
         return Inertia::render('Recipes/Create', [
             'stockEntries' => StockEntry::where('is_deleted', false)->get()
         ]);
@@ -38,6 +41,7 @@ class RecipeController extends Controller
      */
     public function store(Request $request)
     {
+        Gate::authorize('create', Recipe::class);
 
         $messages = [
             'servings.required' => 'Please provide at least one serving.',
@@ -159,6 +163,7 @@ class RecipeController extends Controller
      */
     public function edit(Recipe $recipe)
     {
+        Gate::authorize('update', $recipe);
         $recipe->load('servings.recipeIngredients.stockEntry');
         $stockEntries = StockEntry::where('is_deleted', false)->get();
 
@@ -173,6 +178,7 @@ class RecipeController extends Controller
      */
     public function update(Request $request, Recipe $recipe)
     {
+        Gate::authorize('update', $recipe);
 
         $messages = [
             'servings.required' => 'Please provide at least one serving.',
@@ -268,6 +274,7 @@ class RecipeController extends Controller
      */
     public function destroy(Request $request, Recipe $recipe)
     {
+        Gate::authorize('delete', $recipe);
         $recipe->delete();
 
         RecipeLogs::Create([
