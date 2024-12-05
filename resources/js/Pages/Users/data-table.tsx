@@ -55,7 +55,7 @@ export function DataTable<TData, TValue>({
 
     return (
         <div className="grid auto-rows-max space-y-4">
-            <div className="flex justify-between items-end">
+            <div className="flex justify-between items-end gap-2">
                 <div className="flex space-x-2 w-full">
                     <div className="max-w-xs w-full space-y-2">
                         <Label>Search</Label>
