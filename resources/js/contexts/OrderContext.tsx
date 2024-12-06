@@ -67,7 +67,7 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({
         );
 
     const decrementOrder = (id: string) => {
-        if (orders.find((order) => order.id === id)?.quantity === 1) {
+        if ((orders.find((order) => order.id === id)?.quantity ?? 0) <= 1) {
             return removeOrder(id);
         }
 

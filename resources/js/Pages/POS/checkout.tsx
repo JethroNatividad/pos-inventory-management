@@ -47,7 +47,7 @@ const Checkout = () => {
         e.preventDefault();
 
         post(route("orders.store"), {
-            onSuccess: () => {
+            onStart: () => {
                 reset();
                 clearOrders();
                 setOpen(false);
