@@ -102,8 +102,6 @@ const Edit = ({ stockEntries, recipe }: Props) => {
     return (
         <Layout>
             <Head title="Create Stock Entry" />
-            <p>{JSON.stringify(errors)}</p>
-
             <form
                 onSubmit={submit}
                 className="max-w-md w-full mx-auto space-y-4"
