@@ -48,7 +48,7 @@ class HomeController extends Controller
     {
         $hours = collect(range(0, 23))->map(function ($hour) {
             return [
-                'label' => Carbon::createFromTime($hour)->format('g A'),
+                'label' => Carbon::createFromTime($hour)->setTimezone('Asia/Shanghai')->format('g A'),
                 'count' => 0
             ];
         });
@@ -59,11 +59,15 @@ class HomeController extends Controller
             ->groupBy('label')
             ->get()
             ->map(function ($item) {
-                $item->label = Carbon::createFromTime($item->label)->format('g A');
+                $item->label = Carbon::createFromTime($item->label)->setTimezone('Asia/Shanghai')->format('g A');
                 return $item;
             });
 
-        return $hours->map(function ($hour) use ($hourlySales) {
+        $sortedHours = $hours->sortBy(function ($hour) {
+            return Carbon::parse($hour['label'])->hour;
+        })->values();
+
+        return $sortedHours->map(function ($hour) use ($hourlySales) {
             $sale = $hourlySales->firstWhere('label', $hour['label']);
             return $sale ?: $hour;
         });
