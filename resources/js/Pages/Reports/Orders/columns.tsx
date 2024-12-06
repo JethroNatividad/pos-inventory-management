@@ -36,6 +36,30 @@ import { LucideMoreHorizontal } from "lucide-react";
 //     user: User;
 //     created_at: string;
 
+const ActionsCell = ({ row }: { row: Row<Order> }) => {
+    return (
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                    <span className="sr-only">Open menu</span>
+                    <LucideMoreHorizontal className="h-4 w-4" />
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+
+                <DropdownMenuItem asChild>
+                    <Link
+                        href={route("reports.orders.receipt", row.original.id)}
+                    >
+                        View Receipt
+                    </Link>
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
+    );
+};
+
 export const columns: ColumnDef<Order>[] = [
     {
         accessorKey: "id",
@@ -90,5 +114,9 @@ export const columns: ColumnDef<Order>[] = [
     {
         accessorKey: "type",
         header: "Type",
+    },
+    {
+        id: "actions",
+        cell: ActionsCell,
     },
 ];
