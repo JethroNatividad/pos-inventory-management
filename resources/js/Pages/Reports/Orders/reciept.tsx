@@ -73,7 +73,7 @@ export default function Receipt({ order }: ReceiptProps) {
                     </div>
                 </div>
             </CardContent>
-            <CardFooter className="text-center text-sm text-muted-foreground border-t">
+            <CardFooter className="text-center text-sm text-muted-foreground border-t pt-5">
                 <div className="w-full">Thank you for your order!</div>
             </CardFooter>
         </Card>
