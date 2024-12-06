@@ -84,6 +84,9 @@ class OrderController extends Controller
                 }
             }
         }
+
+        // Redirect to reports.orders.receipt, orderid
+        return redirect()->route('reports.orders.receipt', ['order' => $order->id]);
     }
 
     /**

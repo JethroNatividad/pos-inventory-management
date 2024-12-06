@@ -47,6 +47,7 @@ export interface Serving {
     is_available: boolean;
     quantity_available: number;
     cost: number;
+    recipe: Recipe;
 }
 
 export interface Ingredient {
@@ -124,6 +125,7 @@ export type Order = {
     total_cost: number;
     total_income: number;
     created_at: string;
+    items: OrderItem[];
 };
 
 export type OrderItem = {
