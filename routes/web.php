@@ -82,6 +82,12 @@ Route::middleware(['auth', FirstLoginRedirect::class])->group(function () {
         ]);
     })->name('reports.recipes');
 
+    Route::get('/reports/orders/{order}/receipt', function (Order $order) {
+        return Inertia::render('Reports/Orders/ReceiptPage', [
+            'order' => $order->load(['items.serving.recipe', 'user']),
+        ]);
+    })->name('reports.orders.receipt');
+
     Route::get('/reports/orders', function () {
         return Inertia::render('Reports/Orders/Index', [
             'orders' => Order::all()->load(['user', 'items.serving'])
