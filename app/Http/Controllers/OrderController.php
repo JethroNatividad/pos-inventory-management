@@ -6,6 +6,7 @@ use App\Models\Order;
 use App\Models\Serving;
 use App\Models\StockActivityLogs;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class OrderController extends Controller
@@ -32,61 +33,83 @@ class OrderController extends Controller
             'orders.*.quantity' => 'required|numeric',
         ]);
 
-        $order = Order::create([
-            'subtotal' => $request->subtotal,
-            'discountPercentage' => $request->discountPercentage,
-            'total' => $request->total,
-            'type' => $request->type,
-            'user_id' => $request->user()->id,
-        ]);
+        // Start a database transaction
+        DB::beginTransaction();
 
-        foreach ($request->orders as $orderItem) {
-            $order->items()->create([
-                'serving_id' => $orderItem['serving']['id'],
-                'quantity' => $orderItem['quantity'],
-                'price' => $orderItem['serving']['price'],
+        try {
+            // Create the order
+            $order = Order::create([
+                'subtotal' => $request->subtotal,
+                'discountPercentage' => $request->discountPercentage,
+                'total' => $request->total,
+                'type' => $request->type,
+                'user_id' => $request->user()->id,
             ]);
 
-            $ingredients = Serving::find($orderItem['serving']['id'])->recipeIngredients;
+            // Process each order item
+            foreach ($request->orders as $orderItem) {
+                $order->items()->create([
+                    'serving_id' => $orderItem['serving']['id'],
+                    'quantity' => $orderItem['quantity'],
+                    'price' => $orderItem['serving']['price'],
+                ]);
 
-            foreach ($ingredients as $ingredient) {
-                $requiredQuantity = $ingredient->quantity * $orderItem['quantity'];
+                // Get the ingredients for the serving
+                $ingredients = Serving::find($orderItem['serving']['id'])->recipeIngredients;
 
-                $stocks = $ingredient->stockEntry->stocks()
-                    ->where('quantity', '>', 0)
-                    ->orderBy('expiry_date')
-                    ->orderBy('created_at')
-                    ->get();
+                foreach ($ingredients as $ingredient) {
+                    $requiredQuantity = $ingredient->quantity * $orderItem['quantity'];
 
-                $totalAvailable = $stocks->sum('quantity');
-                if ($totalAvailable < $requiredQuantity) {
-                    throw new \Exception("Insufficient stock for {$ingredient->stockEntry->name}.");
-                }
+                    // Fetch available stocks
+                    $stocks = $ingredient->stockEntry->stocks()
+                        ->where('quantity', '>', 0)
+                        ->orderBy('expiry_date')
+                        ->orderBy('created_at')
+                        ->get();
 
-                foreach ($stocks as $stock) {
-                    if ($requiredQuantity <= 0) break;
+                    $totalAvailable = $stocks->sum('quantity');
+                    if ($totalAvailable < $requiredQuantity) {
+                        throw new \Exception("Insufficient stock for {$ingredient->stockEntry->name}.");
+                    }
 
-                    $deductQuantity = min($stock->quantity, $requiredQuantity);
+                    // Deduct stock quantities
+                    foreach ($stocks as $stock) {
+                        if ($requiredQuantity <= 0) break;
 
-                    $stock->decrement('quantity', $deductQuantity);
+                        $deductQuantity = min($stock->quantity, $requiredQuantity);
 
-                    StockActivityLogs::create([
-                        'stock_id' => $stock->id,
-                        'user_id' => $request->user()->id,
-                        'action' => 'stock_out',
-                        'quantity' => $deductQuantity,
-                        'reason' => 'Deducted from Order #' . $order->id,
-                        'batch_label' => $stock->batch_label,
-                        'price' => $stock->unit_price * $deductQuantity,
-                    ]);
+                        $stock->decrement('quantity', $deductQuantity);
 
-                    $requiredQuantity -= $deductQuantity;
+                        StockActivityLogs::create([
+                            'stock_id' => $stock->id,
+                            'user_id' => $request->user()->id,
+                            'action' => 'stock_out',
+                            'quantity' => $deductQuantity,
+                            'reason' => 'Deducted from Order #' . $order->id,
+                            'batch_label' => $stock->batch_label,
+                            'price' => $stock->unit_price * $deductQuantity,
+                        ]);
+
+                        $requiredQuantity -= $deductQuantity;
+                    }
                 }
             }
-        }
 
-        // Redirect to reports.orders.receipt, orderid
-        return redirect()->route('reports.orders.receipt', ['order' => $order->id]);
+            // Commit the transaction if everything is successful
+            DB::commit();
+
+            // Redirect to the receipt page
+            return redirect()->route('reports.orders.receipt', ['order' => $order->id]);
+        } catch (\Exception $e) {
+            // Rollback the transaction if any exception occurs
+            DB::rollBack();
+
+            // Log the error for debugging
+            Log::error('Order creation failed: ' . $e->getMessage());
+
+            // Return an error response
+            return back()->withErrors(['error' => 'Order creation failed: ' . $e->getMessage()]);
+        }
     }
 
     /**
