@@ -81,12 +81,12 @@ export function NavUser({ user }: NavUserProps) {
                                 </div>
                             </div>
                         </DropdownMenuLabel>
-                        <DropdownMenuGroup>
+                        {/* <DropdownMenuGroup>
                             <DropdownMenuItem>
                                 <User />
                                 Account
                             </DropdownMenuItem>
-                        </DropdownMenuGroup>
+                        </DropdownMenuGroup> */}
                         <DropdownMenuSeparator />
 
                         <Link

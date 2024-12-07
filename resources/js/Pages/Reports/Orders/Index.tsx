@@ -13,7 +13,7 @@ const Index = ({ orders }: Props) => {
         <Layout>
             <Head title="Reports" />
             <div>
-                <h1 className="text-xl font-medium mb-2">Recipe Logs</h1>
+                <h1 className="text-xl font-medium mb-2">Order Logs</h1>
             </div>
             <DataTable columns={columns} data={orders} />
         </Layout>
