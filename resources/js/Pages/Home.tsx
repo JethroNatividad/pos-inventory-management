@@ -55,6 +55,7 @@ const Home = ({
     expenses,
     income,
 }: Props) => {
+    // Fix this
     const [range, setRange] = useState<
         "today" | "week" | "month" | "year" | "all"
     >("today");
