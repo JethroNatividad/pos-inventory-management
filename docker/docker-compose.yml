@@ -1,18 +1,10 @@
 services:
-
-  app:
-    build: .
-    command: tail -f /dev/null 
-    volumes:
-      - ./:/workspace:cached
-
   pgadmin:
     image: dpage/pgadmin4:8.9
     restart: always
     environment:
       PGADMIN_DEFAULT_EMAIL: dev@pgadmin.org
       PGADMIN_DEFAULT_PASSWORD: dev      
-      PGADMIN_CONFIG_WTF_CSRF_HEADERS: '["Referer", "Origin"]'
       PGADMIN_CONFIG_WTF_CSRF_ENABLED: 'False'
     volumes:
       - pgadmin-data:/var/lib/pgadmin
@@ -32,12 +24,6 @@ services:
       - "5432:5432"
     volumes:                 
       - pg-data:/var/lib/postgresql/data
-
-    # POSTGRES_HOST_AUTH_METHOD: "trust"
-    # PGHBA_CONF_CONTENT: |
-    #   host    all             all             0.0.0.0/0               md5    
-    # - ./pgdata:/var/lib/postgresql/data
-      # host    all             all             0.0.0.0/0               trust
 
 volumes:
   pgadmin-data:
