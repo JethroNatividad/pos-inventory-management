@@ -110,12 +110,19 @@ export const columns: ColumnDef<StockEntry>[] = [
         accessorKey: "quantity",
         header: "Quantity",
         cell: ({ row }) => {
-            return `${row.original.quantity}${row.original.unit}`;
+            const color =
+                row.original.quantity <= 0
+                    ? "text-red-500"
+                    : row.original.quantity < row.original.warn_stock_level
+                    ? "text-yellow-500"
+                    : "text-green-500";
+
+            return (
+                <span
+                    className={`${color}`}
+                >{`${row.original.quantity}${row.original.unit}`}</span>
+            );
         },
-    },
-    {
-        accessorKey: "quantity_status",
-        header: "Stock Level",
     },
     {
         accessorKey: "perishable",
