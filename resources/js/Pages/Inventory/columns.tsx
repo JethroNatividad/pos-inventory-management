@@ -144,6 +144,7 @@ export const columns: ColumnDef<StockEntry>[] = [
 
     {
         id: "actions",
+        header: "Actions",
         cell: ActionsCell,
     },
 ];
