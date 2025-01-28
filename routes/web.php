@@ -27,16 +27,6 @@ Route::middleware(['auth', FirstLoginRedirect::class])->group(function () {
         Route::delete('/{stockEntry}', 'destroy')->name('destroy');
     });
 
-    // Inventory Management
-    Route::controller(InventoryController::class)->prefix('inventory')->name('inventory.')->group(function () {
-        Route::get('/', 'index')->name('index');
-        Route::get('/create', 'create')->name('create');
-        Route::post('/store', 'store')->name('store');
-        Route::get('/{stockEntry}/edit', 'edit')->name('edit');
-        Route::put('/{stockEntry}', 'update')->name('update');
-        Route::delete('/{stockEntry}', 'destroy')->name('destroy');
-    });
-
     // Stock Management
     Route::controller(StockController::class)->prefix('inventory/{stockEntry}/stocks')->name('stock.')->group(function () {
         Route::get('/create', 'create')->name('create');

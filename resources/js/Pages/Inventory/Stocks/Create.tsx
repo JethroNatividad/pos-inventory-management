@@ -1,4 +1,5 @@
 import InputError from "@/Components/input-error";
+import SubmitButton from "@/Components/submit-button";
 import { Button } from "@/Components/ui/button";
 import { Calendar } from "@/Components/ui/calendar";
 import { Input } from "@/Components/ui/input";
@@ -18,11 +19,12 @@ import {
 import { units } from "@/data/units";
 import Layout from "@/Layouts/Layout";
 import { cn } from "@/lib/utils";
-import type { StockEntry } from "@/types";
-import { Head, Link, useForm } from "@inertiajs/react";
+import type { PageProps, Stock, StockEntry } from "@/types";
+import { Head, Link, useForm, usePage } from "@inertiajs/react";
 import { format } from "date-fns";
 import { CalendarIcon, ChevronLeft } from "lucide-react";
 import { FormEventHandler } from "react";
+import { toast } from "sonner";
 
 type Props = {
     stockEntry: StockEntry;
@@ -30,7 +32,7 @@ type Props = {
 
 const AddStock = ({ stockEntry }: Props) => {
     const { data, setData, post, processing, errors, reset } = useForm({
-        batch_label: "",
+        batch_label: `Batch ${format(new Date(), "yyyy-MM-dd")}`,
         quantity: "",
         price: "",
         unit: units[stockEntry.type][0],
@@ -184,9 +186,9 @@ const AddStock = ({ stockEntry }: Props) => {
                     )}
 
                     <div className="flex justify-end">
-                        <Button type="submit" disabled={processing}>
+                        <SubmitButton isLoading={processing}>
                             Add stock
-                        </Button>
+                        </SubmitButton>
                     </div>
                 </div>
             </form>

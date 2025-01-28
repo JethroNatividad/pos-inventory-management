@@ -25,7 +25,7 @@ class StockEntry extends Model
         return $this->hasMany(Stock::class);
     }
 
-    protected $appends = ['quantity', 'quantity_status', 'upcoming_expiry', 'average_price', 'unit'];
+    protected $appends = ['quantity', 'upcoming_expiry', 'average_price', 'unit'];
 
     public function getQuantityAttribute()
     {
@@ -35,17 +35,6 @@ class StockEntry extends Model
         }
 
         return $this->stocks->sum('quantity');
-    }
-
-    public function getQuantityStatusAttribute()
-    {
-        if ($this->quantity <= 0) {
-            return 'Out of stock';
-        } elseif ($this->quantity < $this->warn_stock_level) {
-            return 'Low stock';
-        } else {
-            return 'In stock';
-        }
     }
 
     public function deleteStockEntry()

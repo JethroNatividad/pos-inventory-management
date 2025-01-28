@@ -112,7 +112,7 @@ class StockController extends Controller
             'is_perishable' => $stock->is_perishable,
         ]);
 
-        return redirect()->route('inventory.index');
+        return redirect()->route('inventory.index')->with('message', 'Stock Added');;
     }
 
     /**
