@@ -19,11 +19,12 @@ import {
 import { units } from "@/data/units";
 import Layout from "@/Layouts/Layout";
 import { cn } from "@/lib/utils";
-import type { StockEntry } from "@/types";
-import { Head, Link, useForm } from "@inertiajs/react";
+import type { PageProps, Stock, StockEntry } from "@/types";
+import { Head, Link, useForm, usePage } from "@inertiajs/react";
 import { format } from "date-fns";
 import { CalendarIcon, ChevronLeft } from "lucide-react";
 import { FormEventHandler } from "react";
+import { toast } from "sonner";
 
 type Props = {
     stockEntry: StockEntry;
