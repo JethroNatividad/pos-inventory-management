@@ -1,4 +1,5 @@
 import InputError from "@/Components/input-error";
+import SubmitButton from "@/Components/submit-button";
 import { Button } from "@/Components/ui/button";
 import { Calendar } from "@/Components/ui/calendar";
 import { Input } from "@/Components/ui/input";
@@ -184,9 +185,9 @@ const AddStock = ({ stockEntry }: Props) => {
                     )}
 
                     <div className="flex justify-end">
-                        <Button type="submit" disabled={processing}>
+                        <SubmitButton isLoading={processing}>
                             Add stock
-                        </Button>
+                        </SubmitButton>
                     </div>
                 </div>
             </form>
