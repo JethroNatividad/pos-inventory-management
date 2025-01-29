@@ -32,7 +32,7 @@ type Props = {
 
 const AddStock = ({ stockEntry }: Props) => {
     const { data, setData, post, processing, errors, reset } = useForm({
-        batch_label: `Batch ${format(new Date(), "yyyy-MM-dd")}`,
+        batch_label: `Batch ${format(new Date(), "yyyy-MM-dd HH:mm:ss")}`,
         quantity: "",
         price: "",
         unit: units[stockEntry.type][0],
