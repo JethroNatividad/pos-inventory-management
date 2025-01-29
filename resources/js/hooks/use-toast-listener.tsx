@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { usePage, router } from "@inertiajs/react";
 import { toast } from "sonner";
 
-export function useToast() {
+export function useToastListener() {
     const { toast: flashToast } = usePage().props;
 
     useEffect(() => {

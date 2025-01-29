@@ -8,10 +8,12 @@ import { Toaster } from "@/Components/ui/sonner";
 import { usePage } from "@inertiajs/react";
 import { PropsWithChildren } from "react";
 import Cookies from "js-cookie";
+import { useToastListener } from "@/hooks/use-toast-listener";
 
 export default function Layout({ children }: PropsWithChildren) {
     const user = usePage().props.auth.user;
     const defaultOpen = Cookies.get("sidebar:state") === "true";
+    useToastListener();
 
     return (
         <SidebarProvider defaultOpen={defaultOpen}>

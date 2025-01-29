@@ -3,15 +3,12 @@ import { Head } from "@inertiajs/react";
 import { DataTable } from "./data-table";
 import { columns } from "./columns";
 import type { StockEntry } from "@/types";
-import { useToast } from "@/hooks/use-toast";
 
 type Props = {
     stockEntries: StockEntry[];
 };
 
 const Index = ({ stockEntries }: Props) => {
-    useToast();
-
     return (
         <Layout>
             <Head title="Inventory" />
