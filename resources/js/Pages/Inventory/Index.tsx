@@ -1,33 +1,16 @@
 import Layout from "@/Layouts/Layout";
-import { Head, router, usePage } from "@inertiajs/react";
+import { Head } from "@inertiajs/react";
 import { DataTable } from "./data-table";
 import { columns } from "./columns";
-import type { PageProps, StockEntry } from "@/types";
-import { useEffect } from "react";
-import { toast } from "sonner";
+import type { StockEntry } from "@/types";
+import { useToast } from "@/hooks/use-toast";
 
 type Props = {
     stockEntries: StockEntry[];
 };
 
 const Index = ({ stockEntries }: Props) => {
-    const { toast: flashToast } = usePage().props;
-
-    useEffect(() => {
-        if (flashToast?.message) {
-            toast(flashToast.message, {
-                description: flashToast.description,
-                action: flashToast.action
-                    ? {
-                          label: flashToast.action.label,
-                          onClick: () =>
-                              flashToast.action &&
-                              router.visit(flashToast.action.url),
-                      }
-                    : undefined,
-            });
-        }
-    }, [flashToast]);
+    useToast();
 
     return (
         <Layout>
