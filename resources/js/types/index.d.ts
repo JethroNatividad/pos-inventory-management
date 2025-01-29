@@ -139,13 +139,20 @@ export type OrderItem = {
     income: number;
 };
 
+interface ToastData {
+    message: string;
+    description?: string;
+    action?: {
+        label: string;
+        url: string;
+    };
+}
+
 export type PageProps<
     T extends Record<string, unknown> = Record<string, unknown>
 > = T & {
     auth: {
         user: User;
     };
-    flash: {
-        message?: string;
-    };
+    toast?: ToastData;
 };

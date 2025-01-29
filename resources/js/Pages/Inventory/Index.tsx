@@ -1,5 +1,5 @@
 import Layout from "@/Layouts/Layout";
-import { Head, usePage } from "@inertiajs/react";
+import { Head, router, usePage } from "@inertiajs/react";
 import { DataTable } from "./data-table";
 import { columns } from "./columns";
 import type { PageProps, StockEntry } from "@/types";
@@ -11,13 +11,23 @@ type Props = {
 };
 
 const Index = ({ stockEntries }: Props) => {
-    const { flash } = usePage().props;
+    const { toast: flashToast } = usePage().props;
 
     useEffect(() => {
-        if (flash.message) {
-            toast(flash.message);
+        if (flashToast?.message) {
+            toast(flashToast.message, {
+                description: flashToast.description,
+                action: flashToast.action
+                    ? {
+                          label: flashToast.action.label,
+                          onClick: () =>
+                              flashToast.action &&
+                              router.visit(flashToast.action.url),
+                      }
+                    : undefined,
+            });
         }
-    }, [flash.message]);
+    }, [flashToast]);
 
     return (
         <Layout>

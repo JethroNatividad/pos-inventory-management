@@ -72,6 +72,8 @@ class StockController extends Controller
 
         // Convert the quantity, the base unit are ml for liquid, grams for powder, pcs for item
         // Convert quantity to base units
+
+        $originalQuantity = $validated['quantity'];
         switch ($stockEntry->type) {
             case 'liquid':
                 $validated['quantity'] = match ($validated['unit']) {
@@ -112,7 +114,16 @@ class StockController extends Controller
             'is_perishable' => $stock->is_perishable,
         ]);
 
-        return redirect()->route('inventory.index')->with('message', 'Stock Added');;
+        return redirect()->route('inventory.index')->with([
+            'toast' => [
+                'message' => 'Stock Added',
+                'description' => "Quantity: {$originalQuantity} {$validated['unit']}",
+                'action' => [
+                    'label' => 'View Stock',
+                    'url' => '#'
+                ]
+            ]
+        ]);
     }
 
     /**
