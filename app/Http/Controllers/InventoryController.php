@@ -97,7 +97,16 @@ class InventoryController extends Controller
             'action' => 'create'
         ]);
 
-        return redirect()->route('inventory.index');
+        return redirect()->route('inventory.index')->with([
+            'toast' => [
+                'message' => 'Stock Entry Created',
+                'description' => "Added {$stockEntry->name} to the inventory.",
+                'action' => [
+                    'label' => 'Add Stock',
+                    'url' => route('stock.create', $stockEntry->id)
+                ]
+            ]
+        ]);
     }
 
     /**

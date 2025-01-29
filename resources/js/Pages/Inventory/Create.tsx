@@ -1,4 +1,5 @@
 import InputError from "@/Components/input-error";
+import SubmitButton from "@/Components/submit-button";
 import { Button } from "@/Components/ui/button";
 import { Input } from "@/Components/ui/input";
 import { Label } from "@/Components/ui/label";
@@ -204,9 +205,9 @@ const Index = () => {
                     )}
 
                     <div className="flex justify-end">
-                        <Button type="submit" disabled={processing}>
+                        <SubmitButton isLoading={processing}>
                             Create
-                        </Button>
+                        </SubmitButton>
                     </div>
                 </div>
             </form>

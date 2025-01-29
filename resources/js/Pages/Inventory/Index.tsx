@@ -1,24 +1,14 @@
 import Layout from "@/Layouts/Layout";
-import { Head, usePage } from "@inertiajs/react";
+import { Head } from "@inertiajs/react";
 import { DataTable } from "./data-table";
 import { columns } from "./columns";
-import type { PageProps, StockEntry } from "@/types";
-import { useEffect } from "react";
-import { toast } from "sonner";
+import type { StockEntry } from "@/types";
 
 type Props = {
     stockEntries: StockEntry[];
 };
 
 const Index = ({ stockEntries }: Props) => {
-    const { flash } = usePage().props;
-
-    useEffect(() => {
-        if (flash.message) {
-            toast(flash.message);
-        }
-    }, [flash.message]);
-
     return (
         <Layout>
             <Head title="Inventory" />
