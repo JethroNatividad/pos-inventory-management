@@ -117,11 +117,11 @@ class StockController extends Controller
         return redirect()->route('inventory.index')->with([
             'toast' => [
                 'message' => 'Stock Added',
-                'description' => "Quantity: {$originalQuantity} {$validated['unit']}",
-                'action' => [
-                    'label' => 'View Stock',
-                    'url' => '#'
-                ]
+                'description' => "Added {$originalQuantity}{$validated['unit']} of {$stockEntry->name}.",
+                // 'action' => [
+                //     'label' => 'View Stock',
+                //     'url' => '#'
+                // ]
             ]
         ]);
     }
