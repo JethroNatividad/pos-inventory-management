@@ -208,7 +208,8 @@ class InventoryController extends Controller
     {
         Gate::authorize('delete', $stockEntry);
 
-        $stockEntry->deleteStockEntry();
+        $stockEntry->stocks()->delete();
+        $stockEntry->delete();
 
         StockEntryLogs::create([
             'stock_entry_id' => $stockEntry->id,
@@ -220,6 +221,37 @@ class InventoryController extends Controller
             'toast' => [
                 'message' => 'Stock Entry Deleted',
                 'description' => "Removed {$stockEntry->name} from the inventory.",
+                'action' => [
+                    'label' => 'Undo',
+                    'url' => route('inventory.restore', $stockEntry->id),
+                    'method' => 'patch'
+                ]
+            ]
+        ]);
+    }
+
+    /**
+     * Restore the specified resource from storage.
+     */
+
+    public function restore(Request $request, $stockEntry)
+    {
+        // Gate::authorize('restore', $stockEntry);
+        $stockEntry = StockEntry::withTrashed()->findOrFail($stockEntry);
+
+        $stockEntry->stocks()->restore();
+        $stockEntry->restore();
+
+        StockEntryLogs::create([
+            'stock_entry_id' => $stockEntry->id,
+            'user_id' => $request->user()->id,
+            'action' => 'restore'
+        ]);
+
+        return redirect()->route('inventory.index')->with([
+            'toast' => [
+                'message' => 'Stock Entry Restored',
+                'description' => "Restored {$stockEntry->name} to the inventory.",
             ]
         ]);
     }

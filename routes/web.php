@@ -25,6 +25,7 @@ Route::middleware(['auth', FirstLoginRedirect::class])->group(function () {
         Route::get('/{stockEntry}/edit', 'edit')->name('edit');
         Route::put('/{stockEntry}', 'update')->name('update');
         Route::delete('/{stockEntry}', 'destroy')->name('destroy');
+        Route::patch('/{stockEntry}/restore', 'restore')->name('restore');
     });
 
     // Stock Management

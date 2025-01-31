@@ -12,9 +12,25 @@ export function useToastListener() {
                 action: flashToast.action
                     ? {
                           label: flashToast.action.label,
-                          onClick: () =>
-                              flashToast.action &&
-                              router.visit(flashToast.action.url),
+                          onClick: () => {
+                              if (!flashToast.action) return;
+                              const method = flashToast.action.method || "get";
+
+                              if (method === "get")
+                                  router.get(flashToast.action.url);
+
+                              if (method === "post")
+                                  router.post(flashToast.action.url);
+
+                              if (method === "put")
+                                  router.put(flashToast.action.url);
+
+                              if (method === "delete")
+                                  router.delete(flashToast.action.url);
+
+                              if (method === "patch")
+                                  router.patch(flashToast.action.url);
+                          },
                       }
                     : undefined,
             });
