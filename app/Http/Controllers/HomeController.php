@@ -30,7 +30,7 @@ class HomeController extends Controller
 
     private function getLowStocks()
     {
-        return StockEntry::where('is_deleted', false)->get()
+        return StockEntry::all()
             ->filter(function ($stockEntry) {
                 return $stockEntry->quantity < $stockEntry->warn_stock_level;
             })->values()->toArray();

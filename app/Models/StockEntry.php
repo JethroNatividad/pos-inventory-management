@@ -18,7 +18,6 @@ class StockEntry extends Model
         'perishable',
         'warn_stock_level',
         'warn_days_remaining',
-        'is_deleted'
     ];
 
     public function stocks()

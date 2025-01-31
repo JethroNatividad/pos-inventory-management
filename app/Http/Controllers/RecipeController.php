@@ -32,7 +32,7 @@ class RecipeController extends Controller
     {
         Gate::authorize('create', Recipe::class);
         return Inertia::render('Recipes/Create', [
-            'stockEntries' => StockEntry::where('is_deleted', false)->get()
+            'stockEntries' => StockEntry::all()
         ]);
     }
 
@@ -165,7 +165,7 @@ class RecipeController extends Controller
     {
         Gate::authorize('update', $recipe);
         $recipe->load('servings.recipeIngredients.stockEntry');
-        $stockEntries = StockEntry::where('is_deleted', false)->get();
+        $stockEntries = StockEntry::all();
 
         return Inertia::render('Recipes/Edit', [
             'recipe' => $recipe,
