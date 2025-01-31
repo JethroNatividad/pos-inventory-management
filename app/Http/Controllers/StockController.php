@@ -142,7 +142,8 @@ class StockController extends Controller
     {
         return Inertia::render('Inventory/Stocks/Remove', [
             'stockEntry' => $stockEntry,
-            'batchLabels' => $stockEntry->stocks->pluck('batch_label')
+            // {label: 'Batch 1', amount: 'number of stocks'}
+            'batchLabels' => $stockEntry->stocks->pluck('batch_label')->map(fn($label) => ['label' => $label, 'amount' => $stockEntry->stocks->where('batch_label', $label)->sum('quantity')]),
         ]);
     }
 
@@ -193,6 +194,14 @@ class StockController extends Controller
                     default => $validated['quantity'], // If pieces, no conversion needed
                 };
                 break;
+        }
+
+        // Check if the quantity to remove is greater than the quantity in stock
+        if ($validated['quantity'] > $stock->quantity) {
+            // Show validation error
+            return redirect()->back()->withErrors([
+                'quantity' => 'The quantity to remove is greater than the quantity in stock.'
+            ]);
         }
 
         $stock->decrement('quantity', $validated['quantity']);
