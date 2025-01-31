@@ -5,11 +5,12 @@ namespace App\Models;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class StockEntry extends Model
 {
 
-    use HasFactory;
+    use HasFactory, SoftDeletes;
     protected $fillable = [
         'name',
         'description',
@@ -35,14 +36,6 @@ class StockEntry extends Model
         }
 
         return $this->stocks->sum('quantity');
-    }
-
-    public function deleteStockEntry()
-    {
-        $this->stocks()->delete();
-        $this->update([
-            'is_deleted' => true
-        ]);
     }
 
     public function getUpcomingExpiryAttribute()

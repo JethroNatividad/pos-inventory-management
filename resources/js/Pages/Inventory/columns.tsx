@@ -63,9 +63,8 @@ const ActionsCell = ({ row }: { row: Row<StockEntry> }) => {
                         Are you absolutely sure?
                     </AlertDialogTitle>
                     <AlertDialogDescription>
-                        This action cannot be undone. This will permanently
-                        delete the stock entry '{row.getValue("name")}' from the
-                        database.
+                        This will delete the stock entry '{row.getValue("name")}
+                        '.
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>

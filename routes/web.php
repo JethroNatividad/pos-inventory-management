@@ -25,6 +25,7 @@ Route::middleware(['auth', FirstLoginRedirect::class])->group(function () {
         Route::get('/{stockEntry}/edit', 'edit')->name('edit');
         Route::put('/{stockEntry}', 'update')->name('update');
         Route::delete('/{stockEntry}', 'destroy')->name('destroy');
+        Route::patch('/{stockEntry}/restore', 'restore')->name('restore');
     });
 
     // Stock Management
@@ -33,6 +34,7 @@ Route::middleware(['auth', FirstLoginRedirect::class])->group(function () {
         Route::post('/store', 'store')->name('store');
         Route::get('/remove', 'removeForm')->name('removeForm');
         Route::post('/remove', 'remove')->name('remove');
+        Route::patch('/restore', 'restore')->name('restore');
     });
 
     // Recipe Management
