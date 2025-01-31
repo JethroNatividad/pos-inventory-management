@@ -15,21 +15,22 @@ export function useToastListener() {
                           onClick: () => {
                               if (!flashToast.action) return;
                               const method = flashToast.action.method || "get";
+                              const data = flashToast.action.data || {};
 
                               if (method === "get")
                                   router.get(flashToast.action.url);
 
                               if (method === "post")
-                                  router.post(flashToast.action.url);
+                                  router.post(flashToast.action.url, data);
 
                               if (method === "put")
-                                  router.put(flashToast.action.url);
+                                  router.put(flashToast.action.url, data);
 
                               if (method === "delete")
                                   router.delete(flashToast.action.url);
 
                               if (method === "patch")
-                                  router.patch(flashToast.action.url);
+                                  router.patch(flashToast.action.url, data);
                           },
                       }
                     : undefined,

@@ -34,6 +34,7 @@ Route::middleware(['auth', FirstLoginRedirect::class])->group(function () {
         Route::post('/store', 'store')->name('store');
         Route::get('/remove', 'removeForm')->name('removeForm');
         Route::post('/remove', 'remove')->name('remove');
+        Route::patch('/restore', 'restore')->name('restore');
     });
 
     // Recipe Management

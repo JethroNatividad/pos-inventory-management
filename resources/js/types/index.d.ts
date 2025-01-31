@@ -146,6 +146,7 @@ interface ToastData {
         label: string;
         url: string;
         method?: "get" | "post" | "put" | "delete" | "patch";
+        data?: any;
     };
 }
 

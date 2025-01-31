@@ -118,10 +118,18 @@ class StockController extends Controller
             'toast' => [
                 'message' => 'Stock Added',
                 'description' => "Added {$originalQuantity}{$validated['unit']} of {$stockEntry->name}.",
-                // 'action' => [
-                //     'label' => 'View Stock',
-                //     'url' => '#'
-                // ]
+                'action' => [
+                    'label' => 'Undo',
+                    'url' => route('stock.remove', $stockEntry->id),
+                    'method' => 'post',
+                    'data' => [
+                        'batch_label' => $stock->batch_label,
+                        'quantity' => $originalQuantity,
+                        'reason' => 'Undo stock addition',
+                        'unit' => $validated['unit']
+
+                    ]
+                ]
             ]
         ]);
     }
@@ -162,6 +170,7 @@ class StockController extends Controller
         ]);
 
         $stock = $stockEntry->stocks()->where('batch_label', $validated['batch_label'])->first();
+        $originalQuantity = $validated['quantity'];
 
         switch ($stockEntry->type) {
             case 'liquid':
@@ -197,8 +206,93 @@ class StockController extends Controller
             'batch_label' => $stock->batch_label,
             'reason' => $validated['reason'],
             'price' => $stock->unit_price * $validated['quantity'],
+            'expiry_date' => $stock->expiry_date,
+            'is_perishable' => $stock->is_perishable,
         ]);
 
-        return redirect()->route('inventory.index');
+        return redirect()->route('inventory.index')->with([
+            'toast' => [
+                'message' => 'Stock Removed',
+                'description' => "Removed {$originalQuantity}{$validated['unit']} of {$stockEntry->name}.",
+                'action' => [
+                    'label' => 'Undo',
+                    'url' => route('stock.restore', $stockEntry->id),
+                    'method' => 'patch',
+                    'data' => [
+                        'batch_label' => $stock->batch_label,
+                        'quantity' => $originalQuantity,
+                        'unit' => $validated['unit'],
+                    ]
+                ]
+            ]
+        ]);
+    }
+
+    public function restore(Request $request, StockEntry $stockEntry)
+    {
+        $validated = $request->validate([
+            'batch_label' => 'required|exists:stocks,batch_label',
+            'quantity' => 'required|numeric',
+            'unit' => [
+                'required',
+                function ($attribute, $value, $fail) use ($request, $stockEntry) {
+                    $validUnits = match ($stockEntry->type) {
+                        'liquid' => ['ml', 'l', 'fl oz'],
+                        'powder' => ['g', 'kg', 'lb'],
+                        'item' => ['pcs', 'dozen'],
+                        default => [],
+                    };
+
+                    if (!in_array($value, $validUnits)) {
+                        $fail("The $attribute is invalid for type {$request->type}.");
+                    }
+                }
+            ],
+        ]);
+
+        $stock = $stockEntry->stocks()->where('batch_label', $validated['batch_label'])->first();
+        $originalQuantity = $validated['quantity'];
+        switch ($stockEntry->type) {
+            case 'liquid':
+                $validated['quantity'] = match ($validated['unit']) {
+                    'l' => $validated['quantity'] * 1000,   // Convert liters to ml
+                    'fl oz' => $validated['quantity'] * 29.5735, // Convert fluid ounces to ml
+                    default => $validated['quantity'], // If ml, no conversion needed
+                };
+                break;
+            case 'powder':
+                $validated['quantity'] = match ($validated['unit']) {
+                    'kg' => $validated['quantity'] * 1000,  // Convert kilograms to grams
+                    'lb' => $validated['quantity'] * 453.592, // Convert pounds to grams
+                    default => $validated['quantity'], // If grams, no conversion needed
+                };
+                break;
+            case 'item':
+                $validated['quantity'] = match ($validated['unit']) {
+                    'dozen' => $validated['quantity'] * 12, // Convert dozens to pieces
+                    default => $validated['quantity'], // If pieces, no conversion needed
+                };
+                break;
+        }
+
+        $stock->increment('quantity', $validated['quantity']);
+
+        StockActivityLogs::create([
+            'stock_id' => $stock->id,
+            'user_id' => $request->user()->id,
+            'action' => 'stock_in',
+            'quantity' => $validated['quantity'],
+            'batch_label' => $stock->batch_label,
+            'price' => $stock->unit_price * $validated['quantity'],
+            'expiry_date' => $stock->expiry_date,
+            'is_perishable' => $stock->is_perishable,
+        ]);
+
+        return redirect()->route('inventory.index')->with([
+            'toast' => [
+                'message' => 'Stock Restored',
+                'description' => "Restored {$originalQuantity}{$validated['unit']} of {$stockEntry->name}.",
+            ]
+        ]);
     }
 }
