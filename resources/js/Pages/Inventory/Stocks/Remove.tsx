@@ -27,12 +27,15 @@ import { FormEventHandler } from "react";
 
 type Props = {
     stockEntry: StockEntry;
-    batchLabels: string[];
+    batchLabels: {
+        label: string;
+        amount: number;
+    }[];
 };
 
 const AddStock = ({ stockEntry, batchLabels }: Props) => {
     const { data, setData, post, processing, errors, reset } = useForm({
-        batch_label: batchLabels[0] ?? "",
+        batch_label: batchLabels[0].label ?? "",
         quantity: "",
         price: "",
         reason: "",
@@ -78,10 +81,14 @@ const AddStock = ({ stockEntry, batchLabels }: Props) => {
                             <SelectContent>
                                 {batchLabels.map((batch_label) => (
                                     <SelectItem
-                                        key={batch_label}
-                                        value={batch_label}
+                                        key={batch_label.label}
+                                        value={batch_label.label}
                                     >
-                                        {batch_label}
+                                        <span>{batch_label.label}</span>{" "}
+                                        <span>
+                                            ({batch_label.amount}
+                                            {stockEntry.unit})
+                                        </span>
                                     </SelectItem>
                                 ))}
                             </SelectContent>
