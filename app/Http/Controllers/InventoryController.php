@@ -15,12 +15,13 @@ class InventoryController extends Controller
     /**
      * Display a listing of the resource.
      */
+
     public function index(): Response
     {
         Gate::authorize('viewAny', StockEntry::class);
 
         return Inertia::render('Inventory/Index', [
-            'stockEntries' => StockEntry::where('is_deleted', false)->get()
+            'stockEntries' => StockEntry::all()
         ]);
     }
 
