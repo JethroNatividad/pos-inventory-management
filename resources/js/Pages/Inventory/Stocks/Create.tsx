@@ -1,38 +1,32 @@
-import InputError from "@/Components/input-error";
-import SubmitButton from "@/Components/submit-button";
-import { Button } from "@/Components/ui/button";
-import { Calendar } from "@/Components/ui/calendar";
-import { Input } from "@/Components/ui/input";
-import { Label } from "@/Components/ui/label";
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from "@/Components/ui/popover";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/Components/ui/select";
-import { units } from "@/data/units";
 import Layout from "@/Layouts/Layout";
-import { cn } from "@/lib/utils";
-import type { PageProps, Stock, StockEntry } from "@/types";
-import { Head, Link, useForm, usePage } from "@inertiajs/react";
+import { Head, Link, useForm } from "@inertiajs/react";
+import { Button } from "@/Components/ui/button";
+import { ChevronLeft } from "lucide-react";
 import { format } from "date-fns";
-import { CalendarIcon, ChevronLeft } from "lucide-react";
-import { FormEventHandler } from "react";
-import { toast } from "sonner";
+import { useState, FormEventHandler } from "react";
+import SubmitButton from "@/Components/submit-button";
+import { units } from "@/data/units";
+import type { StockEntry } from "@/types";
+import { BatchLabelField } from "@/Components/batch-label-field";
+import { QuantityField } from "@/Components/quantity-field";
+import { PriceField } from "@/Components/price-field";
+import { ExpiryDateField } from "@/Components/expiry-date-field";
 
 type Props = {
     stockEntry: StockEntry;
+    batchLabels: {
+        label: string;
+        amount: number;
+    }[];
 };
 
-const AddStock = ({ stockEntry }: Props) => {
-    const { data, setData, post, processing, errors, reset } = useForm({
-        batch_label: `Batch ${format(new Date(), "yyyy-MM-dd HH:mm:ss")}`,
+const AddStock = ({ stockEntry, batchLabels }: Props) => {
+    const [isNewLabel, setIsNewLabel] = useState(batchLabels.length === 0);
+    const { data, setData, post, processing, errors } = useForm({
+        batch_label:
+            batchLabels.length > 0
+                ? batchLabels[0].label
+                : `Batch ${format(new Date(), "yyyy-MM-dd HH:mm:ss")}`,
         quantity: "",
         price: "",
         unit: units[stockEntry.type][0],
@@ -66,123 +60,37 @@ const AddStock = ({ stockEntry }: Props) => {
                 </div>
 
                 <div className="space-y-4 rounded-md p-4 border">
-                    <div className="space-y-2">
-                        <Label htmlFor="batch_label">Batch Label</Label>
-                        <Input
-                            id="batch_label"
-                            type="text"
-                            name="batch_label"
-                            value={data.batch_label}
-                            onChange={(e) =>
-                                setData("batch_label", e.target.value)
-                            }
-                            placeholder="Batch 1"
-                        />
-                        <InputError message={errors.batch_label} />
-                    </div>
+                    <BatchLabelField
+                        batchLabels={batchLabels}
+                        isNewLabel={isNewLabel}
+                        setIsNewLabel={setIsNewLabel}
+                        value={data.batch_label}
+                        onChange={(value) => setData("batch_label", value)}
+                        error={errors.batch_label}
+                        stockEntryUnit={stockEntry.unit}
+                    />
 
-                    <div className="space-y-2">
-                        <Label htmlFor="quantity">Quantity</Label>
-                        <div className="flex space-x-2">
-                            <Input
-                                id="quantity"
-                                type="number"
-                                name="quantity"
-                                value={data.quantity}
-                                onChange={(e) =>
-                                    setData("quantity", e.target.value)
-                                }
-                                className="w-3/4"
-                                placeholder="0"
-                            />
-                            <div className="w-1/4">
-                                <Select
-                                    onValueChange={(value) =>
-                                        setData("unit", value)
-                                    }
-                                    value={data.unit}
-                                >
-                                    <SelectTrigger>
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {units[stockEntry.type].map((unit) => (
-                                            <SelectItem key={unit} value={unit}>
-                                                {unit}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                        </div>
-                        <InputError message={errors.quantity || errors.unit} />
-                    </div>
+                    <QuantityField
+                        quantity={data.quantity}
+                        unit={data.unit}
+                        onQuantityChange={(value) => setData("quantity", value)}
+                        onUnitChange={(value) => setData("unit", value)}
+                        availableUnits={units[stockEntry.type]}
+                        error={errors.quantity || errors.unit}
+                    />
 
-                    <div className="space-y-2">
-                        <Label htmlFor="price">Price</Label>
-                        <Input
-                            id="price"
-                            type="number"
-                            name="price"
-                            value={data.price}
-                            onChange={(e) => setData("price", e.target.value)}
-                            placeholder="0"
-                        />
-                        <InputError message={errors.price} />
-                    </div>
+                    <PriceField
+                        value={data.price}
+                        onChange={(value) => setData("price", value)}
+                        error={errors.price}
+                    />
 
                     {stockEntry.perishable && (
-                        <div className="space-y-2">
-                            <Label htmlFor="expiry_date">Expiry Date</Label>
-                            <div>
-                                <Popover>
-                                    <PopoverTrigger asChild>
-                                        <Button
-                                            variant={"outline"}
-                                            className={cn(
-                                                "w-[240px] pl-3 text-left font-normal",
-                                                !data.expiry_date &&
-                                                    "text-muted-foreground"
-                                            )}
-                                        >
-                                            {data.expiry_date ? (
-                                                format(data.expiry_date, "PPP")
-                                            ) : (
-                                                <span>Pick a date</span>
-                                            )}
-                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                        </Button>
-                                    </PopoverTrigger>
-                                    <PopoverContent
-                                        className="w-auto p-0"
-                                        align="start"
-                                    >
-                                        <Calendar
-                                            mode="single"
-                                            selected={
-                                                data.expiry_date || undefined
-                                            }
-                                            onSelect={(date) =>
-                                                date &&
-                                                setData("expiry_date", date)
-                                            }
-                                            // disabled={(date) => date < new Date()}
-                                            // date must be greater than today
-                                            disabled={(date) =>
-                                                new Date(
-                                                    new Date().setDate(
-                                                        new Date().getDate() + 1
-                                                    )
-                                                ) > date
-                                            }
-                                            initialFocus
-                                        />
-                                    </PopoverContent>
-                                </Popover>
-                            </div>
-
-                            <InputError message={errors.expiry_date} />
-                        </div>
+                        <ExpiryDateField
+                            value={data.expiry_date}
+                            onChange={(date) => setData("expiry_date", date)}
+                            error={errors.expiry_date}
+                        />
                     )}
 
                     <div className="flex justify-end">

@@ -29,7 +29,8 @@ class StockController extends Controller
     public function create(StockEntry $stockEntry): Response
     {
         return Inertia::render('Inventory/Stocks/Create', [
-            'stockEntry' => $stockEntry
+            'stockEntry' => $stockEntry,
+            'batchLabels' => $stockEntry->stocks->pluck('batch_label')->map(fn($label) => ['label' => $label, 'amount' => $stockEntry->stocks->where('batch_label', $label)->sum('quantity')]),
         ]);
     }
 
@@ -45,12 +46,6 @@ class StockController extends Controller
             'batch_label' => [
                 'required',
                 'string',
-                function ($attribute, $value, $fail) use ($stockEntry) {
-                    $exists = $stockEntry->stocks()->where('batch_label', $value)->exists();
-                    if ($exists) {
-                        $fail("The batch label has already been taken for this stock entry.");
-                    }
-                },
             ],
             'expiry_date' => 'required_if:is_perishable,true|nullable|date',
             'unit' => [
@@ -72,6 +67,10 @@ class StockController extends Controller
 
         // Convert the quantity, the base unit are ml for liquid, grams for powder, pcs for item
         // Convert quantity to base units
+
+        // Check if stock label already exists
+
+        $existingBatchLabel = $stockEntry->stocks()->where('batch_label', $validated['batch_label'])->first();
 
         $originalQuantity = $validated['quantity'];
         switch ($stockEntry->type) {
@@ -100,6 +99,39 @@ class StockController extends Controller
         $validated['is_perishable'] = $stockEntry->perishable;
 
         $validated['unit_price'] = $validated['price'] / $validated['quantity'];
+
+        if ($existingBatchLabel) {
+            $existingBatchLabel->increment('quantity', $validated['quantity']);
+
+            StockActivityLogs::create([
+                'stock_id' => $existingBatchLabel->id,
+                'user_id' => $request->user()->id,
+                'action' => 'stock_in',
+                'quantity' => $validated['quantity'],
+                'price' => $validated['price'],
+                'batch_label' => $existingBatchLabel->batch_label,
+                'expiry_date' => $existingBatchLabel->expiry_date,
+                'is_perishable' => $existingBatchLabel->is_perishable,
+            ]);
+
+            return redirect()->route('inventory.index')->with([
+                'toast' => [
+                    'message' => 'Stock Added',
+                    'description' => "Added {$originalQuantity}{$validated['unit']} of {$stockEntry->name}.",
+                    'action' => [
+                        'label' => 'Undo',
+                        'url' => route('stock.remove', $stockEntry->id),
+                        'method' => 'post',
+                        'data' => [
+                            'batch_label' => $validated['batch_label'],
+                            'quantity' => $originalQuantity,
+                            'reason' => 'Undo stock addition',
+                            'unit' => $validated['unit']
+                        ]
+                    ]
+                ]
+            ]);
+        }
 
         $stock = $stockEntry->stocks()->create($validated);
 
@@ -142,7 +174,8 @@ class StockController extends Controller
     {
         return Inertia::render('Inventory/Stocks/Remove', [
             'stockEntry' => $stockEntry,
-            'batchLabels' => $stockEntry->stocks->pluck('batch_label')
+            // {label: 'Batch 1', amount: 'number of stocks'}
+            'batchLabels' => $stockEntry->stocks->pluck('batch_label')->map(fn($label) => ['label' => $label, 'amount' => $stockEntry->stocks->where('batch_label', $label)->sum('quantity')]),
         ]);
     }
 
@@ -193,6 +226,14 @@ class StockController extends Controller
                     default => $validated['quantity'], // If pieces, no conversion needed
                 };
                 break;
+        }
+
+        // Check if the quantity to remove is greater than the quantity in stock
+        if ($validated['quantity'] > $stock->quantity) {
+            // Show validation error
+            return redirect()->back()->withErrors([
+                'quantity' => 'The quantity to remove is greater than the quantity in stock.'
+            ]);
         }
 
         $stock->decrement('quantity', $validated['quantity']);

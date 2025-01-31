@@ -1,42 +1,32 @@
-import InputError from "@/Components/input-error";
-import { Button } from "@/Components/ui/button";
-import { Calendar } from "@/Components/ui/calendar";
-import { Input } from "@/Components/ui/input";
-import { Label } from "@/Components/ui/label";
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from "@/Components/ui/popover";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/Components/ui/select";
-import { Textarea } from "@/Components/ui/textarea";
-import { units } from "@/data/units";
 import Layout from "@/Layouts/Layout";
-import { cn } from "@/lib/utils";
-import type { StockEntry } from "@/types";
 import { Head, Link, useForm } from "@inertiajs/react";
-import { format } from "date-fns";
-import { CalendarIcon, ChevronLeft } from "lucide-react";
+import { Button } from "@/Components/ui/button";
+import { ChevronLeft } from "lucide-react";
 import { FormEventHandler } from "react";
+import { units } from "@/data/units";
+import type { StockEntry } from "@/types";
+
+import SubmitButton from "@/Components/submit-button";
+import { BatchLabelSelect } from "@/Components/batch-label-select";
+import { QuantityField } from "@/Components/quantity-field";
+import { Label } from "@/Components/ui/label";
+import { Textarea } from "@/Components/ui/textarea";
+import InputError from "@/Components/input-error";
 
 type Props = {
     stockEntry: StockEntry;
-    batchLabels: string[];
+    batchLabels: {
+        label: string;
+        amount: number;
+    }[];
 };
 
-const AddStock = ({ stockEntry, batchLabels }: Props) => {
-    const { data, setData, post, processing, errors, reset } = useForm({
-        batch_label: batchLabels[0] ?? "",
+const RemoveStock = ({ stockEntry, batchLabels }: Props) => {
+    const { data, setData, post, processing, errors } = useForm({
+        batch_label: batchLabels[0]?.label ?? "",
         quantity: "",
-        price: "",
-        reason: "",
         unit: units[stockEntry.type][0],
+        reason: "",
     });
 
     const submit: FormEventHandler = (e) => {
@@ -64,67 +54,22 @@ const AddStock = ({ stockEntry, batchLabels }: Props) => {
                 </div>
 
                 <div className="space-y-4 rounded-md p-4 border">
-                    <div className="space-y-2">
-                        <Label htmlFor="batch_label">Batch Label</Label>
-                        <Select
-                            onValueChange={(value) =>
-                                setData("batch_label", value)
-                            }
-                            value={data.batch_label}
-                        >
-                            <SelectTrigger>
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {batchLabels.map((batch_label) => (
-                                    <SelectItem
-                                        key={batch_label}
-                                        value={batch_label}
-                                    >
-                                        {batch_label}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                        <InputError message={errors.batch_label} />
-                    </div>
+                    <BatchLabelSelect
+                        batchLabels={batchLabels}
+                        value={data.batch_label}
+                        onChange={(value) => setData("batch_label", value)}
+                        error={errors.batch_label}
+                        stockEntryUnit={stockEntry.unit}
+                    />
 
-                    <div className="space-y-2">
-                        <Label htmlFor="quantity">Quantity</Label>
-                        <div className="flex space-x-2">
-                            <Input
-                                id="quantity"
-                                type="number"
-                                name="quantity"
-                                value={data.quantity}
-                                onChange={(e) =>
-                                    setData("quantity", e.target.value)
-                                }
-                                className="w-3/4"
-                                placeholder="0"
-                            />
-                            <div className="w-1/4">
-                                <Select
-                                    onValueChange={(value) =>
-                                        setData("unit", value)
-                                    }
-                                    value={data.unit}
-                                >
-                                    <SelectTrigger>
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {units[stockEntry.type].map((unit) => (
-                                            <SelectItem key={unit} value={unit}>
-                                                {unit}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                        </div>
-                        <InputError message={errors.quantity || errors.unit} />
-                    </div>
+                    <QuantityField
+                        quantity={data.quantity}
+                        unit={data.unit}
+                        onQuantityChange={(value) => setData("quantity", value)}
+                        onUnitChange={(value) => setData("unit", value)}
+                        availableUnits={units[stockEntry.type]}
+                        error={errors.quantity || errors.unit}
+                    />
 
                     <div className="space-y-2">
                         <Label htmlFor="reason">Reason</Label>
@@ -139,9 +84,9 @@ const AddStock = ({ stockEntry, batchLabels }: Props) => {
                     </div>
 
                     <div className="flex justify-end">
-                        <Button type="submit" disabled={processing}>
+                        <SubmitButton isLoading={processing}>
                             Remove stock
-                        </Button>
+                        </SubmitButton>
                     </div>
                 </div>
             </form>
@@ -149,4 +94,4 @@ const AddStock = ({ stockEntry, batchLabels }: Props) => {
     );
 };
 
-export default AddStock;
+export default RemoveStock;

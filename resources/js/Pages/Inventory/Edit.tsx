@@ -18,6 +18,7 @@ import { FormEventHandler, useEffect } from "react";
 import { InventoryFormData } from "./Create";
 import { units } from "@/data/units";
 import { convert } from "@/lib/utils";
+import SubmitButton from "@/Components/submit-button";
 
 type Props = {
     stockEntry: StockEntry;
@@ -213,9 +214,9 @@ const Edit = ({ stockEntry }: Props) => {
                     )}
 
                     <div className="flex justify-end">
-                        <Button type="submit" disabled={processing}>
+                        <SubmitButton isLoading={processing}>
                             Update
-                        </Button>
+                        </SubmitButton>
                     </div>
                 </div>
             </form>
