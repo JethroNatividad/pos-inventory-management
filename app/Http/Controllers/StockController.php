@@ -30,7 +30,13 @@ class StockController extends Controller
     {
         return Inertia::render('Inventory/Stocks/Create', [
             'stockEntry' => $stockEntry,
-            'batchLabels' => $stockEntry->stocks->pluck('batch_label')->map(fn($label) => ['label' => $label, 'amount' => $stockEntry->stocks->where('batch_label', $label)->sum('quantity')]),
+            'batchLabels' => $stockEntry->stocks
+                ->filter(fn($stock) => $stock->quantity > 0)
+                ->pluck('batch_label')
+                ->map(fn($label) => [
+                    'label' => $label,
+                    'amount' => $stockEntry->stocks->where('batch_label', $label)->sum('quantity')
+                ]),
         ]);
     }
 
@@ -175,7 +181,13 @@ class StockController extends Controller
         return Inertia::render('Inventory/Stocks/Remove', [
             'stockEntry' => $stockEntry,
             // {label: 'Batch 1', amount: 'number of stocks'}
-            'batchLabels' => $stockEntry->stocks->pluck('batch_label')->map(fn($label) => ['label' => $label, 'amount' => $stockEntry->stocks->where('batch_label', $label)->sum('quantity')]),
+            'batchLabels' => $stockEntry->stocks
+                ->filter(fn($stock) => $stock->quantity > 0)
+                ->pluck('batch_label')
+                ->map(fn($label) => [
+                    'label' => $label,
+                    'amount' => $stockEntry->stocks->where('batch_label', $label)->sum('quantity')
+                ]),
         ]);
     }
 
