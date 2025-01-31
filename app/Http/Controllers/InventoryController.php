@@ -215,6 +215,11 @@ class InventoryController extends Controller
             'action' => 'delete'
         ]);
 
-        return redirect()->route('inventory.index');
+        return redirect()->route('inventory.index')->with([
+            'toast' => [
+                'message' => 'Stock Entry Deleted',
+                'description' => "Removed {$stockEntry->name} from the inventory.",
+            ]
+        ]);
     }
 }
