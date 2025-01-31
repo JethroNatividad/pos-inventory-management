@@ -197,7 +197,39 @@ class InventoryController extends Controller
             'fields_edited' => json_encode($fieldsEdited)
         ]);
 
-        return redirect()->route('inventory.index');
+        return redirect()->route('inventory.index')->with(
+            'toast',
+            [
+                'message' => 'Stock Entry Updated',
+                'description' => "Updated {$stockEntry->name} in the inventory.",
+                'action' => [
+                    'label' => 'Undo',
+                    'url' => route('inventory.restoreUpdate', $stockEntry->id),
+                    'method' => 'patch',
+                    'data' => array_intersect_key($original, $changes) // Only send changed fields' original values
+                ]
+            ]
+        );
+    }
+
+    public function restoreUpdate(Request $request, StockEntry $stockEntry)
+    {
+        Gate::authorize('update', $stockEntry);
+
+        $stockEntry->update($request->all());
+
+        StockEntryLogs::create([
+            'stock_entry_id' => $stockEntry->id,
+            'user_id' => $request->user()->id,
+            'action' => 'restore_update'
+        ]);
+
+        return redirect()->route('inventory.index')->with([
+            'toast' => [
+                'message' => 'Stock Entry Update Revoked',
+                'description' => "Reverted changes to {$stockEntry->name}.",
+            ]
+        ]);
     }
 
     /**
