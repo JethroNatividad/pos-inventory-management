@@ -15,6 +15,7 @@ type Props = {
         label: string;
         value: string;
         type: "liquid" | "powder" | "item";
+        price: number;
     }[];
     removeServing: () => void;
 };
@@ -45,7 +46,7 @@ const ServingSizeForm = ({
         );
     };
     return (
-        <div className="border rounded-md p-4 mb-4 space-y-4">
+        <div className="border rounded-md p-4 space-y-4">
             <div className="flex justify-between">
                 <p className="font-medium">Serving {index + 1}</p>
 
@@ -74,31 +75,13 @@ const ServingSizeForm = ({
                 />
                 <InputError message={errors[`servings.${index}.name`]} />
             </div>
+
             <div className="space-y-2">
-                <Label htmlFor={`serving-price-${index}`}>Price</Label>
-                <Input
-                    id={`serving-price-${index}`}
-                    type="text"
-                    name={`servings[${index}].price`}
-                    value={serving.price}
-                    onChange={(e) =>
-                        setData(`servings.${index}.price`, e.target.value)
-                    }
-                    placeholder="Serving Price"
-                />
-                <InputError message={errors[`servings.${index}.price`]} />
-            </div>
-            <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                    <h2 className="text-lg font-medium">Ingredients</h2>
-                    <Button
-                        type="button"
-                        variant="outline"
-                        size="icon"
-                        onClick={addIngredient}
-                    >
-                        <Plus />
-                    </Button>
+                <div className="grid grid-cols-10 gap-2">
+                    <p className="col-span-4">Ingredients</p>
+                    <p className="col-span-3">Quantity</p>
+                    <p className="col-span-2">Cost</p>
+                    <p className="col-span-1"></p>
                 </div>
                 {serving.ingredients.map((ingredient, ingIndex) => (
                     <ServingIngredientForm
@@ -112,6 +95,30 @@ const ServingSizeForm = ({
                         removeIngredient={() => removeIngredient(ingIndex)}
                     />
                 ))}
+            </div>
+
+            <Button
+                type="button"
+                variant="default"
+                size="sm"
+                onClick={addIngredient}
+            >
+                <Plus /> Add Ingredient
+            </Button>
+
+            <div className="space-y-2">
+                <Label htmlFor={`serving-price-${index}`}>Price</Label>
+                <Input
+                    id={`serving-price-${index}`}
+                    type="text"
+                    name={`servings[${index}].price`}
+                    value={serving.price}
+                    onChange={(e) =>
+                        setData(`servings.${index}.price`, e.target.value)
+                    }
+                    placeholder="Serving Price"
+                />
+                <InputError message={errors[`servings.${index}.price`]} />
             </div>
         </div>
     );
