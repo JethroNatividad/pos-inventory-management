@@ -145,7 +145,12 @@ class RecipeController extends Controller
         ]);
 
 
-        return redirect()->route('recipes.index');
+        return redirect()->route('recipes.index')->with([
+            'toast' => [
+                'message' => "Recipe Created",
+                'description' => "Recipe {$recipe->name} has been created with {$recipe->servings->count()} servings sizes.",
+            ]
+        ]);
     }
 
 
