@@ -4,7 +4,7 @@ import InputError from "./input-error";
 import { ServingFormData } from "@/types";
 import ServingIngredientForm from "./serving-ingredient-form";
 import { Button } from "./ui/button";
-import { Plus, X } from "lucide-react";
+import { Copy, Plus, X } from "lucide-react";
 
 type Props = {
     serving: ServingFormData;
@@ -18,6 +18,7 @@ type Props = {
         price: number;
     }[];
     removeServing: () => void;
+    duplicateServing: () => void;
 };
 
 const ServingSizeForm = ({
@@ -27,6 +28,7 @@ const ServingSizeForm = ({
     errors,
     ingredientOptions,
     removeServing,
+    duplicateServing,
 }: Props) => {
     const addIngredient = () => {
         setData(`servings.${index}.ingredients`, [
@@ -58,17 +60,26 @@ const ServingSizeForm = ({
         <div className="border rounded-md p-4 space-y-4">
             <div className="flex justify-between">
                 <p className="font-medium">Serving {index + 1}</p>
-
-                {index > 0 && (
+                <div className="space-x-2">
                     <Button
                         variant="outline"
                         type="button"
                         size="icon"
-                        onClick={removeServing}
+                        onClick={duplicateServing}
                     >
-                        <X className="h-4 w-4" />
+                        <Copy className="h-4 w-4" />
                     </Button>
-                )}
+                    {index > 0 && (
+                        <Button
+                            variant="outline"
+                            type="button"
+                            size="icon"
+                            onClick={removeServing}
+                        >
+                            <X className="h-4 w-4" />
+                        </Button>
+                    )}
+                </div>
             </div>
             <div className="space-y-2">
                 <Label htmlFor={`serving-name-${index}`}>Name</Label>

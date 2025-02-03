@@ -94,6 +94,11 @@ const Index = ({ stockEntries }: Props) => {
         ]);
     };
 
+    const duplicateServing = (index: number) => {
+        const hardcopy = JSON.parse(JSON.stringify(data.servings[index]));
+        setData("servings", [...data.servings, hardcopy]);
+    };
+
     const removeServing = (index: number) => {
         setData(
             "servings",
@@ -194,6 +199,7 @@ const Index = ({ stockEntries }: Props) => {
                     <div className="grid gap-4 grid-cols-1 2xl:grid-cols-2">
                         {data.servings.map((serving, index) => (
                             <ServingSizeForm
+                                duplicateServing={() => duplicateServing(index)}
                                 ingredientOptions={ingredientOptions}
                                 serving={serving}
                                 index={index}
