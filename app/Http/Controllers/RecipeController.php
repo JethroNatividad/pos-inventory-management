@@ -32,7 +32,7 @@ class RecipeController extends Controller
     {
         Gate::authorize('create', Recipe::class);
         return Inertia::render('Recipes/Create', [
-            'stockEntries' => StockEntry::where('is_deleted', false)->get()
+            'stockEntries' => StockEntry::all()
         ]);
     }
 
@@ -145,7 +145,12 @@ class RecipeController extends Controller
         ]);
 
 
-        return redirect()->route('recipes.index');
+        return redirect()->route('recipes.index')->with([
+            'toast' => [
+                'message' => "Recipe Created",
+                'description' => "Recipe {$recipe->name} has been created with {$recipe->servings->count()} servings sizes.",
+            ]
+        ]);
     }
 
 
@@ -165,7 +170,7 @@ class RecipeController extends Controller
     {
         Gate::authorize('update', $recipe);
         $recipe->load('servings.recipeIngredients.stockEntry');
-        $stockEntries = StockEntry::where('is_deleted', false)->get();
+        $stockEntries = StockEntry::all();
 
         return Inertia::render('Recipes/Edit', [
             'recipe' => $recipe,
@@ -222,11 +227,16 @@ class RecipeController extends Controller
             $imagePath = $request->file('image')->store('recipes', 'public');
         }
 
+        $original = $recipe->getOriginal();
+
+
         $recipe->update([
             'name' => $request->input('name'),
             'description' => $request->input('description'),
             'image' => $imagePath,
         ]);
+
+        $changes = $recipe->getChanges();
 
         $updatedServingIds = [];
 
@@ -266,7 +276,43 @@ class RecipeController extends Controller
             'action' => 'update',
         ]);
 
-        return redirect()->route('recipes.index');
+        return redirect()->route('recipes.index')->with(
+            'toast',
+            [
+                'message' => 'Recipe Updated',
+                'description' => "Updated {$recipe->name} in the inventory.",
+                'action' => [
+                    'label' => 'Undo',
+                    'url' => route('recipes.restoreUpdate', $recipe->id),
+                    'method' => 'patch',
+                    'data' => array_intersect_key($original, $changes) // Only send changed fields' original values
+                ]
+            ]
+        );
+    }
+
+    /**
+     * Restore the specified resource in storage.
+     */
+
+    public function restoreUpdate(Request $request, Recipe $recipe)
+    {
+        // Gate::authorize('update', $recipe);
+
+        $recipe->update($request->all());
+
+        RecipeLogs::Create([
+            'recipe_id' => $recipe->id,
+            'user_id' => $request->user()->id,
+            'action' => 'restore_update',
+        ]);
+
+        return redirect()->route('recipes.index')->with([
+            'toast' => [
+                'message' => 'Recipe Update Revoked',
+                'description' => "Reverted changes to {$recipe->name}.",
+            ]
+        ]);
     }
 
     /**

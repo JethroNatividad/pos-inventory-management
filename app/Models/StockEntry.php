@@ -18,7 +18,6 @@ class StockEntry extends Model
         'perishable',
         'warn_stock_level',
         'warn_days_remaining',
-        'is_deleted'
     ];
 
     public function stocks()
@@ -75,7 +74,7 @@ class StockEntry extends Model
 
     public function getAveragePriceAttribute()
     {
-        return $this->stocks->avg('unit_price') ?? 0;
+        return round($this->stocks->avg('unit_price') ?? 0, 2);
     }
 
     public function getUnitAttribute()
