@@ -138,15 +138,13 @@ const ServingIngredientForm = ({
                     <span>₱</span>
                     <p className="text-sm text-wrap">
                         {currentIngredient
-                            ? (
-                                  currentIngredient.price *
-                                  convert(
-                                      currentIngredient.type || "liquid",
-                                      ingredient.unit,
-                                      units[currentIngredient.type][0],
-                                      Number(ingredient.quantity)
-                                  )
-                              ).toFixed(2)
+                            ? currentIngredient.price *
+                              convert(
+                                  currentIngredient.type || "liquid",
+                                  ingredient.unit,
+                                  units[currentIngredient.type][0],
+                                  Number(ingredient.quantity)
+                              )
                             : "0.00"}
                     </p>
                 </div>

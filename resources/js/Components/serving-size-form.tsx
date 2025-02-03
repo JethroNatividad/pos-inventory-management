@@ -45,6 +45,15 @@ const ServingSizeForm = ({
             serving.ingredients.filter((_, i) => i !== ingIndex)
         );
     };
+
+    const totalCost = serving.ingredients.reduce((acc, ingredient) => {
+        const selectedIngredient = ingredientOptions.find(
+            (option) => option.value === ingredient.stock_entry_id
+        );
+        if (!selectedIngredient) return acc;
+        return acc + selectedIngredient.price * Number(ingredient.quantity);
+    }, 0);
+
     return (
         <div className="border rounded-md p-4 space-y-4">
             <div className="flex justify-between">
@@ -106,19 +115,47 @@ const ServingSizeForm = ({
                 <Plus /> Add Ingredient
             </Button>
 
-            <div className="space-y-2">
-                <Label htmlFor={`serving-price-${index}`}>Price</Label>
-                <Input
-                    id={`serving-price-${index}`}
-                    type="text"
-                    name={`servings[${index}].price`}
-                    value={serving.price}
-                    onChange={(e) =>
-                        setData(`servings.${index}.price`, e.target.value)
-                    }
-                    placeholder="Serving Price"
-                />
-                <InputError message={errors[`servings.${index}.price`]} />
+            <hr />
+
+            <div className="grid grid-cols-10 gap-2 items-center">
+                <p className="col-span-7 text-right text-sm">Unit Cost:</p>
+
+                <div className="col-span-2 flex items-center border rounded-md px-2 bg-gray-50 h-10">
+                    <span>₱</span>
+                    <p className="text-sm text-wrap">{totalCost}</p>
+                </div>
+            </div>
+            <div className="grid grid-cols-10 gap-2 items-center">
+                <Label
+                    className="col-span-7 text-right text-sm"
+                    htmlFor={`serving-price-${index}`}
+                >
+                    Price:
+                </Label>
+
+                <div className="col-span-2 flex items-center">
+                    <Input
+                        id={`serving-price-${index}`}
+                        type="text"
+                        name={`servings[${index}].price`}
+                        value={serving.price}
+                        onChange={(e) =>
+                            setData(`servings.${index}.price`, e.target.value)
+                        }
+                        placeholder="Serving Price"
+                    />
+                    <InputError message={errors[`servings.${index}.price`]} />
+                </div>
+            </div>
+            <div className="grid grid-cols-10 gap-2 items-center">
+                <p className="col-span-7 text-right text-sm">Profit:</p>
+
+                <div className="col-span-2 flex items-center border rounded-md px-2 bg-gray-50 h-10">
+                    <span>₱</span>
+                    <p className="text-sm text-wrap">
+                        {Number(serving.price) - totalCost}
+                    </p>
+                </div>
             </div>
         </div>
     );
