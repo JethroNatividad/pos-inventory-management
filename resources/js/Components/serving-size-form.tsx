@@ -133,7 +133,7 @@ const ServingSizeForm = ({
 
                 <div className="col-span-2 flex items-center border rounded-md px-2 bg-gray-50 h-10">
                     <span>₱</span>
-                    <p className="text-sm text-wrap">{totalCost}</p>
+                    <p className="text-sm text-wrap">{totalCost.toFixed(2)}</p>
                 </div>
             </div>
             <div className="grid grid-cols-10 gap-2 items-center">
@@ -144,7 +144,7 @@ const ServingSizeForm = ({
                     Price:
                 </Label>
 
-                <div className="col-span-2 flex items-center">
+                <div className="col-span-2">
                     <Input
                         id={`serving-price-${index}`}
                         type="text"
@@ -164,7 +164,7 @@ const ServingSizeForm = ({
                 <div className="col-span-2 flex items-center border rounded-md px-2 bg-gray-50 h-10">
                     <span>₱</span>
                     <p className="text-sm text-wrap">
-                        {Number(serving.price) - totalCost}
+                        {(Number(serving.price) - totalCost).toFixed(2)}
                     </p>
                 </div>
             </div>

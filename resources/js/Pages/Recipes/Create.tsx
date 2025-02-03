@@ -16,13 +16,15 @@ import Layout from "@/Layouts/Layout";
 import type { RecipeFormData, StockEntry } from "@/types";
 import { Head, Link, useForm } from "@inertiajs/react";
 import { ChevronLeft, Plus } from "lucide-react";
-import { FormEventHandler } from "react";
+import { FormEventHandler, useEffect, useState } from "react";
 
 type Props = {
     stockEntries: StockEntry[];
 };
 
 const Index = ({ stockEntries }: Props) => {
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
     const { data, setData, post, processing, errors, reset } = useForm<
         RecipeFormData & { [key: string]: any }
     >({
@@ -106,6 +108,27 @@ const Index = ({ stockEntries }: Props) => {
         );
     };
 
+    useEffect(() => {
+        // Cleanup function to revoke object URL
+        return () => {
+            if (previewUrl) {
+                URL.revokeObjectURL(previewUrl);
+            }
+        };
+    }, [previewUrl]);
+
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0] || null;
+        setData("image", file);
+
+        if (file) {
+            const url = URL.createObjectURL(file);
+            setPreviewUrl(url);
+        } else {
+            setPreviewUrl(null);
+        }
+    };
+
     return (
         <Layout>
             <Head title="Create Stock Entry" />
@@ -163,13 +186,18 @@ const Index = ({ stockEntries }: Props) => {
                                     type="file"
                                     name="image"
                                     accept="image/*"
-                                    onChange={(e) =>
-                                        setData(
-                                            "image",
-                                            e.target.files?.[0] || null
-                                        )
-                                    } // Update image in form data
+                                    onChange={handleImageChange}
                                 />
+                                {previewUrl && (
+                                    <div className="mt-2">
+                                        <img
+                                            src={previewUrl}
+                                            alt="Preview"
+                                            className="max-w-full h-auto rounded-md"
+                                            style={{ maxHeight: "200px" }}
+                                        />
+                                    </div>
+                                )}
                                 <InputError message={errors.image} />
                             </div>
                         </div>
