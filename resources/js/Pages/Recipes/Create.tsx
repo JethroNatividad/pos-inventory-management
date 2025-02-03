@@ -143,8 +143,8 @@ const Index = ({ stockEntries }: Props) => {
                     <h1 className="text-xl font-medium">Create Recipe</h1>
                 </div>
 
-                <div className="space-y-4 rounded-md p-4 border">
-                    <div className="flex">
+                <div className="space-y-4 rounded-md sm:p-4 sm:border">
+                    <div className="space-y-4 lg:flex">
                         <div className="lg:w-1/2">
                             <h2 className="text-xl font-medium">General</h2>
                             <p>Recipe name, description, and image</p>
@@ -203,7 +203,7 @@ const Index = ({ stockEntries }: Props) => {
                         </div>
                     </div>
                 </div>
-                <div className="space-y-4 rounded-md p-4 border">
+                <div className="space-y-4 rounded-md sm:p-4 sm:border">
                     <div className="flex">
                         <div className="lg:w-1/2">
                             <h2 className="text-xl font-medium">

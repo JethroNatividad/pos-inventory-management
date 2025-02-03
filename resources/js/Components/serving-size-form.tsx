@@ -96,25 +96,27 @@ const ServingSizeForm = ({
                 <InputError message={errors[`servings.${index}.name`]} />
             </div>
 
-            <div className="space-y-2">
-                <div className="grid grid-cols-10 gap-2">
-                    <p className="col-span-4">Ingredients</p>
-                    <p className="col-span-3">Quantity</p>
-                    <p className="col-span-2">Cost</p>
-                    <p className="col-span-1"></p>
+            <div className="overflow-x-scroll py-2">
+                <div className="space-y-2 min-w-[550px]">
+                    <div className="grid grid-cols-10 gap-2">
+                        <p className="col-span-4">Ingredients</p>
+                        <p className="col-span-3">Quantity</p>
+                        <p className="col-span-2">Cost</p>
+                        <p className="col-span-1"></p>
+                    </div>
+                    {serving.ingredients.map((ingredient, ingIndex) => (
+                        <ServingIngredientForm
+                            ingredient={ingredient}
+                            index={index}
+                            ingIndex={ingIndex}
+                            key={ingIndex}
+                            setData={setData}
+                            errors={errors}
+                            ingredientOptions={ingredientOptions}
+                            removeIngredient={() => removeIngredient(ingIndex)}
+                        />
+                    ))}
                 </div>
-                {serving.ingredients.map((ingredient, ingIndex) => (
-                    <ServingIngredientForm
-                        ingredient={ingredient}
-                        index={index}
-                        ingIndex={ingIndex}
-                        key={ingIndex}
-                        setData={setData}
-                        errors={errors}
-                        ingredientOptions={ingredientOptions}
-                        removeIngredient={() => removeIngredient(ingIndex)}
-                    />
-                ))}
             </div>
 
             <Button
@@ -129,22 +131,24 @@ const ServingSizeForm = ({
             <hr />
 
             <div className="grid grid-cols-10 gap-2 items-center">
-                <p className="col-span-7 text-right text-sm">Unit Cost:</p>
+                <p className="col-span-5 sm:col-span-7 text-right text-sm">
+                    Unit Cost:
+                </p>
 
-                <div className="col-span-2 flex items-center border rounded-md px-2 bg-gray-50 h-10">
+                <div className="col-span-5 sm:col-span-2 flex items-center border rounded-md px-2 bg-gray-50 h-10">
                     <span>₱</span>
                     <p className="text-sm text-wrap">{totalCost.toFixed(2)}</p>
                 </div>
             </div>
             <div className="grid grid-cols-10 gap-2 items-center">
                 <Label
-                    className="col-span-7 text-right text-sm"
+                    className="col-span-5 sm:col-span-7 text-right text-sm"
                     htmlFor={`serving-price-${index}`}
                 >
                     Price:
                 </Label>
 
-                <div className="col-span-2">
+                <div className="col-span-5 sm:col-span-2">
                     <Input
                         id={`serving-price-${index}`}
                         type="text"
@@ -159,9 +163,11 @@ const ServingSizeForm = ({
                 </div>
             </div>
             <div className="grid grid-cols-10 gap-2 items-center">
-                <p className="col-span-7 text-right text-sm">Profit:</p>
+                <p className="col-span-5 sm:col-span-7 text-right text-sm">
+                    Profit:
+                </p>
 
-                <div className="col-span-2 flex items-center border rounded-md px-2 bg-gray-50 h-10">
+                <div className="col-span-5 sm:col-span-2 flex items-center border rounded-md px-2 bg-gray-50 h-10">
                     <span>₱</span>
                     <p className="text-sm text-wrap">
                         {(Number(serving.price) - totalCost).toFixed(2)}
