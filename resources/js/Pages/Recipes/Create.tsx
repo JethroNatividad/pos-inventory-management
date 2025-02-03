@@ -1,5 +1,6 @@
 import InputError from "@/Components/input-error";
 import ServingSizeForm from "@/Components/serving-size-form";
+import SubmitButton from "@/Components/submit-button";
 import { Button } from "@/Components/ui/button";
 import { Input } from "@/Components/ui/input";
 import { Label } from "@/Components/ui/label";
@@ -240,9 +241,9 @@ const Index = ({ stockEntries }: Props) => {
                     </div>
                 </div>
                 <div className="flex justify-end">
-                    <Button type="submit" disabled={processing}>
-                        Create
-                    </Button>
+                    <SubmitButton isLoading={processing}>
+                        Create Recipe
+                    </SubmitButton>
                 </div>
             </form>
         </Layout>
