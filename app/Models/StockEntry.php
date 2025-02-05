@@ -74,7 +74,7 @@ class StockEntry extends Model
 
     public function getAveragePriceAttribute()
     {
-        return round($this->stocks->avg('unit_price') ?? 0, 2);
+        return round($this->stocks->avg('unit_price') ?? 0, 6);
     }
 
     public function getUnitAttribute()

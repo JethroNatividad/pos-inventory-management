@@ -47,6 +47,7 @@ Route::middleware(['auth', FirstLoginRedirect::class])->group(function () {
         Route::post('/{recipe}', 'update')->name('update');
         Route::patch('/{recipe}', 'restoreUpdate')->name('restoreUpdate');
         Route::delete('/{recipe}', 'destroy')->name('destroy');
+        Route::patch('/{recipe}/restore', 'restore')->name('restore');
     });
 
     // POS

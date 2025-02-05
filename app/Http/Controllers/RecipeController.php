@@ -21,7 +21,8 @@ class RecipeController extends Controller
     {
         Gate::authorize('viewAny', Recipe::class);
         return Inertia::render('Recipes/Index', [
-            'recipes' => Recipe::all()
+            'recipes' => Recipe::all()->load('servings.recipeIngredients.stockEntry'),
+            'stockEntries' => StockEntry::all()
         ]);
     }
 
@@ -329,6 +330,37 @@ class RecipeController extends Controller
             'action' => 'delete',
         ]);
 
-        return redirect()->route('recipes.index');
+        return redirect()->route('recipes.index')->with([
+            'toast' => [
+                'message' => 'Recipe Deleted',
+                'description' => "Deleted {$recipe->name} from the inventory.",
+                'action' => [
+                    'label' => 'Undo',
+                    'url' => route('recipes.restore', $recipe->id),
+                    'method' => 'patch',
+                ]
+            ]
+        ]);
+    }
+
+    public function restore(Request $request, $recipe)
+    {
+        // Gate::authorize('restore', $recipe);
+        $recipe = Recipe::withTrashed()->findOrFail($recipe);
+
+        $recipe->restore();
+
+        RecipeLogs::Create([
+            'recipe_id' => $recipe->id,
+            'user_id' => $request->user()->id,
+            'action' => 'restore',
+        ]);
+
+        return redirect()->route('recipes.index')->with([
+            'toast' => [
+                'message' => 'Recipe Restored',
+                'description' => "Restored {$recipe->name} to the inventory.",
+            ]
+        ]);
     }
 }

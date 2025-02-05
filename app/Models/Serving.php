@@ -20,7 +20,9 @@ class Serving extends Model
 
     public function recipeIngredients()
     {
-        return $this->hasMany(RecipeIngredient::class);
+        return $this->hasMany(RecipeIngredient::class)->whereHas('stockEntry', function ($query) {
+            $query->whereNull('deleted_at');
+        });
     }
 
     public function getIsAvailableAttribute()
