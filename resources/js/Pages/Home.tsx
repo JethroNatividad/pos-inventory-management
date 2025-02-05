@@ -24,37 +24,37 @@ type SalesTotal = {
 type Props = {
     lowStocks: StockEntry[];
     expiringStocks: Stock[];
-    hourlySales: SalesData[];
-    dailySales: SalesData[];
-    weeklySales: SalesData[];
-    monthlySales: SalesData[];
-    allTimeSales: SalesData[];
-    topFiveSellingItems: {
-        daily: SalesData[];
-        weekly: SalesData[];
-        monthly: SalesData[];
-        yearly: SalesData[];
-        allTime: SalesData[];
-    };
+    // hourlySales: SalesData[];
+    // dailySales: SalesData[];
+    // weeklySales: SalesData[];
+    // monthlySales: SalesData[];
+    // allTimeSales: SalesData[];
+    // topFiveSellingItems: {
+    //     daily: SalesData[];
+    //     weekly: SalesData[];
+    //     monthly: SalesData[];
+    //     yearly: SalesData[];
+    //     allTime: SalesData[];
+    // };
 
-    revenue: SalesTotal;
-    expenses: SalesTotal;
-    income: SalesTotal;
+    // revenue: SalesTotal;
+    // expenses: SalesTotal;
+    // income: SalesTotal;
 };
 
 const Home = ({
     lowStocks,
     expiringStocks,
-    hourlySales,
-    dailySales,
-    weeklySales,
-    monthlySales,
-    allTimeSales,
-    topFiveSellingItems,
-    revenue,
-    expenses,
-    income,
-}: Props) => {
+}: // hourlySales,
+// dailySales,
+// weeklySales,
+// monthlySales,
+// allTimeSales,
+// topFiveSellingItems,
+// revenue,
+// expenses,
+// income,
+Props) => {
     // Fix this
     const [range, setRange] = useState<
         "today" | "week" | "month" | "year" | "all"
@@ -179,7 +179,7 @@ const Home = ({
                             All Time
                         </Button>
                     </div>
-                    <SalesChart
+                    {/* <SalesChart
                         data={
                             range === "today"
                                 ? hourlySales
@@ -191,11 +191,11 @@ const Home = ({
                                 ? monthlySales
                                 : allTimeSales
                         }
-                    />
+                    /> */}
 
                     <p className="text-lg">Top Selling Items</p>
 
-                    <MyBarChart
+                    {/* <MyBarChart
                         data={
                             topFiveSellingItems[
                                 range === "today"
@@ -209,9 +209,9 @@ const Home = ({
                                     : "allTime"
                             ]
                         }
-                    />
+                    /> */}
 
-                    <div className="border rounded-lg p-4">
+                    {/* <div className="border rounded-lg p-4">
                         <p>Total Revenue</p>
                         <p className="text-xl">
                             ₱
@@ -262,7 +262,7 @@ const Home = ({
                                     : "allTime"
                             ].toFixed(2)}
                         </p>
-                    </div>
+                    </div> */}
                 </div>
             </div>
         </Layout>
