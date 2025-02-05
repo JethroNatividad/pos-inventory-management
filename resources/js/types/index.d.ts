@@ -158,3 +158,15 @@ export type PageProps<
     };
     toast?: ToastData;
 };
+export interface ServingAvailability {
+    serving_id: number;
+    max_quantity: number;
+    ingredients_availability: IngredientAvailability[];
+    is_available: boolean;
+}
+
+export interface RecipeAvailability {
+    recipe_id: number;
+    servings_availability: ServingAvailability[];
+    is_available: boolean;
+}

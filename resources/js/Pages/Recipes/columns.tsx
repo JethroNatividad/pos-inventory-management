@@ -17,7 +17,8 @@ import {
     DropdownMenuLabel,
     DropdownMenuTrigger,
 } from "@/Components/ui/dropdown-menu";
-import type { Recipe } from "@/types";
+import { getServingQuantityAvailable } from "@/lib/utils";
+import type { Recipe, RecipeAvailability, StockEntry } from "@/types";
 import { Link, usePage } from "@inertiajs/react";
 import { ColumnDef, Row } from "@tanstack/react-table";
 import { LucideMoreHorizontal } from "lucide-react";
@@ -73,22 +74,43 @@ const ActionsCell = ({ row }: { row: Row<Recipe> }) => {
     );
 };
 
-export const columns: ColumnDef<Recipe>[] = [
-    {
-        accessorKey: "name",
-        header: "Name",
-    },
-    {
-        accessorKey: "description",
-        header: "Description",
-    },
-    {
-        accessorKey: "serving_names",
-        header: "Servings",
-    },
+export const columns = (stockEntries: StockEntry[]): ColumnDef<Recipe>[] => {
+    return [
+        {
+            accessorKey: "name",
+            header: "Name",
+        },
+        {
+            accessorKey: "description",
+            header: "Description",
+        },
+        {
+            accessorKey: "servings",
+            header: "Servings",
+            cell: ({ row }) => {
+                return (
+                    <div>
+                        {row.original.servings.map((serving, index) => (
+                            <span key={serving.id}>
+                                {serving.name}(
+                                {getServingQuantityAvailable(
+                                    serving,
+                                    stockEntries
+                                )}{" "}
+                                pcs)
+                                {index < row.original.servings.length - 1
+                                    ? ", "
+                                    : ""}
+                            </span>
+                        ))}
+                    </div>
+                );
+            },
+        },
 
-    {
-        id: "actions",
-        cell: ActionsCell,
-    },
-];
+        {
+            id: "actions",
+            cell: ActionsCell,
+        },
+    ];
+};
