@@ -21,7 +21,8 @@ class RecipeController extends Controller
     {
         Gate::authorize('viewAny', Recipe::class);
         return Inertia::render('Recipes/Index', [
-            'recipes' => Recipe::all()
+            'recipes' => Recipe::all()->load('servings.recipeIngredients.stockEntry'),
+            'stockEntries' => StockEntry::all()
         ]);
     }
 
