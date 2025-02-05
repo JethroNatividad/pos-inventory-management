@@ -29,12 +29,15 @@ const Edit = ({ stockEntries, recipe }: Props) => {
             id: String(serving.id),
             name: serving.name,
             price: String(serving.price),
-            ingredients: serving.recipe_ingredients.map((ingredient) => ({
-                id: String(ingredient.id),
-                stock_entry_id: String(ingredient.stock_entry_id),
-                quantity: String(ingredient.quantity),
-                unit: ingredient.unit,
-            })),
+            ingredients:
+                serving.recipe_ingredients.length > 0
+                    ? serving.recipe_ingredients.map((ingredient) => ({
+                          id: String(ingredient.id),
+                          stock_entry_id: String(ingredient.stock_entry_id),
+                          quantity: String(ingredient.quantity),
+                          unit: ingredient.unit,
+                      }))
+                    : [{ stock_entry_id: "", quantity: "", unit: "" }],
         })),
     });
 
