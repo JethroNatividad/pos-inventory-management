@@ -1,12 +1,12 @@
-import type { Serving } from "@/types";
+import { getServingQuantityAvailable } from "@/lib/utils";
+import type { Recipe, Serving, StockEntry } from "@/types";
 import React, { createContext, useContext, useState, useEffect } from "react";
 
 export type OrderItem = {
     id: string;
     quantity: number;
     serving: Serving;
-    recipeName: string;
-    quantityAvailable: number;
+    recipe: Recipe;
 };
 
 type OrderContextType = {
@@ -19,13 +19,16 @@ type OrderContextType = {
     updateOrder: (id: string, quantity: number) => void;
     getOrder: (id: string) => OrderItem | undefined;
     calculateSubtotal: () => number;
+    checkAvailability: (serving: Serving) => number; // New function
+    canIncrement: (id: string) => boolean; // New function
 };
 
 const OrderContext = createContext<OrderContextType | undefined>(undefined);
 
-export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({
-    children,
-}) => {
+export const OrderProvider: React.FC<{
+    children: React.ReactNode;
+    stockEntries: StockEntry[];
+}> = ({ children, stockEntries }) => {
     const [orders, setOrders] = useState<OrderItem[]>(() => {
         const savedOrders = localStorage.getItem("orders");
         return savedOrders ? JSON.parse(savedOrders) : [];
@@ -44,6 +47,9 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({
     const getOrder = (id: string) => orders.find((order) => order.id === id);
 
     const addOrder = (item: OrderItem) => {
+        const availableQuantity = checkAvailability(item.serving);
+        if (availableQuantity <= 0) return;
+
         const orderIndex = orders.findIndex((order) => order.id === item.id);
         if (orderIndex !== -1) {
             const newOrders = [...orders];
@@ -57,7 +63,7 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({
     const removeOrder = (id: string) =>
         setOrders(orders.filter((order) => order.id !== id));
 
-    const incrementOrder = (id: string) =>
+    const incrementOrder = (id: string) => {
         setOrders(
             orders.map((order) =>
                 order.id === id
@@ -65,6 +71,7 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({
                     : order
             )
         );
+    };
 
     const decrementOrder = (id: string) => {
         if ((orders.find((order) => order.id === id)?.quantity ?? 0) <= 1) {
@@ -80,14 +87,39 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({
         );
     };
 
-    const updateOrder = (id: string, quantity: number) =>
+    const updateOrder = (id: string, quantity: number) => {
+        const order = getOrder(id);
+        if (!order) return;
+
+        const currentQuantity = order.quantity;
+        const availableQuantity =
+            checkAvailability(order.serving) + currentQuantity;
+
+        if (quantity > availableQuantity) return;
+
         setOrders(
             orders.map((order) =>
                 order.id === id ? { ...order, quantity } : order
             )
         );
+    };
 
     const clearOrders = () => setOrders([]);
+
+    const checkAvailability = (serving: Serving): number => {
+        const maxAvailable = getServingQuantityAvailable(
+            serving,
+            stockEntries,
+            orders.filter((order) => order.serving.id !== serving.id)
+        );
+        return maxAvailable;
+    };
+
+    const canIncrement = (id: string): boolean => {
+        const order = getOrder(id);
+        if (!order) return false;
+        return checkAvailability(order.serving) > 0;
+    };
 
     return (
         <OrderContext.Provider
@@ -101,6 +133,8 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({
                 updateOrder,
                 calculateSubtotal,
                 getOrder,
+                checkAvailability,
+                canIncrement,
             }}
         >
             {children}

@@ -1,3 +1,4 @@
+import { OrderItem } from "@/contexts/OrderContext";
 import { Serving, StockEntry } from "@/types";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -76,31 +77,34 @@ export function convert(
 
 export function getServingQuantityAvailable(
     serving: Serving,
-    stockEntries: StockEntry[]
+    stockEntries: StockEntry[],
+    orders?: OrderItem[]
 ): number {
-    // public function getQuantityAvailableAttribute()
-    // {
-    //     // Get the minimum quantity available
-    //     $recipeIngredients = $this->recipeIngredients;
-    //     $quantityAvailable = null;
-    //     foreach ($recipeIngredients as $recipeIngredient) {
-    //         $quantity = $recipeIngredient->stockEntry->quantity / $recipeIngredient->quantity;
-    //         if ($quantityAvailable === null || $quantity < $quantityAvailable) {
-    //             $quantityAvailable = $quantity;
-    //         }
-    //     }
-    //     // Round down to the nearest integer
-    //     return floor($quantityAvailable);
-    // }
+    const remainingStock = new Map<number, number>(
+        stockEntries.map((entry) => [entry.id, entry.quantity])
+    );
 
-    const recipeIngredients = serving.recipe_ingredients;
+    if (orders) {
+        for (const order of orders) {
+            for (const recipeIngredient of order.serving.recipe_ingredients) {
+                const quantity = remainingStock.get(
+                    recipeIngredient.stock_entry_id
+                );
+                if (quantity) {
+                    remainingStock.set(
+                        recipeIngredient.stock_entry_id,
+                        quantity - recipeIngredient.quantity * order.quantity
+                    );
+                }
+            }
+        }
+    }
+
     let quantityAvailable = 0;
 
-    for (const recipeIngredient of recipeIngredients) {
+    for (const recipeIngredient of serving.recipe_ingredients) {
         const quantity =
-            stockEntries.find(
-                (entry) => entry.id === recipeIngredient.stock_entry_id
-            )?.quantity || 0;
+            remainingStock.get(recipeIngredient.stock_entry_id) || 0;
         const available = quantity / recipeIngredient.quantity;
         if (quantityAvailable === 0 || available < quantityAvailable) {
             quantityAvailable = available;
@@ -108,4 +112,20 @@ export function getServingQuantityAvailable(
     }
 
     return Math.floor(quantityAvailable);
+
+    // const recipeIngredients = serving.recipe_ingredients;
+    // let quantityAvailable = 0;
+
+    // for (const recipeIngredient of recipeIngredients) {
+    //     const quantity =
+    //         stockEntries.find(
+    //             (entry) => entry.id === recipeIngredient.stock_entry_id
+    //         )?.quantity || 0;
+    //     const available = quantity / recipeIngredient.quantity;
+    //     if (quantityAvailable === 0 || available < quantityAvailable) {
+    //         quantityAvailable = available;
+    //     }
+    // }
+
+    // return Math.floor(quantityAvailable);
 }

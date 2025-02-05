@@ -13,7 +13,7 @@ const Items = ({ recipes }: Props) => {
                 <div className="text-center">No recipes found.</div>
             )}
             {recipes.map((recipe) => (
-                <Item key={recipe.id} {...recipe} />
+                <Item key={recipe.id} recipe={recipe} />
             ))}
         </div>
     );
