@@ -111,6 +111,7 @@ export const columns = (stockEntries: StockEntry[]): ColumnDef<Recipe>[] => {
         {
             id: "actions",
             cell: ActionsCell,
+            header: "Actions",
         },
     ];
 };
