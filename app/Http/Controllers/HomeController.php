@@ -16,7 +16,7 @@ class HomeController extends Controller
         return Inertia::render('Home', [
             'lowStocks' => $this->getLowStocks(),
             'expiringStocks' => $this->getExpiringStocks(),
-            'orders' => Order::all()->load('items'),
+            'orders' => Order::all()->load('items.serving.recipe'),
             // 'hourlySales' => $this->getHourlySales(),
             // 'dailySales' => $this->getDailySales(),
             // 'weeklySales' => $this->getWeeklySales(),

@@ -24,6 +24,12 @@ type FinancialSummary = {
     totalOrders: number;
 };
 
+type TopSellingItem = {
+    name: string;
+    quantitySold: number;
+    totalRevenue: number;
+};
+
 type Props = {
     orders: Order[];
 };
@@ -162,6 +168,37 @@ const SalesOverview = ({ orders }: Props) => {
             },
             { totalRevenue: 0, totalCost: 0, totalIncome: 0, totalOrders: 0 }
         );
+
+    const topSellingItems: TopSellingItem[] = orders
+        .filter((order) => {
+            const orderDate = new Date(order.created_at);
+            return (
+                date?.from &&
+                date?.to &&
+                orderDate >= new Date(date.from.setHours(0, 0, 0, 0)) &&
+                orderDate <= new Date(date.to.setHours(23, 59, 59, 999))
+            );
+        })
+        .reduce((acc: TopSellingItem[], order) => {
+            order.items.forEach((item) => {
+                const itemName = item.serving.recipe.name;
+                const existingItem = acc.find((i) => i.name === itemName);
+
+                if (existingItem) {
+                    existingItem.quantitySold += item.quantity;
+                    existingItem.totalRevenue += item.quantity * item.price;
+                } else {
+                    acc.push({
+                        name: itemName,
+                        quantitySold: item.quantity,
+                        totalRevenue: item.quantity * item.price,
+                    });
+                }
+            });
+            return acc;
+        }, [])
+        .sort((a, b) => b.quantitySold - a.quantitySold)
+        .slice(0, 5); // Get top 5 items
 
     return (
         <div>
@@ -373,6 +410,49 @@ const SalesOverview = ({ orders }: Props) => {
                                 )}
                             </p>
                         </div>
+                    </div>
+                </div>
+
+                <div className="mt-8">
+                    <h2 className="text-lg font-medium mb-4">
+                        Top Selling Items
+                    </h2>
+                    <div className="border rounded-lg">
+                        <table className="w-full">
+                            <thead>
+                                <tr className="border-b bg-muted/50">
+                                    <th className="text-left p-4">Item Name</th>
+                                    <th className="text-right p-4">
+                                        Quantity Sold
+                                    </th>
+                                    <th className="text-right p-4">
+                                        Total Revenue
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {topSellingItems.map((item, index) => (
+                                    <tr
+                                        key={index}
+                                        className="border-b last:border-0"
+                                    >
+                                        <td className="p-4">{item.name}</td>
+                                        <td className="text-right p-4">
+                                            {item.quantitySold}
+                                        </td>
+                                        <td className="text-right p-4">
+                                            ₱
+                                            {item.totalRevenue.toLocaleString(
+                                                "fil-PH",
+                                                {
+                                                    minimumFractionDigits: 2,
+                                                }
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
