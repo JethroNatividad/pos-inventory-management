@@ -108,7 +108,12 @@ class OrderController extends Controller
             Log::error('Order creation failed: ' . $e->getMessage());
 
             // Return an error response
-            return back()->withErrors(['error' => 'Order creation failed: ' . $e->getMessage()]);
+            return back()->with([
+                'toast' => [
+                    'type' => 'error',
+                    'message' => "Failed to create order. Please try again. {$e->getMessage()}",
+                ]
+            ]);
         }
     }
 
