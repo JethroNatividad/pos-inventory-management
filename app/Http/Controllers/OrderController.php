@@ -19,17 +19,12 @@ class OrderController extends Controller
         $from = $request->input('from') ? new DateTime($request->input('from')) : null;
         $to = $request->input('to') ? new DateTime($request->input('to')) : null;
 
-        // Create cache key based on date parameters
-        $cacheKey = 'order_stats_' . ($from?->format('Y-m-d') ?? 'all') . '_' . ($to?->format('Y-m-d') ?? 'all');
+        $orders = Order::with(['items.serving.recipe'])->get();
+        $data = OrderStatsDTO::fromOrders($orders, $from, $to)->toArray();
 
-        // Get or set cached data (1 hours)
-        return Cache::remember($cacheKey, 60 * 60 * 1, function () use ($from, $to) {
-            $orders = Order::with(['items.serving.recipe'])->get();
-            return response()->json(
-                OrderStatsDTO::fromOrders($orders, $from, $to)->toArray()
-            );
-        });
+        return response()->json($data);
     }
+
 
     /**
      * Store a newly created resource in storage.
