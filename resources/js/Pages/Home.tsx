@@ -1,26 +1,10 @@
-import React, { useEffect, useState } from "react";
 import Layout from "@/Layouts/Layout";
 import { Head, Link } from "@inertiajs/react";
 import { Order, Stock, StockEntry } from "@/types";
 import { Button } from "@/Components/ui/button";
-import { differenceInDays, differenceInMilliseconds, parseISO } from "date-fns";
-import SalesChart from "./sales-chart";
-import axios from "axios";
-import MyBarChart from "./bar-chart";
+import { differenceInMilliseconds, parseISO } from "date-fns";
+
 import SalesOverview from "@/Components/sales-overview";
-
-type SalesData = {
-    label: string;
-    count: number;
-};
-
-type SalesTotal = {
-    daily: number;
-    weekly: number;
-    monthly: number;
-    yearly: number;
-    allTime: number;
-};
 
 type Props = {
     lowStocks: StockEntry[];
