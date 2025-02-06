@@ -1,5 +1,5 @@
 import Layout from "@/Layouts/Layout";
-import { Recipe } from "@/types";
+import { Recipe, StockEntry } from "@/types";
 import { Head } from "@inertiajs/react";
 import Items from "./items";
 
@@ -10,12 +10,13 @@ import MobileOrders from "./mobileOrders";
 
 type Props = {
     recipes: Recipe[];
+    stockEntries: StockEntry[];
 };
 
-const Index = ({ recipes }: Props) => {
+const Index = ({ recipes, stockEntries }: Props) => {
     return (
         <Layout>
-            <OrderProvider>
+            <OrderProvider stockEntries={stockEntries}>
                 <Head title="POS" />
                 <div className="flex space-x-4 min-h-screen h-full">
                     <div className="flex-1">

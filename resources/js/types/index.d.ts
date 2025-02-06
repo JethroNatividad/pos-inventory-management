@@ -125,6 +125,7 @@ export type Order = {
     total_cost: number;
     total_income: number;
     created_at: string;
+    updated_at: string;
     items: OrderItem[];
 };
 

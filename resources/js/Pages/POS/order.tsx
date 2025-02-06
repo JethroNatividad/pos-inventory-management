@@ -4,19 +4,16 @@ import { type OrderItem, useOrder } from "@/contexts/OrderContext";
 import { Minus, Plus } from "lucide-react";
 import React from "react";
 
-const Order = ({
-    id,
-    quantity,
-    recipeName,
-    serving,
-    quantityAvailable,
-}: OrderItem) => {
-    const { incrementOrder, decrementOrder, updateOrder } = useOrder();
+const Order = ({ id, quantity, recipe, serving }: OrderItem) => {
+    const { incrementOrder, decrementOrder, updateOrder, checkAvailability } =
+        useOrder();
+    const availableQuantity = checkAvailability(serving);
+
     return (
         <div>
             <div className="flex justify-between items-center">
                 <div>
-                    <p className="text-xl">{recipeName}</p>
+                    <p className="text-xl">{recipe.name}</p>
                     <p className="text-amber-800">{serving.name}</p>
                 </div>
                 <div className="flex space-x-2 items-center">
@@ -32,14 +29,14 @@ const Order = ({
                                 return;
                             }
 
-                            if (parseInt(e.target.value) > quantityAvailable) {
-                                return updateOrder(id, quantityAvailable);
+                            if (parseInt(e.target.value) > availableQuantity) {
+                                return updateOrder(id, availableQuantity);
                             }
                             updateOrder(id, parseInt(e.target.value) || 0);
                         }}
                     />
                     <Button
-                        disabled={quantity >= quantityAvailable}
+                        disabled={quantity >= availableQuantity}
                         size="icon"
                         onClick={() => incrementOrder(id)}
                     >

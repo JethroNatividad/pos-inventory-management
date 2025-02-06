@@ -11,74 +11,80 @@ import {
 import { useOrder } from "@/contexts/OrderContext";
 import { useState } from "react";
 
-const Item = ({
-    name,
-    description,
-    servings,
-    id,
-    is_available,
-    image,
-}: Recipe) => {
-    const { addOrder, getOrder } = useOrder();
+interface ItemProps {
+    recipe: Recipe;
+}
+
+const Item = ({ recipe }: ItemProps) => {
+    const { addOrder, getOrder, checkAvailability } = useOrder();
+
     const [open, setOpen] = useState(false);
     return (
         <div className="border rounded-lg overflow-hidden">
             <img
                 className="h-40 object-cover w-full"
                 src={
-                    image ? "/storage/" + image : "/images/coffee-template.png"
+                    recipe.image
+                        ? "/storage/" + recipe.image
+                        : "/images/coffee-template.png"
                 }
                 alt="Coffee"
             />
             <div className="p-2">
                 <div className="mb-8">
-                    <h2 className="text-xl">{name}</h2>
-                    <p>{description}</p>
+                    <h2 className="text-xl">{recipe.name}</h2>
+                    <p>{recipe.description}</p>
                 </div>
 
                 <Dialog open={open} onOpenChange={(state) => setOpen(state)}>
                     <DialogTrigger asChild>
                         <Button
-                            disabled={!is_available}
+                            disabled={!recipe.is_available}
                             className="w-full"
                             size="sm"
                         >
-                            {is_available ? "Add to Order" : "Not Available"}
+                            {recipe.is_available
+                                ? "Add to Order"
+                                : "Not Available"}
                         </Button>
                     </DialogTrigger>
                     <DialogContent>
                         <DialogHeader>
-                            <DialogTitle>{name}</DialogTitle>
+                            <DialogTitle>{recipe.name}</DialogTitle>
                             <DialogDescription>
                                 Select Serving Size
                             </DialogDescription>
                         </DialogHeader>
                         <div className="flex space-y-4 flex-col">
-                            {servings.map((serving) => (
-                                <Button
-                                    disabled={
-                                        !serving.is_available ||
-                                        (getOrder(`${id}-${serving.id}`)
-                                            ?.quantity ?? 0) >=
-                                            serving.quantity_available
-                                    }
-                                    key={serving.id}
-                                    onClick={() => {
-                                        addOrder({
-                                            recipeName: name,
-                                            serving,
-                                            quantity: 1,
-                                            quantityAvailable:
-                                                serving.quantity_available,
-                                            id: `${id}-${serving.id}`,
-                                        });
-                                        setOpen(false);
-                                    }}
-                                    className="w-full"
-                                >
-                                    {serving.name} - ₱{serving.price}
-                                </Button>
-                            ))}
+                            {recipe.servings.map((serving) => {
+                                const availableQuantity =
+                                    checkAvailability(serving);
+
+                                return (
+                                    <Button
+                                        disabled={
+                                            !serving.is_available ||
+                                            (getOrder(
+                                                `${recipe.id}-${serving.id}`
+                                            )?.quantity ?? 0) >=
+                                                availableQuantity
+                                        }
+                                        key={serving.id}
+                                        onClick={() => {
+                                            addOrder({
+                                                serving,
+                                                quantity: 1,
+                                                recipe: recipe,
+                                                id: `${recipe.id}-${serving.id}`,
+                                            });
+                                            setOpen(false);
+                                        }}
+                                        className="w-full"
+                                    >
+                                        {serving.name} - ₱{serving.price}
+                                    </Button>
+                                );
+                            })}
                         </div>
                     </DialogContent>
                 </Dialog>
