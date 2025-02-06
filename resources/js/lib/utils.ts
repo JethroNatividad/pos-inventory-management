@@ -112,20 +112,15 @@ export function getServingQuantityAvailable(
     }
 
     return Math.floor(quantityAvailable);
-
-    // const recipeIngredients = serving.recipe_ingredients;
-    // let quantityAvailable = 0;
-
-    // for (const recipeIngredient of recipeIngredients) {
-    //     const quantity =
-    //         stockEntries.find(
-    //             (entry) => entry.id === recipeIngredient.stock_entry_id
-    //         )?.quantity || 0;
-    //     const available = quantity / recipeIngredient.quantity;
-    //     if (quantityAvailable === 0 || available < quantityAvailable) {
-    //         quantityAvailable = available;
-    //     }
-    // }
-
-    // return Math.floor(quantityAvailable);
 }
+
+export const formatDateKey = (
+    date: Date,
+    spanMultipleYears: boolean
+): string => {
+    return date.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        ...(spanMultipleYears && { year: "numeric" }),
+    });
+};

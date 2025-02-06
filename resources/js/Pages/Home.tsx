@@ -7,6 +7,7 @@ import { differenceInDays, differenceInMilliseconds, parseISO } from "date-fns";
 import SalesChart from "./sales-chart";
 import axios from "axios";
 import MyBarChart from "./bar-chart";
+import SalesOverview from "@/Components/sales-overview";
 
 type SalesData = {
     label: string;
@@ -24,6 +25,7 @@ type SalesTotal = {
 type Props = {
     lowStocks: StockEntry[];
     expiringStocks: Stock[];
+    orders: Order[];
     // hourlySales: SalesData[];
     // dailySales: SalesData[];
     // weeklySales: SalesData[];
@@ -45,6 +47,7 @@ type Props = {
 const Home = ({
     lowStocks,
     expiringStocks,
+    orders,
 }: // hourlySales,
 // dailySales,
 // weeklySales,
@@ -145,40 +148,10 @@ Props) => {
                         ))}
                     </div>
                 </div>
+
                 <div className="border rounded-lg col-span-12 lg:col-span-7 p-4 space-y-4">
-                    <h1 className="text-xl font-medium">Sales Overview</h1>
-                    <div className="flex border rounded-lg w-fit p-1 flex-wrap gap-2">
-                        <Button
-                            variant={range === "today" ? "default" : "ghost"}
-                            onClick={() => setRange("today")}
-                        >
-                            Today
-                        </Button>
-                        <Button
-                            variant={range === "week" ? "default" : "ghost"}
-                            onClick={() => setRange("week")}
-                        >
-                            This Week
-                        </Button>
-                        <Button
-                            variant={range === "month" ? "default" : "ghost"}
-                            onClick={() => setRange("month")}
-                        >
-                            This Month
-                        </Button>
-                        <Button
-                            variant={range === "year" ? "default" : "ghost"}
-                            onClick={() => setRange("year")}
-                        >
-                            This Year
-                        </Button>
-                        <Button
-                            variant={range === "all" ? "default" : "ghost"}
-                            onClick={() => setRange("all")}
-                        >
-                            All Time
-                        </Button>
-                    </div>
+                    <SalesOverview orders={orders} />
+
                     {/* <SalesChart
                         data={
                             range === "today"
