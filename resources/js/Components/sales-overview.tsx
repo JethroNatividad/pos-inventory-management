@@ -1,7 +1,7 @@
-import { Order } from "@/types";
-import { useState } from "react";
+import { Order, OrderStats } from "@/types";
+import { useEffect, useState } from "react";
 import { DateRange } from "react-day-picker";
-import { addDays, format } from "date-fns";
+import { addDays, format, set } from "date-fns";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Button } from "./ui/button";
 import { CalendarIcon } from "lucide-react";
@@ -16,23 +16,7 @@ import {
     ChartTooltipContent,
 } from "./ui/chart";
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
-
-type FinancialSummary = {
-    totalRevenue: number;
-    totalCost: number;
-    totalIncome: number;
-    totalOrders: number;
-};
-
-type TopSellingItem = {
-    name: string;
-    quantitySold: number;
-    totalRevenue: number;
-};
-
-type Props = {
-    orders: Order[];
-};
+import { Skeleton } from "./ui/skeleton";
 
 type Period = "24h" | "7d" | "1m" | "1y" | "max";
 
@@ -82,123 +66,59 @@ const chartConfig = {
     },
 } satisfies ChartConfig;
 
-const SalesOverview = ({ orders }: Props) => {
-    console.log(orders);
+const SalesOverview = () => {
     const [date, setDate] = useState<DateRange | undefined>({
         from: addDays(new Date(), -30),
         to: new Date(),
     });
     const [activePeriod, setActivePeriod] = useState<Period>("1m");
 
+    const [error, setError] = useState<string | null>(null);
+    const [statsLoading, setStatsLoading] = useState(true);
+    const [stats, setStats] = useState<OrderStats | null>(null);
+
+    useEffect(() => {
+        const fetchStats = async () => {
+            if (!date?.from || !date?.to) return;
+            setStatsLoading(true);
+            setError(null);
+
+            try {
+                const response = await fetch(
+                    `/api/order-stats?from=${date.from.toISOString()}&to=${date.to.toISOString()}`
+                );
+                if (!response.ok) {
+                    throw new Error("Failed to fetch stats");
+                }
+                const data = await response.json();
+                setStats(data);
+            } catch (err) {
+                setError(
+                    err instanceof Error ? err.message : "An error occurred"
+                );
+            } finally {
+                setStatsLoading(false);
+            }
+        };
+
+        fetchStats();
+    }, [date]);
+
     const handlePeriodChange = (period: Period) => {
         setActivePeriod(period);
         setDate(getDateRangeForPeriod(period));
     };
 
-    const filteredData = orders
-        .filter((order) => {
-            const orderDate = new Date(order.created_at);
-            return (
-                date?.from &&
-                date?.to &&
-                orderDate >= new Date(date.from.setHours(0, 0, 0, 0)) &&
-                orderDate <= new Date(date.to.setHours(23, 59, 59, 999))
-            );
-        })
-        .reduce((acc, order) => {
-            const orderDate = new Date(order.created_at);
-            // Normalize to midnight for consistent date grouping
-            const dateStr = new Date(orderDate).toISOString();
-            console.log(dateStr);
-
-            const existing = acc.find((item) => item.date === dateStr);
-            if (existing) {
-                existing.total_orders += order.items.reduce(
-                    (total, item) => total + item.quantity,
-                    0
-                );
-            } else {
-                acc.push({
-                    date: dateStr,
-                    total_orders: order.items.reduce(
-                        (total, item) => total + item.quantity,
-                        0
-                    ),
-                    originalDate: order.created_at, // Store original date for tooltip
-                });
-            }
-            return acc;
-        }, [] as { date: string; total_orders: number; originalDate: string }[])
-        .sort(
-            (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-        );
-
-    const financialSummary: FinancialSummary = orders
-        .filter((order) => {
-            const orderDate = new Date(order.created_at);
-            return (
-                date?.from &&
-                date?.to &&
-                orderDate >= new Date(date.from.setHours(0, 0, 0, 0)) &&
-                orderDate <= new Date(date.to.setHours(23, 59, 59, 999))
-            );
-        })
-        .reduce(
-            (acc, order) => {
-                const orderRevenue = order.items.reduce(
-                    (total, item) => total + item.quantity * item.price,
-                    0
-                );
-                const orderCost = order.items.reduce(
-                    (total, item) => total + item.quantity * item.cost,
-                    0
-                );
-
-                return {
-                    totalRevenue: acc.totalRevenue + orderRevenue,
-                    totalCost: acc.totalCost + orderCost,
-                    totalIncome: acc.totalIncome + (orderRevenue - orderCost),
-                    totalOrders:
-                        acc.totalOrders +
-                        order.items.reduce(
-                            (total, item) => total + item.quantity,
-                            0
-                        ),
-                };
-            },
-            { totalRevenue: 0, totalCost: 0, totalIncome: 0, totalOrders: 0 }
-        );
-
-    const topSellingItems: TopSellingItem[] = orders
-        .filter((order) => {
-            const orderDate = new Date(order.created_at);
-            return (
-                date?.from &&
-                date?.to &&
-                orderDate >= new Date(date.from.setHours(0, 0, 0, 0)) &&
-                orderDate <= new Date(date.to.setHours(23, 59, 59, 999))
-            );
-        })
-        .reduce((acc: TopSellingItem[], order) => {
-            order.items.forEach((item) => {
-                const itemName = item.serving.recipe.name;
-                const existingItem = acc.find((i) => i.name === itemName);
-
-                if (existingItem) {
-                    existingItem.quantitySold += item.quantity;
-                    existingItem.totalRevenue += item.quantity * item.price;
-                } else {
-                    acc.push({
-                        name: itemName,
-                        quantitySold: item.quantity,
-                        totalRevenue: item.quantity * item.price,
-                    });
-                }
-            });
-            return acc;
-        }, [])
-        .sort((a, b) => b.quantitySold - a.quantitySold)
-        .slice(0, 5); // Get top 5 items
+    const StatCard = ({ title, value }: { title: string; value: string }) => (
+        <div className="p-4 border rounded-lg">
+            <h3 className="text-sm text-muted-foreground">{title}</h3>
+            {statsLoading ? (
+                <Skeleton className="h-8 w-24 mt-1" />
+            ) : (
+                <p className="text-2xl font-medium">{value}</p>
+            )}
+        </div>
+    );
 
     return (
         <div>
@@ -277,139 +197,136 @@ const SalesOverview = ({ orders }: Props) => {
                 </div>
 
                 <div>
-                    <ChartContainer
-                        config={chartConfig}
-                        className="aspect-auto h-[250px] w-full"
-                    >
-                        <AreaChart data={filteredData}>
-                            <defs>
-                                <linearGradient
-                                    id="fillTotalOrders"
-                                    x1="0"
-                                    y1="0"
-                                    x2="0"
-                                    y2="1"
-                                >
-                                    <stop
-                                        offset="5%"
-                                        stopColor="var(--color-total_orders)"
-                                        stopOpacity={0.8}
-                                    />
-                                    <stop
-                                        offset="95%"
-                                        stopColor="var(--color-total_orders)"
-                                        stopOpacity={0.1}
-                                    />
-                                </linearGradient>
-                            </defs>
-                            <CartesianGrid vertical={false} />
-                            <XAxis
-                                dataKey="date"
-                                tickLine={false}
-                                axisLine={false}
-                                tickMargin={8}
-                                minTickGap={32}
-                                tickFormatter={(value) => {
-                                    if (activePeriod === "24h") {
+                    {statsLoading ? (
+                        <Skeleton className="h-[250px] w-full" />
+                    ) : (
+                        <ChartContainer
+                            config={chartConfig}
+                            className="aspect-auto h-[250px] w-full"
+                        >
+                            <AreaChart data={stats?.daily_stats}>
+                                <defs>
+                                    <linearGradient
+                                        id="fillTotalOrders"
+                                        x1="0"
+                                        y1="0"
+                                        x2="0"
+                                        y2="1"
+                                    >
+                                        <stop
+                                            offset="5%"
+                                            stopColor="var(--color-total_orders)"
+                                            stopOpacity={0.8}
+                                        />
+                                        <stop
+                                            offset="95%"
+                                            stopColor="var(--color-total_orders)"
+                                            stopOpacity={0.1}
+                                        />
+                                    </linearGradient>
+                                </defs>
+                                <CartesianGrid vertical={false} />
+                                <XAxis
+                                    dataKey="date"
+                                    tickLine={false}
+                                    axisLine={false}
+                                    tickMargin={8}
+                                    minTickGap={32}
+                                    tickFormatter={(value) => {
+                                        if (activePeriod === "24h") {
+                                            const date = new Date(value);
+                                            return date.toLocaleTimeString(
+                                                "en-US",
+                                                {
+                                                    hour: "numeric",
+                                                    minute: "numeric",
+                                                }
+                                            );
+                                        }
+
                                         const date = new Date(value);
-                                        return date.toLocaleTimeString(
+                                        return date.toLocaleDateString(
                                             "en-US",
                                             {
-                                                hour: "numeric",
-                                                minute: "numeric",
-                                            }
-                                        );
-                                    }
-
-                                    const date = new Date(value);
-                                    return date.toLocaleDateString("en-US", {
-                                        month: "short",
-                                        day: "numeric",
-                                    });
-                                }}
-                            />
-                            <ChartTooltip
-                                cursor={false}
-                                content={
-                                    <ChartTooltipContent
-                                        labelFormatter={(value) => {
-                                            return new Date(
-                                                value
-                                            ).toLocaleDateString("en-US", {
                                                 month: "short",
                                                 day: "numeric",
-                                                year: "numeric",
-                                                hour: "numeric",
-                                                minute: "numeric",
-                                                second: "numeric",
-                                            });
-                                        }}
-                                        indicator="dot"
-                                    />
-                                }
-                            />
-                            <Area
-                                dataKey="total_orders"
-                                type="natural"
-                                fill="url(#fillTotalOrders)"
-                                stroke="var(--color-total_orders)"
-                                stackId="a"
-                            />
+                                            }
+                                        );
+                                    }}
+                                />
+                                <ChartTooltip
+                                    cursor={false}
+                                    content={
+                                        <ChartTooltipContent
+                                            labelFormatter={(value) => {
+                                                return new Date(
+                                                    value
+                                                ).toLocaleDateString("en-US", {
+                                                    month: "short",
+                                                    day: "numeric",
+                                                    year: "numeric",
+                                                    hour: "numeric",
+                                                    minute: "numeric",
+                                                    second: "numeric",
+                                                });
+                                            }}
+                                            indicator="dot"
+                                        />
+                                    }
+                                />
+                                <Area
+                                    dataKey="total_orders"
+                                    type="natural"
+                                    fill="url(#fillTotalOrders)"
+                                    stroke="var(--color-total_orders)"
+                                    stackId="a"
+                                />
 
-                            <ChartLegend
-                                accumulate="sum"
-                                additive="sum"
-                                content={<ChartLegendContent />}
-                            />
-                        </AreaChart>
-                    </ChartContainer>
+                                <ChartLegend
+                                    accumulate="sum"
+                                    additive="sum"
+                                    content={<ChartLegendContent />}
+                                />
+                            </AreaChart>
+                        </ChartContainer>
+                    )}
                 </div>
                 <div>
                     <div className="grid grid-cols-3 gap-4 mb-6">
-                        <div className="p-4 border rounded-lg">
-                            <h3 className="text-sm text-muted-foreground">
-                                Total Orders
-                            </h3>
-                            <p className="text-2xl font-medium">
-                                {financialSummary.totalOrders}
-                            </p>
-                        </div>
-                        <div className="p-4 border rounded-lg">
-                            <h3 className="text-sm text-muted-foreground">
-                                Total Revenue
-                            </h3>
-                            <p className="text-2xl font-medium">
-                                ₱
-                                {financialSummary.totalRevenue.toLocaleString(
+                        <StatCard
+                            title="Total Orders"
+                            value={
+                                stats?.financial_summary.totalOrders.toString() ??
+                                "0"
+                            }
+                        />
+                        <StatCard
+                            title="Total Revenue"
+                            value={`₱${
+                                stats?.financial_summary.totalRevenue.toLocaleString(
                                     "fil-PH",
                                     { minimumFractionDigits: 2 }
-                                )}
-                            </p>
-                        </div>
-                        <div className="p-4 border rounded-lg">
-                            <h3 className="text-sm text-muted-foreground">
-                                Total Cost
-                            </h3>
-                            <p className="text-2xl font-medium">
-                                ₱
-                                {financialSummary.totalCost.toLocaleString(
+                                ) ?? "0.00"
+                            }`}
+                        />
+                        <StatCard
+                            title="Total Cost"
+                            value={`₱${
+                                stats?.financial_summary.totalCost.toLocaleString(
                                     "fil-PH",
                                     { minimumFractionDigits: 2 }
-                                )}
-                            </p>
-                        </div>
-                        <div className="p-4 border rounded-lg">
-                            <h3 className="text-sm text-muted-foreground">
-                                Total Income
-                            </h3>
-                            <p className="text-2xl font-medium">
-                                ₱
-                                {financialSummary.totalIncome.toLocaleString(
+                                ) ?? "0.00"
+                            }`}
+                        />
+                        <StatCard
+                            title="Total Income"
+                            value={`₱${
+                                stats?.financial_summary.totalIncome.toLocaleString(
                                     "fil-PH",
                                     { minimumFractionDigits: 2 }
-                                )}
-                            </p>
-                        </div>
+                                ) ?? "0.00"
+                            }`}
+                        />
                     </div>
                 </div>
 
@@ -418,41 +335,55 @@ const SalesOverview = ({ orders }: Props) => {
                         Top Selling Items
                     </h2>
                     <div className="border rounded-lg">
-                        <table className="w-full">
-                            <thead>
-                                <tr className="border-b bg-muted/50">
-                                    <th className="text-left p-4">Item Name</th>
-                                    <th className="text-right p-4">
-                                        Quantity Sold
-                                    </th>
-                                    <th className="text-right p-4">
-                                        Total Revenue
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {topSellingItems.map((item, index) => (
-                                    <tr
-                                        key={index}
-                                        className="border-b last:border-0"
-                                    >
-                                        <td className="p-4">{item.name}</td>
-                                        <td className="text-right p-4">
-                                            {item.quantitySold}
-                                        </td>
-                                        <td className="text-right p-4">
-                                            ₱
-                                            {item.totalRevenue.toLocaleString(
-                                                "fil-PH",
-                                                {
-                                                    minimumFractionDigits: 2,
-                                                }
-                                            )}
-                                        </td>
-                                    </tr>
+                        {statsLoading ? (
+                            <div className="p-4 space-y-4">
+                                {[1, 2, 3].map((i) => (
+                                    <Skeleton key={i} className="h-12 w-full" />
                                 ))}
-                            </tbody>
-                        </table>
+                            </div>
+                        ) : (
+                            <table className="w-full">
+                                <thead>
+                                    <tr className="border-b bg-muted/50">
+                                        <th className="text-left p-4">
+                                            Item Name
+                                        </th>
+                                        <th className="text-right p-4">
+                                            Quantity Sold
+                                        </th>
+                                        <th className="text-right p-4">
+                                            Total Revenue
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {stats?.top_selling_items.map(
+                                        (item, index) => (
+                                            <tr
+                                                key={index}
+                                                className="border-b last:border-0"
+                                            >
+                                                <td className="p-4">
+                                                    {item.name}
+                                                </td>
+                                                <td className="text-right p-4">
+                                                    {item.quantitySold}
+                                                </td>
+                                                <td className="text-right p-4">
+                                                    ₱
+                                                    {item.totalRevenue.toLocaleString(
+                                                        "fil-PH",
+                                                        {
+                                                            minimumFractionDigits: 2,
+                                                        }
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        )
+                                    )}
+                                </tbody>
+                            </table>
+                        )}
                     </div>
                 </div>
             </div>

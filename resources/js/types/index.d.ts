@@ -171,3 +171,21 @@ export interface RecipeAvailability {
     servings_availability: ServingAvailability[];
     is_available: boolean;
 }
+
+export type OrderStats = {
+    daily_stats: {
+        date: string;
+        total_orders: number;
+    }[];
+    financial_summary: {
+        totalRevenue: number;
+        totalCost: number;
+        totalIncome: number;
+        totalOrders: number;
+    };
+    top_selling_items: {
+        name: string;
+        quantitySold: number;
+        totalRevenue: number;
+    }[];
+};

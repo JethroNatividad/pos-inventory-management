@@ -1,6 +1,6 @@
 import Layout from "@/Layouts/Layout";
 import { Head, Link } from "@inertiajs/react";
-import { Order, Stock, StockEntry } from "@/types";
+import { Order, OrderStats, Stock, StockEntry } from "@/types";
 import { Button } from "@/Components/ui/button";
 import { differenceInMilliseconds, parseISO } from "date-fns";
 
@@ -9,10 +9,9 @@ import SalesOverview from "@/Components/sales-overview";
 type Props = {
     lowStocks: StockEntry[];
     expiringStocks: Stock[];
-    orders: Order[];
 };
 
-const Home = ({ lowStocks, expiringStocks, orders }: Props) => {
+const Home = ({ lowStocks, expiringStocks }: Props) => {
     return (
         <Layout>
             <Head title="Dashboard" />
@@ -101,7 +100,7 @@ const Home = ({ lowStocks, expiringStocks, orders }: Props) => {
                 </div>
 
                 <div className="border rounded-lg col-span-12 lg:col-span-7 p-4 space-y-4">
-                    <SalesOverview orders={orders} />
+                    <SalesOverview />
                 </div>
             </div>
         </Layout>
