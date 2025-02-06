@@ -26,42 +26,9 @@ type Props = {
     lowStocks: StockEntry[];
     expiringStocks: Stock[];
     orders: Order[];
-    // hourlySales: SalesData[];
-    // dailySales: SalesData[];
-    // weeklySales: SalesData[];
-    // monthlySales: SalesData[];
-    // allTimeSales: SalesData[];
-    // topFiveSellingItems: {
-    //     daily: SalesData[];
-    //     weekly: SalesData[];
-    //     monthly: SalesData[];
-    //     yearly: SalesData[];
-    //     allTime: SalesData[];
-    // };
-
-    // revenue: SalesTotal;
-    // expenses: SalesTotal;
-    // income: SalesTotal;
 };
 
-const Home = ({
-    lowStocks,
-    expiringStocks,
-    orders,
-}: // hourlySales,
-// dailySales,
-// weeklySales,
-// monthlySales,
-// allTimeSales,
-// topFiveSellingItems,
-// revenue,
-// expenses,
-// income,
-Props) => {
-    // Fix this
-    const [range, setRange] = useState<
-        "today" | "week" | "month" | "year" | "all"
-    >("today");
+const Home = ({ lowStocks, expiringStocks, orders }: Props) => {
     return (
         <Layout>
             <Head title="Dashboard" />
@@ -151,91 +118,6 @@ Props) => {
 
                 <div className="border rounded-lg col-span-12 lg:col-span-7 p-4 space-y-4">
                     <SalesOverview orders={orders} />
-
-                    {/* <SalesChart
-                        data={
-                            range === "today"
-                                ? hourlySales
-                                : range === "week"
-                                ? dailySales
-                                : range === "month"
-                                ? weeklySales
-                                : range === "year"
-                                ? monthlySales
-                                : allTimeSales
-                        }
-                    /> */}
-
-                    <p className="text-lg">Top Selling Items</p>
-
-                    {/* <MyBarChart
-                        data={
-                            topFiveSellingItems[
-                                range === "today"
-                                    ? "daily"
-                                    : range === "week"
-                                    ? "weekly"
-                                    : range === "month"
-                                    ? "monthly"
-                                    : range === "year"
-                                    ? "yearly"
-                                    : "allTime"
-                            ]
-                        }
-                    /> */}
-
-                    {/* <div className="border rounded-lg p-4">
-                        <p>Total Revenue</p>
-                        <p className="text-xl">
-                            ₱
-                            {revenue[
-                                range === "today"
-                                    ? "daily"
-                                    : range === "week"
-                                    ? "weekly"
-                                    : range === "month"
-                                    ? "monthly"
-                                    : range === "year"
-                                    ? "yearly"
-                                    : "allTime"
-                            ] || "0.00"}
-                        </p>
-                    </div>
-                    <div className="border rounded-lg p-4">
-                        <p>Total Expenses</p>
-                        <p className="text-xl">
-                            ₱
-                            {expenses[
-                                range === "today"
-                                    ? "daily"
-                                    : range === "week"
-                                    ? "weekly"
-                                    : range === "month"
-                                    ? "monthly"
-                                    : range === "year"
-                                    ? "yearly"
-                                    : "allTime"
-                            ].toFixed(2)}
-                        </p>
-                    </div>
-
-                    <div className="border rounded-lg p-4">
-                        <p>Total Income</p>
-                        <p className="text-xl">
-                            ₱
-                            {income[
-                                range === "today"
-                                    ? "daily"
-                                    : range === "week"
-                                    ? "weekly"
-                                    : range === "month"
-                                    ? "monthly"
-                                    : range === "year"
-                                    ? "yearly"
-                                    : "allTime"
-                            ].toFixed(2)}
-                        </p>
-                    </div> */}
                 </div>
             </div>
         </Layout>
