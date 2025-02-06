@@ -54,6 +54,9 @@ Route::middleware(['auth', FirstLoginRedirect::class])->group(function () {
     Route::get('/pos', [POSController::class, 'index'])->name('pos');
     Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
 
+    // API
+    Route::get('/api/order-stats', [OrderController::class, 'orderStats'])->name('orderStats');
+
 
     // Reports
     Route::controller(ReportController::class)->prefix('reports')->name('reports.')->group(function () {
