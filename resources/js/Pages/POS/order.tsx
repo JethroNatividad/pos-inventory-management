@@ -3,6 +3,7 @@ import { Input } from "@/Components/ui/input";
 import { type OrderItem, useOrder } from "@/contexts/OrderContext";
 import { Minus, Plus } from "lucide-react";
 import React from "react";
+import { toast } from "sonner";
 
 const Order = ({ id, quantity, recipe, serving }: OrderItem) => {
     const { incrementOrder, decrementOrder, updateOrder, checkAvailability } =
@@ -30,6 +31,9 @@ const Order = ({ id, quantity, recipe, serving }: OrderItem) => {
                             }
 
                             if (parseInt(e.target.value) > availableQuantity) {
+                                toast.error("Not enough stocks", {
+                                    position: "top-right",
+                                });
                                 return updateOrder(id, availableQuantity);
                             }
                             updateOrder(id, parseInt(e.target.value) || 0);
