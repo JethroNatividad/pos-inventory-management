@@ -118,5 +118,6 @@ export const columns: ColumnDef<Order>[] = [
     {
         id: "actions",
         cell: ActionsCell,
+        header: "Actions",
     },
 ];
