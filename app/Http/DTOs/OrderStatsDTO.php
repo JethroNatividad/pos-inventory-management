@@ -19,7 +19,7 @@ class OrderStatsDTO
         }
 
         $daily_stats = $orders
-            ->groupBy(fn($order) => $order->created_at->format('Y-m-d'))
+            ->groupBy(fn($order) => $order->created_at->format('Y-m-d-h-s'))
             ->map(fn($dayOrders) => [
                 'date' => $dayOrders->first()->created_at->toISOString(),
                 'total_orders' => $dayOrders->sum(
