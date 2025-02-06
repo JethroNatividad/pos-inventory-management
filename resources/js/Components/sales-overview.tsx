@@ -1,8 +1,7 @@
 import { Order } from "@/types";
-import React, { act, useState } from "react";
+import { useState } from "react";
 import { DateRange } from "react-day-picker";
 import { addDays, format } from "date-fns";
-import { Card, CardContent, CardHeader } from "./ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Button } from "./ui/button";
 import { CalendarIcon } from "lucide-react";
@@ -17,7 +16,13 @@ import {
     ChartTooltipContent,
 } from "./ui/chart";
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
-import orders from "@/Pages/POS/orders";
+
+type FinancialSummary = {
+    totalRevenue: number;
+    totalCost: number;
+    totalIncome: number;
+    totalOrders: number;
+};
 
 type Props = {
     orders: Order[];
@@ -120,6 +125,42 @@ const SalesOverview = ({ orders }: Props) => {
         }, [] as { date: string; total_orders: number; originalDate: string }[])
         .sort(
             (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+        );
+
+    const financialSummary: FinancialSummary = orders
+        .filter((order) => {
+            const orderDate = new Date(order.created_at);
+            return (
+                date?.from &&
+                date?.to &&
+                orderDate >= new Date(date.from.setHours(0, 0, 0, 0)) &&
+                orderDate <= new Date(date.to.setHours(23, 59, 59, 999))
+            );
+        })
+        .reduce(
+            (acc, order) => {
+                const orderRevenue = order.items.reduce(
+                    (total, item) => total + item.quantity * item.price,
+                    0
+                );
+                const orderCost = order.items.reduce(
+                    (total, item) => total + item.quantity * item.cost,
+                    0
+                );
+
+                return {
+                    totalRevenue: acc.totalRevenue + orderRevenue,
+                    totalCost: acc.totalCost + orderCost,
+                    totalIncome: acc.totalIncome + (orderRevenue - orderCost),
+                    totalOrders:
+                        acc.totalOrders +
+                        order.items.reduce(
+                            (total, item) => total + item.quantity,
+                            0
+                        ),
+                };
+            },
+            { totalRevenue: 0, totalCost: 0, totalIncome: 0, totalOrders: 0 }
         );
 
     return (
@@ -285,6 +326,54 @@ const SalesOverview = ({ orders }: Props) => {
                             />
                         </AreaChart>
                     </ChartContainer>
+                </div>
+                <div>
+                    <div className="grid grid-cols-3 gap-4 mb-6">
+                        <div className="p-4 border rounded-lg">
+                            <h3 className="text-sm text-muted-foreground">
+                                Total Orders
+                            </h3>
+                            <p className="text-2xl font-medium">
+                                {financialSummary.totalOrders}
+                            </p>
+                        </div>
+                        <div className="p-4 border rounded-lg">
+                            <h3 className="text-sm text-muted-foreground">
+                                Total Revenue
+                            </h3>
+                            <p className="text-2xl font-medium">
+                                ₱
+                                {financialSummary.totalRevenue.toLocaleString(
+                                    "fil-PH",
+                                    { minimumFractionDigits: 2 }
+                                )}
+                            </p>
+                        </div>
+                        <div className="p-4 border rounded-lg">
+                            <h3 className="text-sm text-muted-foreground">
+                                Total Cost
+                            </h3>
+                            <p className="text-2xl font-medium">
+                                ₱
+                                {financialSummary.totalCost.toLocaleString(
+                                    "fil-PH",
+                                    { minimumFractionDigits: 2 }
+                                )}
+                            </p>
+                        </div>
+                        <div className="p-4 border rounded-lg">
+                            <h3 className="text-sm text-muted-foreground">
+                                Total Income
+                            </h3>
+                            <p className="text-2xl font-medium">
+                                ₱
+                                {financialSummary.totalIncome.toLocaleString(
+                                    "fil-PH",
+                                    { minimumFractionDigits: 2 }
+                                )}
+                            </p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
