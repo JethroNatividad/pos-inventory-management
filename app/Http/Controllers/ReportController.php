@@ -13,7 +13,7 @@ class ReportController extends Controller
     public function stocks()
     {
         return Inertia::render('Reports/Stocks/Index', [
-            'stockEntryLogs' => StockEntryLogs::all()->load(['stockEntry', 'user']),
+            'stockEntryLogs' => StockEntryLogs::all()->load(['stockEntry', 'user'])->sortByDesc('created_at'),
             'stockActivityLogs' => StockActivityLogs::all()->load(['stock.stockEntry', 'user']),
         ]);
     }
@@ -30,7 +30,9 @@ class ReportController extends Controller
     public function orders()
     {
         return Inertia::render('Reports/Orders/Index', [
-            'orders' => Order::all()->load(['user', 'items.serving'])
+            'orders' => Order::orderBy('created_at', 'desc')
+                ->with(['user', 'items.serving'])
+                ->get()
         ]);
     }
 
