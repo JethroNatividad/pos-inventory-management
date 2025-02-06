@@ -2,15 +2,34 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\DTOs\OrderStatsDTO;
 use App\Models\Order;
 use App\Models\Serving;
 use App\Models\StockActivityLogs;
+use DateTime;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class OrderController extends Controller
 {
+    public function orderStats(Request $request)
+    {
+        $from = $request->input('from') ? new DateTime($request->input('from')) : null;
+        $to = $request->input('to') ? new DateTime($request->input('to')) : null;
+
+        // Create cache key based on date parameters
+        $cacheKey = 'order_stats_' . ($from?->format('Y-m-d') ?? 'all') . '_' . ($to?->format('Y-m-d') ?? 'all');
+
+        // Get or set cached data (1 hours)
+        return Cache::remember($cacheKey, 60 * 60 * 1, function () use ($from, $to) {
+            $orders = Order::with(['items.serving.recipe'])->get();
+            return response()->json(
+                OrderStatsDTO::fromOrders($orders, $from, $to)->toArray()
+            );
+        });
+    }
 
     /**
      * Store a newly created resource in storage.

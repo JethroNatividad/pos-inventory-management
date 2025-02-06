@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\DTOs\OrderStatsDTO;
 use App\Models\Order;
 use App\Models\Stock;
 use App\Models\StockEntry;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 
 class HomeController extends Controller
@@ -14,9 +16,16 @@ class HomeController extends Controller
         return Inertia::render('Home', [
             'lowStocks' => $this->getLowStocks(),
             'expiringStocks' => $this->getExpiringStocks(),
-            'orders' => Order::all()->load('items.serving.recipe'),
 
         ]);
+    }
+
+    private function getOrderStats()
+    {
+        return Cache::remember('order_stats', 3600, function () {
+            $orders = Order::with('items.serving.recipe')->get();
+            return OrderStatsDTO::fromOrders($orders)->toArray();
+        });
     }
 
     private function getLowStocks()
