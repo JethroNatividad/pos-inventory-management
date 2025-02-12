@@ -24,16 +24,16 @@ const Home = ({ lowStocks, expiringStocks }: Props) => {
                         {lowStocks?.map((stock) => (
                             <div
                                 key={stock.id}
-                                className="border rounded-lg p-2 flex items-center justify-between"
+                                className="border rounded-lg p-2 flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:justify-between"
                             >
-                                <div className="flex items-center space-x-2">
-                                    <p>{stock.name}</p>
+                                <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                                    <p className="font-medium">{stock.name}</p>
                                     <p className="text-red-700">
                                         {stock.quantity}
                                         {stock.unit} left
                                     </p>
                                 </div>
-                                <Button asChild>
+                                <Button asChild className="w-full sm:w-auto">
                                     <Link
                                         href={route("stock.create", stock.id)}
                                     >
