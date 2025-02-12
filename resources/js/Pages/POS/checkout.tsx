@@ -110,7 +110,9 @@ const Checkout = () => {
                     <p className="text-lg font-medium">Order Summary</p>
                     {orders.map((order) => (
                         <div key={order.id} className="flex justify-between">
-                            <p>{order.recipeName}</p>
+                            <p>
+                                {order.recipe.name} ({order.serving.name})
+                            </p>
                             <p>₱{order.serving.price}</p>
                         </div>
                     ))}
