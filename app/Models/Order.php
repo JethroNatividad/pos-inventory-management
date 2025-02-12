@@ -7,16 +7,6 @@ use Illuminate\Support\Facades\Cache;
 
 class Order extends Model
 {
-    protected static function booted()
-    {
-        static::created(function () {
-            Cache::tags(['order_stats'])->flush();
-        });
-
-        static::updated(function () {
-            Cache::tags(['order_stats'])->flush();
-        });
-    }
 
     protected $fillable = [
         'subtotal',
