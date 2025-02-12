@@ -76,6 +76,9 @@ const SalesOverview = () => {
     const [error, setError] = useState<string | null>(null);
     const [statsLoading, setStatsLoading] = useState(true);
     const [stats, setStats] = useState<OrderStats | null>(null);
+    const [numberOfMonths, setNumberMonths] = useState(
+        window.innerWidth >= 640 ? 2 : 1
+    );
 
     useEffect(() => {
         const fetchStats = async () => {
@@ -103,6 +106,15 @@ const SalesOverview = () => {
 
         fetchStats();
     }, [date]);
+
+    useEffect(() => {
+        const handleResize = () => {
+            setNumberMonths(window.innerWidth >= 640 ? 2 : 1);
+        };
+
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
 
     const handlePeriodChange = (period: Period) => {
         setActivePeriod(period);
@@ -132,11 +144,11 @@ const SalesOverview = () => {
                             <Button
                                 variant={"outline"}
                                 className={cn(
-                                    "w-[300px] justify-start text-left font-normal",
+                                    "w-full sm:w-[300px] justify-start text-left font-normal",
                                     !date && "text-muted-foreground"
                                 )}
                             >
-                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                <CalendarIcon className="mr-2 h-4 w-4 flex-shrink-0" />
                                 {date?.from ? (
                                     date.to ? (
                                         <>
@@ -158,7 +170,8 @@ const SalesOverview = () => {
                                 defaultMonth={date?.from}
                                 selected={date}
                                 onSelect={setDate}
-                                numberOfMonths={2}
+                                numberOfMonths={numberOfMonths}
+                                className="max-w-[calc(100vw-2rem)]"
                             />
                         </PopoverContent>
                     </Popover>
