@@ -67,6 +67,20 @@ Route::middleware(['auth', FirstLoginRedirect::class])->group(function () {
     });
 });
 
+Route::get('initialize', function () {
+    $publicPath = public_path('storage');
+
+    if (file_exists($publicPath)) {
+        return 'The storage link already exists.';
+    }
+
+    try {
+        \Illuminate\Support\Facades\Artisan::call('storage:link');
+        return 'Storage link created successfully.';
+    } catch (\Exception $e) {
+        return 'Failed to create storage link: ' . $e->getMessage();
+    }
+});
 
 
 
