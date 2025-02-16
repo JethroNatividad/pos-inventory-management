@@ -13,6 +13,10 @@ class OrderSeeder extends Seeder
     {
         $servingIds = [17, 18, 19, 20];
         $orderTypes = ['dine-in', 'take-out', 'delivery'];
+        $paymentMethods = ['cash', 'gcash'];
+        // Fake names
+
+        $faker = \Faker\Factory::create();
 
         // Generate orders for the past year until today
         $startDate = Carbon::now()->subYear();
@@ -56,6 +60,8 @@ class OrderSeeder extends Seeder
                     'user_id' => 1, // Assuming admin user with ID 1
                     'created_at' => $startDate->copy()->addHours(rand(8, 22)), // Between 8 AM and 10 PM
                     'updated_at' => $startDate->copy()->addHours(rand(8, 22)),
+                    'customer_name' => $faker->name(),
+                    'payment_method' => $paymentMethods[array_rand($paymentMethods)],
                 ]);
 
                 // Create order items
