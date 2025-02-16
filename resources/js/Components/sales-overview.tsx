@@ -347,66 +347,58 @@ const SalesOverview = () => {
                     <h2 className="text-lg font-medium mb-4">
                         Top Selling Items
                     </h2>
-                    <div className="mt-8">
-                        <h2 className="text-lg font-medium mb-4">
-                            Top Selling Items
-                        </h2>
-                        <div className="border rounded-lg overflow-hidden">
-                            {statsLoading ? (
-                                <div className="p-4 space-y-4">
-                                    {[1, 2, 3].map((i) => (
-                                        <Skeleton
-                                            key={i}
-                                            className="h-12 w-full"
-                                        />
-                                    ))}
-                                </div>
-                            ) : (
-                                <div className="overflow-x-auto">
-                                    <table className="w-full min-w-[500px]">
-                                        <thead>
-                                            <tr className="border-b bg-muted/50">
-                                                <th className="text-left p-4">
-                                                    Item Name
-                                                </th>
-                                                <th className="text-right p-4">
-                                                    Quantity Sold
-                                                </th>
-                                                <th className="text-right p-4">
-                                                    Total Revenue
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {stats?.top_selling_items.map(
-                                                (item, index) => (
-                                                    <tr
-                                                        key={index}
-                                                        className="border-b last:border-0"
-                                                    >
-                                                        <td className="p-4">
-                                                            {item.name}
-                                                        </td>
-                                                        <td className="text-right p-4">
-                                                            {item.quantitySold}
-                                                        </td>
-                                                        <td className="text-right p-4">
-                                                            ₱
-                                                            {item.totalRevenue.toLocaleString(
-                                                                "fil-PH",
-                                                                {
-                                                                    minimumFractionDigits: 2,
-                                                                }
-                                                            )}
-                                                        </td>
-                                                    </tr>
-                                                )
-                                            )}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            )}
-                        </div>
+                    <div className="border rounded-lg overflow-hidden">
+                        {statsLoading ? (
+                            <div className="p-4 space-y-4">
+                                {[1, 2, 3].map((i) => (
+                                    <Skeleton key={i} className="h-12 w-full" />
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="overflow-x-auto">
+                                <table className="w-full min-w-[500px]">
+                                    <thead>
+                                        <tr className="border-b bg-muted/50">
+                                            <th className="text-left p-4">
+                                                Item Name
+                                            </th>
+                                            <th className="text-right p-4">
+                                                Quantity Sold
+                                            </th>
+                                            <th className="text-right p-4">
+                                                Total Revenue
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {stats?.top_selling_items.map(
+                                            (item, index) => (
+                                                <tr
+                                                    key={index}
+                                                    className="border-b last:border-0"
+                                                >
+                                                    <td className="p-4">
+                                                        {item.name}
+                                                    </td>
+                                                    <td className="text-right p-4">
+                                                        {item.quantitySold}
+                                                    </td>
+                                                    <td className="text-right p-4">
+                                                        ₱
+                                                        {item.totalRevenue.toLocaleString(
+                                                            "fil-PH",
+                                                            {
+                                                                minimumFractionDigits: 2,
+                                                            }
+                                                        )}
+                                                    </td>
+                                                </tr>
+                                            )
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
