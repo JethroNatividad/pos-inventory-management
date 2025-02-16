@@ -21,6 +21,7 @@ import {
 } from "@/Components/ui/chart";
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
 import { Skeleton } from "@/Components/ui/skeleton";
+import BackButton from "@/Components/back-button";
 
 type Period = "24h" | "7d" | "1m" | "1y" | "max";
 
@@ -144,7 +145,8 @@ const RecipeSalesOverview = ({ recipe }: Props) => {
 
     return (
         <div>
-            <div className="mb-6">
+            <div className="mb-6 flex space-x-4 items-center">
+                <BackButton />
                 <h1 className="text-xl font-medium">
                     {recipe.name} Sales Overview
                 </h1>
