@@ -14,6 +14,8 @@ class Order extends Model
         'total',
         'type',
         'user_id',
+        'customer_name',
+        'payment_method',
     ];
 
     protected $appends = ['total_cost', 'total_income'];

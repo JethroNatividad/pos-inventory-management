@@ -31,9 +31,21 @@ export default function Receipt({ order }: ReceiptProps) {
                 </div>
             </CardHeader>
             <CardContent className="p-6">
-                <div className="mb-4">
-                    <div className="text-sm font-medium mb-2">Order Type</div>
-                    <div>{order.type}</div>
+                <div className="space-y-4 mb-4">
+                    <div className="flex justify-between">
+                        <div className="text-sm font-medium">Order Type</div>
+                        <div>{order.type}</div>
+                    </div>
+                    <div className="flex justify-between">
+                        <div className="text-sm font-medium">Customer Name</div>
+                        <div>{order.customer_name || "Walk-in Customer"}</div>
+                    </div>
+                    <div className="flex justify-between">
+                        <div className="text-sm font-medium">
+                            Payment Method
+                        </div>
+                        <div className="capitalize">{order.payment_method}</div>
+                    </div>
                 </div>
                 <div className="space-y-4">
                     <div className="text-sm font-medium">Order Summary</div>

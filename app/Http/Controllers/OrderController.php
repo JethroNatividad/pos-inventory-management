@@ -43,6 +43,8 @@ class OrderController extends Controller
                     }
                 }
             ],
+            'customer_name' => 'string',
+            'payment_method' => 'required|string',
             'orders.*.serving.id' => 'required|exists:servings,id',
             'orders.*.quantity' => 'required|numeric',
         ]);
@@ -58,6 +60,8 @@ class OrderController extends Controller
                 'total' => $request->total,
                 'type' => $request->type,
                 'user_id' => $request->user()->id,
+                'customer_name' => $request->customer_name,
+                'payment_method' => $request->payment_method,
             ]);
 
             // Process each order item
