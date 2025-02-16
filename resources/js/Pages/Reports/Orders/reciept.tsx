@@ -38,7 +38,7 @@ export default function Receipt({ order }: ReceiptProps) {
                     </div>
                     <div className="flex justify-between">
                         <div className="text-sm font-medium">Customer Name</div>
-                        <div>{order.customer_name || "Walk-in Customer"}</div>
+                        <div>{order.customer_name || "Customer"}</div>
                     </div>
                     <div className="flex justify-between">
                         <div className="text-sm font-medium">
