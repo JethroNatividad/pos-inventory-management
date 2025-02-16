@@ -127,6 +127,8 @@ export type Order = {
     created_at: string;
     updated_at: string;
     items: OrderItem[];
+    customer_name: string;
+    payment_method: string;
 };
 
 export type OrderItem = {

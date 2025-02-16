@@ -30,6 +30,8 @@ const Checkout = () => {
         subtotal: 0,
         total: 0,
         orders: orders,
+        customer_name: "",
+        payment_method: "",
     });
 
     useEffect(() => {
@@ -90,6 +92,40 @@ const Checkout = () => {
                             </SelectContent>
                         </Select>
                         <InputError message={errors.type} />
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label htmlFor="customer_name">Customer Name</Label>
+                        <Input
+                            id="customer_name"
+                            type="text"
+                            name="customer_name"
+                            value={data.customer_name}
+                            onChange={(e) =>
+                                setData("customer_name", e.target.value)
+                            }
+                            placeholder="Enter customer name"
+                        />
+                        <InputError message={errors.customer_name} />
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label htmlFor="payment_method">Payment Method</Label>
+                        <Select
+                            value={data.payment_method}
+                            onValueChange={(value) =>
+                                setData("payment_method", value)
+                            }
+                        >
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select payment method" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="cash">Cash</SelectItem>
+                                <SelectItem value="gcash">GCash</SelectItem>
+                            </SelectContent>
+                        </Select>
+                        <InputError message={errors.payment_method} />
                     </div>
 
                     <div className="space-y-2">
