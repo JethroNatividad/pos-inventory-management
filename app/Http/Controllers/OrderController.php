@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\DTOs\OrderStatsDTO;
 use App\Models\Order;
+use App\Models\Recipe;
 use App\Models\Serving;
 use App\Models\StockActivityLogs;
 use DateTime;
@@ -18,9 +19,11 @@ class OrderController extends Controller
     {
         $from = $request->input('from') ? new DateTime($request->input('from')) : null;
         $to = $request->input('to') ? new DateTime($request->input('to')) : null;
+        $recipe_id = $request->input('recipe_id');
 
         $orders = Order::with(['items.serving.recipe'])->get();
-        $data = OrderStatsDTO::fromOrders($orders, $from, $to)->toArray();
+
+        $data = OrderStatsDTO::fromOrders($orders, $from, $to, $recipe_id)->toArray();
 
         return response()->json($data);
     }

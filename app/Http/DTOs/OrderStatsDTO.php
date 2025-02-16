@@ -12,8 +12,23 @@ class OrderStatsDTO
         public array $top_selling_items
     ) {}
 
-    public static function fromOrders($orders, ?DateTime $from = null, ?DateTime $to = null): self
+    public static function fromOrders($orders, ?DateTime $from = null, ?DateTime $to = null, $recipe_id = null): self
     {
+        if ($recipe_id) {
+            $orders = $orders->map(function ($order) use ($recipe_id) {
+                // Clone the order to avoid modifying the original
+                $filteredOrder = clone $order;
+                // Filter the items to only include those matching the recipe_id
+                $filteredOrder->items = $order->items->filter(function ($item) use ($recipe_id) {
+                    return $item->serving->recipe->id == $recipe_id;
+                });
+                return $filteredOrder;
+            })->filter(function ($order) {
+                // Remove orders that have no matching items after filtering
+                return $order->items->isNotEmpty();
+            });
+        }
+
         if ($from && $to) {
             $orders = $orders->whereBetween('created_at', [$from, $to]);
         }
@@ -54,9 +69,10 @@ class OrderStatsDTO
 
         $top_selling_items = $orders
             ->flatMap->items
-            ->groupBy('serving.recipe.name')
+            ->groupBy($recipe_id ? 'serving' : 'serving.recipe.name')
             ->map(fn($items) => [
-                'name' => $items->first()->serving->recipe->name,
+                'name' => $recipe_id ? "{$items->first()->serving->recipe->name} ({$items->first()->serving->name})"
+                    : $items->first()->serving->recipe->name,
                 'quantitySold' => $items->sum('quantity'),
                 'totalRevenue' => $items->sum(
                     fn($item) =>
