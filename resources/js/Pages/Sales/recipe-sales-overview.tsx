@@ -1,11 +1,15 @@
-import { Order, OrderStats } from "@/types";
+import { Order, OrderStats, Recipe } from "@/types";
 import { useEffect, useState } from "react";
 import { DateRange } from "react-day-picker";
 import { addDays, format, set } from "date-fns";
-import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
-import { Button } from "./ui/button";
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@/Components/ui/popover";
+import { Button } from "@/Components/ui/button";
 import { CalendarIcon } from "lucide-react";
-import { Calendar } from "./ui/calendar";
+import { Calendar } from "@/Components/ui/calendar";
 import { cn } from "@/lib/utils";
 import {
     ChartConfig,
@@ -14,9 +18,10 @@ import {
     ChartLegendContent,
     ChartTooltip,
     ChartTooltipContent,
-} from "./ui/chart";
+} from "@/Components/ui/chart";
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
-import { Skeleton } from "./ui/skeleton";
+import { Skeleton } from "@/Components/ui/skeleton";
+import BackButton from "@/Components/back-button";
 
 type Period = "24h" | "7d" | "1m" | "1y" | "max";
 
@@ -66,7 +71,11 @@ const chartConfig = {
     },
 } satisfies ChartConfig;
 
-const SalesOverview = () => {
+type Props = {
+    recipe: Recipe;
+};
+
+const RecipeSalesOverview = ({ recipe }: Props) => {
     const [date, setDate] = useState<DateRange | undefined>({
         from: addDays(new Date(), -30),
         to: new Date(),
@@ -88,7 +97,9 @@ const SalesOverview = () => {
 
             try {
                 const response = await fetch(
-                    `/api/order-stats?from=${date.from.toISOString()}&to=${date.to.toISOString()}`
+                    `/api/order-stats?from=${date.from.toISOString()}&to=${date.to.toISOString()}&recipe_id=${
+                        recipe.id
+                    }`
                 );
                 if (!response.ok) {
                     throw new Error("Failed to fetch stats");
@@ -134,8 +145,11 @@ const SalesOverview = () => {
 
     return (
         <div>
-            <div className="mb-6">
-                <h1 className="text-xl font-medium">Sales Overview</h1>
+            <div className="mb-6 flex space-x-4 items-center">
+                <BackButton />
+                <h1 className="text-xl font-medium">
+                    {recipe.name} Sales Overview
+                </h1>
             </div>
             <div className="space-y-4">
                 <div>
@@ -406,4 +420,4 @@ const SalesOverview = () => {
     );
 };
 
-export default SalesOverview;
+export default RecipeSalesOverview;

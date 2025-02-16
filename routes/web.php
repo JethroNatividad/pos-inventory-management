@@ -6,6 +6,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\POSController;
 use App\Http\Controllers\RecipeController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\SalesController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\UsersController;
 use App\Http\Middleware\FirstLoginRedirect;
@@ -56,6 +57,10 @@ Route::middleware(['auth', FirstLoginRedirect::class])->group(function () {
 
     // API
     Route::get('/api/order-stats', [OrderController::class, 'orderStats'])->name('orderStats');
+
+    // Sales
+    Route::get('/sales', [SalesController::class, 'index'])->name('sales.index');
+    Route::get('/sales/recipes/{recipe}', [SalesController::class, 'recipeIndex'])->name('sales.recipes.index');
 
 
     // Reports

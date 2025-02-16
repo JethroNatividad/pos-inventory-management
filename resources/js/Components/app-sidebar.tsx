@@ -1,6 +1,7 @@
 import {
     Box,
     Boxes,
+    ChartArea,
     Home,
     LayoutDashboard,
     Notebook,
@@ -52,6 +53,11 @@ const items = [
         title: "Recipes",
         icon: Boxes,
         name: "recipes.index",
+    },
+    {
+        title: "Sales",
+        icon: ChartArea,
+        name: "sales.index",
     },
     {
         title: "Reports",
