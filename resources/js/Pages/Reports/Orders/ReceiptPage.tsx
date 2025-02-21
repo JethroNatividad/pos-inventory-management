@@ -17,7 +17,25 @@ const ReceiptPage = ({ order }: Props) => {
             const printContents = receiptRef.current.innerHTML;
             const originalContents = document.body.innerHTML;
 
+            // Create a new style element for print
+            const style = document.createElement("style");
+            style.innerHTML = `
+                @media print {
+                    * {
+                        font-size: 12px !important;
+                    }
+                    @page {
+                        size: 80mm 297mm;
+                        margin: 0;
+                    }
+                    body {
+                        width: 80mm;
+                    }
+                }
+            `;
+
             document.body.innerHTML = printContents;
+            document.head.appendChild(style);
             window.print();
             document.body.innerHTML = originalContents;
             window.location.reload(); // Reload to restore the original content
@@ -27,7 +45,7 @@ const ReceiptPage = ({ order }: Props) => {
     return (
         <Layout>
             <div className="max-w-md mx-auto space-y-4">
-                <div ref={receiptRef}>
+                <div ref={receiptRef} className="w-full">
                     <Receipt order={order} />
                 </div>
                 <div className="flex justify-between">
