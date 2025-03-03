@@ -17,13 +17,19 @@ import {
     DropdownMenuLabel,
     DropdownMenuTrigger,
 } from "@/Components/ui/dropdown-menu";
+import { Input } from "@/Components/ui/input";
 import { getServingQuantityAvailable } from "@/lib/utils";
 import type { Recipe, RecipeAvailability, StockEntry } from "@/types";
 import { Link, usePage } from "@inertiajs/react";
 import { ColumnDef, Row } from "@tanstack/react-table";
 import { LucideMoreHorizontal } from "lucide-react";
+import { useState } from "react";
 
 const ActionsCell = ({ row }: { row: Row<Recipe> }) => {
+    const [confirmDelete, setConfirmDelete] = useState("");
+    const recipeName = row.getValue("name") as string;
+    const isDeleteEnabled = confirmDelete === `I want to delete ${recipeName}`;
+
     return (
         <AlertDialog>
             <DropdownMenu>
@@ -50,15 +56,36 @@ const ActionsCell = ({ row }: { row: Row<Recipe> }) => {
                     <AlertDialogTitle>
                         Are you absolutely sure?
                     </AlertDialogTitle>
-                    <AlertDialogDescription>
-                        This action cannot be undone. This will permanently
-                        delete the recipe '{row.getValue("name")}' from the
-                        database.
+                    <AlertDialogDescription className="space-y-4">
+                        <p>
+                            This will permanently delete the recipe '
+                            {recipeName}' from the database.
+                        </p>
+                        <div>
+                            <p className="mb-2 text-sm text-muted-foreground">
+                                Please type "I want to delete {recipeName}" to
+                                confirm deletion
+                            </p>
+                            <Input
+                                value={confirmDelete}
+                                onChange={(e) =>
+                                    setConfirmDelete(e.target.value)
+                                }
+                                placeholder="Type here"
+                            />
+                        </div>
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <Button onClick={() => false} variant="destructive" asChild>
+                    <AlertDialogCancel onClick={() => setConfirmDelete("")}>
+                        Cancel
+                    </AlertDialogCancel>
+                    <Button
+                        onClick={() => false}
+                        variant="destructive"
+                        disabled={!isDeleteEnabled}
+                        asChild
+                    >
                         <AlertDialogAction asChild>
                             <Link
                                 method="delete"
