@@ -199,17 +199,6 @@ const Edit = ({ stockEntries, recipe }: Props) => {
                         <div className="lg:w-1/2 space-y-2"></div>
                     </div>
 
-                    <div className="flex justify-between items-center">
-                        <Button
-                            type="button"
-                            variant="outline"
-                            size="icon"
-                            onClick={addServing}
-                        >
-                            <Plus />
-                        </Button>
-                    </div>
-
                     <div className="grid gap-4 grid-cols-1 2xl:grid-cols-2">
                         {data.servings.map((serving, index) => (
                             <ServingSizeForm
@@ -223,6 +212,15 @@ const Edit = ({ stockEntries, recipe }: Props) => {
                                 errors={errors}
                             />
                         ))}
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            className="w-full"
+                            onClick={addServing}
+                        >
+                            <Plus />
+                        </Button>
                     </div>
                 </div>
 
