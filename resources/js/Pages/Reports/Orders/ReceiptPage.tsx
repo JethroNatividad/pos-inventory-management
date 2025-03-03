@@ -25,7 +25,7 @@ const ReceiptPage = ({ order }: Props) => {
                         font-size: 12px !important;
                     }
                     @page {
-                        size: 80mm 297mm;
+                        size: 80mm 200mm;
                         margin: 0;
                     }
                     body {
