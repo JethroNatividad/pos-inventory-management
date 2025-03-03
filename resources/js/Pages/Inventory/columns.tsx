@@ -9,6 +9,7 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/Components/ui/alert-dialog";
+import { Badge } from "@/Components/ui/badge";
 import { Button } from "@/Components/ui/button";
 import {
     DropdownMenu,
@@ -17,12 +18,18 @@ import {
     DropdownMenuLabel,
     DropdownMenuTrigger,
 } from "@/Components/ui/dropdown-menu";
+import { Input } from "@/Components/ui/input";
 import type { StockEntry } from "@/types";
 import { Link } from "@inertiajs/react";
 import { ColumnDef, Row } from "@tanstack/react-table";
 import { LucideMoreHorizontal } from "lucide-react";
+import { useState } from "react";
 
 const ActionsCell = ({ row }: { row: Row<StockEntry> }) => {
+    const [confirmDelete, setConfirmDelete] = useState("");
+    const stockName = row.getValue("name") as string;
+    const isDeleteEnabled = confirmDelete === `I want to delete ${stockName}`;
+
     return (
         <AlertDialog>
             <DropdownMenu>
@@ -62,14 +69,36 @@ const ActionsCell = ({ row }: { row: Row<StockEntry> }) => {
                     <AlertDialogTitle>
                         Are you absolutely sure?
                     </AlertDialogTitle>
-                    <AlertDialogDescription>
-                        This will delete the stock entry '{row.getValue("name")}
-                        '.
+                    <AlertDialogDescription className="space-y-4">
+                        <p>
+                            This will delete the stock entry '{stockName}' and
+                            all of its stocks.
+                        </p>
+                        <div>
+                            <p className="mb-2 text-sm text-muted-foreground">
+                                Please type "I want to delete {stockName}" to
+                                confirm deletion
+                            </p>
+                            <Input
+                                value={confirmDelete}
+                                onChange={(e) =>
+                                    setConfirmDelete(e.target.value)
+                                }
+                                placeholder="Type here"
+                            />
+                        </div>
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <Button onClick={() => false} variant="destructive" asChild>
+                    <AlertDialogCancel onClick={() => setConfirmDelete("")}>
+                        Cancel
+                    </AlertDialogCancel>
+                    <Button
+                        onClick={() => false}
+                        variant="destructive"
+                        disabled={!isDeleteEnabled}
+                        asChild
+                    >
                         <AlertDialogAction asChild>
                             <Link
                                 method="delete"
