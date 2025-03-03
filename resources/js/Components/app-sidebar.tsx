@@ -31,9 +31,10 @@ import {
     CollapsibleTrigger,
     CollapsibleContent,
 } from "@/Components/ui/collapsible";
+import React from "react";
 
 // Menu items.
-const items = [
+const allItems = [
     {
         title: "Dashboard",
         icon: Home,
@@ -76,11 +77,74 @@ const items = [
     },
 ];
 
+const cashierItems = [
+    {
+        title: "Dashboard",
+        icon: Home,
+        name: "home",
+    },
+    {
+        title: "POS",
+        icon: LayoutDashboard,
+        name: "pos",
+    },
+    {
+        title: "Reports",
+        icon: Notebook,
+        name: "reports",
+        children: [{ title: "Order logs", name: "reports.orders" }],
+    },
+];
+
+const inventoryManagerItems = [
+    {
+        title: "Dashboard",
+        icon: Home,
+        name: "home",
+    },
+    {
+        title: "Inventory",
+        icon: Box,
+        name: "inventory.index",
+    },
+    {
+        title: "Recipes",
+        icon: Boxes,
+        name: "recipes.index",
+    },
+    {
+        title: "Reports",
+        icon: Notebook,
+        name: "reports",
+        children: [
+            { title: "Stock logs", name: "reports.stocks" },
+            { title: "Recipe logs", name: "reports.recipes" },
+            { title: "Order logs", name: "reports.orders" },
+        ],
+    },
+];
+
+type MenuItem = {
+    title: string;
+    icon: React.ComponentType;
+    name: string;
+    children?: {
+        title: string;
+        name: string;
+    }[];
+};
+
 type AppSidebarProps = {
     user: User;
 };
 
 export function AppSidebar({ user }: AppSidebarProps) {
+    const items: MenuItem[] =
+        user.role === "cashier"
+            ? cashierItems
+            : user.role === "inventory_manager"
+            ? inventoryManagerItems
+            : allItems;
     return (
         <Sidebar collapsible="icon">
             <SidebarHeader>
