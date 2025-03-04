@@ -45,22 +45,38 @@ class OrderStatsDTO
             ->values()
             ->toArray();
 
+        // Calculate totals including VAT
+        $totalGrossRevenue = $orders->sum(
+            fn($order) =>
+            $order->items->sum(fn($item) => $item->quantity * $item->price)
+        );
+
+        // Calculate VAT (assuming 12% VAT)
+        $totalVAT = $orders->sum(
+            fn($order) =>
+            $order->items->sum(
+                fn($item) =>
+                $item->quantity * ($item->price * 0.12)
+            )
+        );
+
+        // Net revenue is gross revenue minus VAT
+        $netRevenue = $totalGrossRevenue - $totalVAT;
+
+        $totalCost = $orders->sum(
+            fn($order) =>
+            $order->items->sum(fn($item) => $item->quantity * $item->cost)
+        );
+
+        // Net income is net revenue minus total cost
+        $netIncome = $netRevenue - $totalCost;
+
         $financial_summary = [
-            'totalRevenue' => $orders->sum(
-                fn($order) =>
-                $order->items->sum(fn($item) => $item->quantity * $item->price)
-            ),
-            'totalCost' => $orders->sum(
-                fn($order) =>
-                $order->items->sum(fn($item) => $item->quantity * $item->cost)
-            ),
-            'totalIncome' => $orders->sum(
-                fn($order) =>
-                $order->items->sum(
-                    fn($item) =>
-                    $item->quantity * ($item->price - $item->cost)
-                )
-            ),
+            'totalGrossRevenue' => $totalGrossRevenue, // Revenue including VAT
+            'totalVAT' => $totalVAT, // VAT amount
+            'totalRevenue' => $netRevenue, // Revenue excluding VAT
+            'totalCost' => $totalCost,
+            'totalIncome' => $netIncome, // Income after VAT and costs
             'totalOrders' => $orders->sum(
                 fn($order) =>
                 $order->items->sum('quantity')
@@ -77,6 +93,11 @@ class OrderStatsDTO
                 'totalRevenue' => $items->sum(
                     fn($item) =>
                     $item->quantity * $item->price
+                ),
+                // Optionally include VAT for each item
+                'vatAmount' => $items->sum(
+                    fn($item) =>
+                    $item->quantity * ($item->price * 0.12)
                 ),
             ])
             ->sortByDesc('quantitySold')
