@@ -56,6 +56,11 @@ const ServingSizeForm = ({
         return acc + selectedIngredient.price * Number(ingredient.quantity);
     }, 0);
 
+    const price = Number(serving.price);
+    const vat = price * 0.12;
+    const revenue = price - vat; // Net revenue after VAT
+    const profit = revenue - totalCost;
+
     return (
         <div className="border rounded-md p-4 space-y-4">
             <div className="flex justify-between">
@@ -145,7 +150,7 @@ const ServingSizeForm = ({
                     className="col-span-5 sm:col-span-7 text-right text-sm"
                     htmlFor={`serving-price-${index}`}
                 >
-                    Price:
+                    Price (incl. VAT):
                 </Label>
 
                 <div className="col-span-5 sm:col-span-2">
@@ -164,14 +169,32 @@ const ServingSizeForm = ({
             </div>
             <div className="grid grid-cols-10 gap-2 items-center">
                 <p className="col-span-5 sm:col-span-7 text-right text-sm">
+                    VAT (12%):
+                </p>
+
+                <div className="col-span-5 sm:col-span-2 flex items-center border rounded-md px-2 bg-gray-50 h-10">
+                    <span>₱</span>
+                    <p className="text-sm text-wrap">{vat.toFixed(2)}</p>
+                </div>
+            </div>
+            <div className="grid grid-cols-10 gap-2 items-center">
+                <p className="col-span-5 sm:col-span-7 text-right text-sm">
+                    Revenue (excl. VAT):
+                </p>
+
+                <div className="col-span-5 sm:col-span-2 flex items-center border rounded-md px-2 bg-gray-50 h-10">
+                    <span>₱</span>
+                    <p className="text-sm text-wrap">{revenue.toFixed(2)}</p>
+                </div>
+            </div>
+            <div className="grid grid-cols-10 gap-2 items-center">
+                <p className="col-span-5 sm:col-span-7 text-right text-sm">
                     Profit:
                 </p>
 
                 <div className="col-span-5 sm:col-span-2 flex items-center border rounded-md px-2 bg-gray-50 h-10">
                     <span>₱</span>
-                    <p className="text-sm text-wrap">
-                        {(Number(serving.price) - totalCost).toFixed(2)}
-                    </p>
+                    <p className="text-sm text-wrap">{profit.toFixed(2)}</p>
                 </div>
             </div>
         </div>
