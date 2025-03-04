@@ -180,6 +180,8 @@ export type OrderStats = {
         total_orders: number;
     }[];
     financial_summary: {
+        totalGrossRevenue: number;
+        totalVAT: number;
         totalRevenue: number;
         totalCost: number;
         totalIncome: number;
