@@ -23,7 +23,11 @@ export default function Login({
         e.preventDefault();
 
         post(route("login"), {
-            onFinish: () => reset("password"),
+            onFinish: () => {
+                // clear orders on localstorage
+                localStorage.removeItem("orders");
+                reset("password")
+            },
         });
     };
 
