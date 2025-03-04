@@ -314,7 +314,25 @@ const SalesOverview = () => {
                             }
                         />
                         <StatCard
-                            title="Total Revenue"
+                            title="Gross Revenue (incl. VAT)"
+                            value={`₱${
+                                stats?.financial_summary.totalGrossRevenue.toLocaleString(
+                                    "fil-PH",
+                                    { minimumFractionDigits: 2 }
+                                ) ?? "0.00"
+                            }`}
+                        />
+                        <StatCard
+                            title="VAT (12%)"
+                            value={`₱${
+                                stats?.financial_summary.totalVAT.toLocaleString(
+                                    "fil-PH",
+                                    { minimumFractionDigits: 2 }
+                                ) ?? "0.00"
+                            }`}
+                        />
+                        <StatCard
+                            title="Net Revenue"
                             value={`₱${
                                 stats?.financial_summary.totalRevenue.toLocaleString(
                                     "fil-PH",
@@ -332,7 +350,7 @@ const SalesOverview = () => {
                             }`}
                         />
                         <StatCard
-                            title="Total Income"
+                            title="Net Income"
                             value={`₱${
                                 stats?.financial_summary.totalIncome.toLocaleString(
                                     "fil-PH",

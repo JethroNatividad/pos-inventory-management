@@ -28,6 +28,7 @@ const Checkout = () => {
         type: "dine-in",
         discountPercentage: "0",
         subtotal: 0,
+        vat: 0,
         total: 0,
         orders: orders,
         customer_name: "",
@@ -42,6 +43,11 @@ const Checkout = () => {
     useEffect(() => {
         const discountAmount =
             Number(data.discountPercentage) * 0.01 * data.subtotal;
+        // Calculate VAT from the discounted amount
+        const discountedAmount = data.subtotal - discountAmount;
+        const vatAmount = discountedAmount * 0.12;
+
+        setData("vat", vatAmount);
         setData("total", data.subtotal - discountAmount);
     }, [data.subtotal, data.discountPercentage]);
 
@@ -59,6 +65,9 @@ const Checkout = () => {
 
     const discountAmount =
         Number(data.discountPercentage) * 0.01 * data.subtotal;
+
+    // Calculate VAT (12% of the discounted subtotal)
+    const vatAmount = (data.subtotal - discountAmount) * 0.12;
 
     return (
         <Dialog open={open} onOpenChange={(state) => setOpen(state)}>
@@ -147,7 +156,8 @@ const Checkout = () => {
                     {orders.map((order) => (
                         <div key={order.id} className="flex justify-between">
                             <p>
-                                {order.recipe.name} ({order.serving.name})
+                                {order.recipe.name} ({order.serving.name}) x
+                                {order.quantity}
                             </p>
                             <p>₱{order.serving.price}</p>
                         </div>
@@ -160,7 +170,7 @@ const Checkout = () => {
                         </p>
                     </div>
 
-                    {data.discountPercentage && (
+                    {Number(data.discountPercentage) > 0 && (
                         <>
                             <div className="flex justify-between">
                                 <p className="text-xl font-medium">Discount:</p>
@@ -170,6 +180,14 @@ const Checkout = () => {
                             </div>
                         </>
                     )}
+
+                    <div className="flex justify-between">
+                        <p className="text-xl font-medium">VAT (12%):</p>
+                        <p className="text-xl font-medium">
+                            ₱{vatAmount.toFixed(2)}
+                        </p>
+                    </div>
+
                     <div className="flex justify-between">
                         <p className="text-xl font-medium">Total:</p>
                         <p className="text-xl font-medium text-green-700">
