@@ -156,6 +156,7 @@ const Item = ({ recipe }: ItemProps) => {
             addon.quantity
         );
 
+        // Make sure we're using the converted quantity for price calculation
         return stockEntry.average_price * baseQuantity;
     };
 
