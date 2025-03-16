@@ -6,8 +6,17 @@ import React from "react";
 import { toast } from "sonner";
 
 const Order = ({ id, quantity, recipe, serving, addons }: OrderItem) => {
-    const { incrementOrder, decrementOrder, updateOrder, checkAvailability } =
-        useOrder();
+    const {
+        incrementOrder,
+        decrementOrder,
+        updateOrder,
+        checkAvailability,
+        calculateItemBasePrice,
+        calculateItemAddonsPrice,
+        calculateItemTotalPrice,
+    } = useOrder();
+
+    const orderItem = { id, quantity, serving, recipe, addons };
     const availableQuantity = checkAvailability(serving);
 
     return (
@@ -51,8 +60,9 @@ const Order = ({ id, quantity, recipe, serving, addons }: OrderItem) => {
 
             <div className="flex justify-between">
                 <p>₱{serving.price}</p>
-                <p>₱{(serving.price * quantity).toFixed(2)}</p>
+                <p>₱{calculateItemBasePrice(orderItem).toFixed(2)}</p>
             </div>
+
             {/* Display addons if any */}
             {addons && addons.length > 0 && (
                 <>
@@ -68,10 +78,8 @@ const Order = ({ id, quantity, recipe, serving, addons }: OrderItem) => {
                                 </div>
                                 <div>
                                     ₱
-                                    {(
-                                        addon.price *
-                                        addon.quantity *
-                                        quantity
+                                    {calculateItemAddonsPrice(
+                                        orderItem
                                     ).toFixed(2)}
                                 </div>
                             </div>
@@ -81,16 +89,7 @@ const Order = ({ id, quantity, recipe, serving, addons }: OrderItem) => {
                         <p className="flex justify-between font-bold">
                             <span>Total</span>
                             <span>
-                                ₱
-                                {(
-                                    serving.price * quantity +
-                                    addons.reduce(
-                                        (acc, addon) =>
-                                            acc + addon.price * addon.quantity,
-                                        0
-                                    ) *
-                                        quantity
-                                ).toFixed(2)}
+                                ₱{calculateItemTotalPrice(orderItem).toFixed(2)}
                             </span>
                         </p>
                     </div>

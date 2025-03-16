@@ -28,9 +28,13 @@ type OrderContextType = {
     updateOrder: (id: string, quantity: number) => void;
     getOrder: (id: string) => OrderItem | undefined;
     calculateSubtotal: () => number;
-    checkAvailability: (serving: Serving) => number; // New function
-    canIncrement: (id: string) => boolean; // New function
+    checkAvailability: (serving: Serving) => number;
+    canIncrement: (id: string) => boolean;
     stockEntries: StockEntry[];
+    // New price calculation functions
+    calculateItemBasePrice: (order: OrderItem) => number;
+    calculateItemAddonsPrice: (order: OrderItem) => number;
+    calculateItemTotalPrice: (order: OrderItem) => number;
 };
 
 const OrderContext = createContext<OrderContextType | undefined>(undefined);
@@ -50,11 +54,30 @@ export const OrderProvider: React.FC<{
 
     const calculateSubtotal = () =>
         orders.reduce(
-            (total, order) => total + order.quantity * order.serving.price,
+            (total, order) => total + calculateItemTotalPrice(order),
             0
         );
 
     const getOrder = (id: string) => orders.find((order) => order.id === id);
+
+    // New price calculation functions
+    const calculateItemBasePrice = (order: OrderItem): number => {
+        return order.quantity * order.serving.price;
+    };
+
+    const calculateItemAddonsPrice = (order: OrderItem): number => {
+        if (!order.addons || order.addons.length === 0) return 0;
+
+        return order.addons.reduce(
+            (total, addon) =>
+                total + addon.price * addon.quantity * order.quantity,
+            0
+        );
+    };
+
+    const calculateItemTotalPrice = (order: OrderItem): number => {
+        return calculateItemBasePrice(order) + calculateItemAddonsPrice(order);
+    };
 
     const addOrder = (item: OrderItem) => {
         const availableQuantity = checkAvailability(item.serving);
@@ -146,6 +169,10 @@ export const OrderProvider: React.FC<{
                 checkAvailability,
                 canIncrement,
                 stockEntries,
+                // New price calculation functions
+                calculateItemBasePrice,
+                calculateItemAddonsPrice,
+                calculateItemTotalPrice,
             }}
         >
             {children}
