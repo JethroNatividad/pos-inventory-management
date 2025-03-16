@@ -67,7 +67,12 @@ const Order = ({ id, quantity, recipe, serving, addons }: OrderItem) => {
                                     {addon.unit} {addon.name}
                                 </div>
                                 <div>
-                                    ₱{(addon.price * addon.quantity).toFixed(2)}
+                                    ₱
+                                    {(
+                                        addon.price *
+                                        addon.quantity *
+                                        quantity
+                                    ).toFixed(2)}
                                 </div>
                             </div>
                         ))}
@@ -83,7 +88,8 @@ const Order = ({ id, quantity, recipe, serving, addons }: OrderItem) => {
                                         (acc, addon) =>
                                             acc + addon.price * addon.quantity,
                                         0
-                                    )
+                                    ) *
+                                        quantity
                                 ).toFixed(2)}
                             </span>
                         </p>

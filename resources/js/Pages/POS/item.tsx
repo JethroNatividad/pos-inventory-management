@@ -127,7 +127,9 @@ const Item = ({ recipe }: ItemProps) => {
                 serving: selectedServing,
                 quantity: 1,
                 recipe: recipe,
-                id: `${recipe.id}-${selectedServing.id}`,
+                id: `${recipe.id}-${selectedServing.id}-${JSON.stringify(
+                    selectedAddons
+                )}`,
                 addons: selectedAddons,
             });
             setAddonsOpen(false);
