@@ -8,6 +8,13 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/Components/ui/dialog";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/Components/ui/select";
 import { useOrder } from "@/contexts/OrderContext";
 import { useState } from "react";
 
@@ -19,6 +26,28 @@ const Item = ({ recipe }: ItemProps) => {
     const { addOrder, getOrder, checkAvailability } = useOrder();
 
     const [open, setOpen] = useState(false);
+    const [addonsOpen, setAddonsOpen] = useState(false);
+    const [selectedServing, setSelectedServing] = useState<any>(null);
+
+    const handleServingSelect = (serving: any) => {
+        setSelectedServing(serving);
+        setOpen(false);
+        setAddonsOpen(true);
+    };
+
+    const handleConfirmOrder = () => {
+        if (selectedServing) {
+            addOrder({
+                serving: selectedServing,
+                quantity: 1,
+                recipe: recipe,
+                id: `${recipe.id}-${selectedServing.id}`,
+            });
+            setAddonsOpen(false);
+            setSelectedServing(null);
+        }
+    };
+
     return (
         <div className="border rounded-lg overflow-hidden">
             <img
@@ -70,21 +99,58 @@ const Item = ({ recipe }: ItemProps) => {
                                                 availableQuantity
                                         }
                                         key={serving.id}
-                                        onClick={() => {
-                                            addOrder({
-                                                serving,
-                                                quantity: 1,
-                                                recipe: recipe,
-                                                id: `${recipe.id}-${serving.id}`,
-                                            });
-                                            setOpen(false);
-                                        }}
+                                        onClick={() =>
+                                            handleServingSelect(serving)
+                                        }
                                         className="w-full"
                                     >
                                         {serving.name} - ₱{serving.price}
                                     </Button>
                                 );
                             })}
+                        </div>
+                    </DialogContent>
+                </Dialog>
+
+                {/* Add-ons Dialog */}
+                <Dialog
+                    open={addonsOpen}
+                    onOpenChange={(state) => setAddonsOpen(state)}
+                >
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Add-ons</DialogTitle>
+                            <DialogDescription>
+                                Select add-ons for your {recipe.name}
+                            </DialogDescription>
+                        </DialogHeader>
+                        <div className="flex flex-col space-y-4">
+                            <div className="space-y-2">
+                                <label
+                                    htmlFor="add-ons"
+                                    className="text-sm font-medium"
+                                >
+                                    Add-ons
+                                </label>
+                                <Select>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select add-ons" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {/* Add-on items will go here in the future */}
+                                        <SelectItem value="none">
+                                            None
+                                        </SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            <Button
+                                onClick={handleConfirmOrder}
+                                className="w-full"
+                            >
+                                Confirm Order
+                            </Button>
                         </div>
                     </DialogContent>
                 </Dialog>
