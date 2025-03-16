@@ -1,5 +1,5 @@
 import { getServingQuantityAvailable } from "@/lib/utils";
-import type { Recipe, Serving, StockEntry } from "@/types";
+import type { Ingredient, Recipe, Serving, StockEntry } from "@/types";
 import React, { createContext, useContext, useState, useEffect } from "react";
 
 export type OrderItem = {
@@ -7,6 +7,15 @@ export type OrderItem = {
     quantity: number;
     serving: Serving;
     recipe: Recipe;
+    addons: {
+        id: string;
+        stock_entry_id: string;
+        quantity: number;
+        unit: string;
+        name: string;
+        price: number;
+        type: "liquid" | "powder" | "item";
+    }[];
 };
 
 type OrderContextType = {
