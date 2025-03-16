@@ -135,6 +135,7 @@ export type OrderItem = {
     id: number;
     order: Order;
     serving: Serving;
+    addons: AddOn[];
     quantity: number;
     price: number;
     created_at: string;
@@ -192,4 +193,11 @@ export type OrderStats = {
         quantitySold: number;
         totalRevenue: number;
     }[];
+};
+
+export type AddOn = {
+    quantity: number;
+    price: number;
+    stockEntry: StockEntry;
+    orderItem: OrderItem;
 };
