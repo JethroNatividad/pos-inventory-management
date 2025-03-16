@@ -21,6 +21,7 @@ type OrderContextType = {
     calculateSubtotal: () => number;
     checkAvailability: (serving: Serving) => number; // New function
     canIncrement: (id: string) => boolean; // New function
+    stockEntries: StockEntry[];
 };
 
 const OrderContext = createContext<OrderContextType | undefined>(undefined);
@@ -135,6 +136,7 @@ export const OrderProvider: React.FC<{
                 getOrder,
                 checkAvailability,
                 canIncrement,
+                stockEntries,
             }}
         >
             {children}
