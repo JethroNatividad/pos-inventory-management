@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\Recipe;
 use App\Models\Serving;
 use App\Models\StockActivityLogs;
+use App\Models\StockEntry;
 use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -50,6 +51,9 @@ class OrderController extends Controller
             'payment_method' => 'required|string',
             'orders.*.serving.id' => 'required|exists:servings,id',
             'orders.*.quantity' => 'required|numeric',
+            'orders.*.addons.*.stock_entry_id' => 'exists:stock_entries,id',
+            'orders.*.addons.*.quantity' => 'numeric',
+            'orders.*.addons.*.price' => 'numeric',
         ]);
 
         // Start a database transaction
@@ -113,6 +117,41 @@ class OrderController extends Controller
 
                         $requiredQuantity -= $deductQuantity;
                     }
+                }
+
+                // Handle addons
+                foreach ($orderItem['addons'] as $addon) {
+                    $order->items->last()->addons()->create([
+                        'stock_entry_id' => $addon['stock_entry_id'],
+                        'quantity' => $addon['quantity'],
+                        'price' => $addon['price'],
+                    ]);
+                }
+
+                // Handle stock deduction for addons
+                foreach ($orderItem['addons'] as $addon) {
+                    $stock = StockEntry::find($addon['stock_entry_id'])->stocks()
+                        ->where('quantity', '>', 0)
+                        ->orderBy('expiry_date')
+                        ->orderBy('created_at')
+                        ->first();
+
+                    $totalAvailable = $stocks->sum('quantity');
+                    if ($totalAvailable < $requiredQuantity) {
+                        throw new \Exception("Insufficient stock for {$ingredient->stockEntry->name}.");
+                    }
+
+                    $stock->decrement('quantity', $addon['quantity']);
+
+                    StockActivityLogs::create([
+                        'stock_id' => $stock->id,
+                        'user_id' => $request->user()->id,
+                        'action' => 'stock_out',
+                        'quantity' => $addon['quantity'],
+                        'reason' => 'Add-on Deducted from Order #' . $order->id,
+                        'batch_label' => $stock->batch_label,
+                        'price' => $stock->unit_price * $addon['quantity'],
+                    ]);
                 }
             }
 

@@ -15,7 +15,7 @@ class POSController extends Controller
 
         return Inertia::render('POS/Index', [
             'recipes' => Recipe::all()->load('servings.recipeIngredients'),
-            'stockEntries' => StockEntry::all()
+            'stockEntries' => StockEntry::all(),
         ]);
     }
 }

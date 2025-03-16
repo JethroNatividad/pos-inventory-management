@@ -23,7 +23,14 @@ import { FormEventHandler, useState, useEffect } from "react";
 
 const Checkout = () => {
     const [open, setOpen] = useState(false);
-    const { orders, calculateSubtotal, clearOrders } = useOrder();
+    const {
+        orders,
+        calculateSubtotal,
+        clearOrders,
+        calculateItemAddonsPrice,
+        calculateItemBasePrice,
+        calculateItemTotalPrice,
+    } = useOrder();
     const { data, setData, post, processing, errors, reset } = useForm({
         type: "dine-in",
         discountPercentage: "0",
@@ -154,12 +161,49 @@ const Checkout = () => {
 
                     <p className="text-lg font-medium">Order Summary</p>
                     {orders.map((order) => (
-                        <div key={order.id} className="flex justify-between">
-                            <p>
-                                {order.recipe.name} ({order.serving.name}) x
-                                {order.quantity}
-                            </p>
-                            <p>₱{order.serving.price}</p>
+                        <div key={order.id} className="flex flex-col mb-2">
+                            <div className="flex justify-between">
+                                <p>
+                                    {order.recipe.name} ({order.serving.name}) x
+                                    {order.quantity}
+                                </p>
+                                <p>
+                                    ₱{calculateItemBasePrice(order).toFixed(2)}
+                                </p>
+                            </div>
+
+                            {/* Display addons if present */}
+                            {order.addons && order.addons.length > 0 && (
+                                <>
+                                    {order.addons.map((addon, index) => (
+                                        <div
+                                            key={index}
+                                            className="flex justify-between text-sm pl-4 text-gray-600"
+                                        >
+                                            <p>
+                                                + {addon.quantity}
+                                                {addon.unit} {addon.name} x
+                                                {order.quantity}
+                                            </p>
+                                            <p>
+                                                ₱
+                                                {calculateItemAddonsPrice(
+                                                    order
+                                                ).toFixed(2)}
+                                            </p>
+                                        </div>
+                                    ))}
+                                    <div className="flex justify-between font-medium">
+                                        <p>Item Total:</p>
+                                        <p>
+                                            ₱
+                                            {calculateItemTotalPrice(
+                                                order
+                                            ).toFixed(2)}
+                                        </p>
+                                    </div>
+                                </>
+                            )}
                         </div>
                     ))}
 

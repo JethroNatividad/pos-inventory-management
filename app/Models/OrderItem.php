@@ -20,6 +20,11 @@ class OrderItem extends Model
         return $this->belongsTo(Order::class);
     }
 
+    public function addons()
+    {
+        return $this->hasMany(Addons::class);
+    }
+
     public function serving()
     {
         return $this->belongsTo(Serving::class);

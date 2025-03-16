@@ -5,9 +5,18 @@ import { Minus, Plus } from "lucide-react";
 import React from "react";
 import { toast } from "sonner";
 
-const Order = ({ id, quantity, recipe, serving }: OrderItem) => {
-    const { incrementOrder, decrementOrder, updateOrder, checkAvailability } =
-        useOrder();
+const Order = ({ id, quantity, recipe, serving, addons }: OrderItem) => {
+    const {
+        incrementOrder,
+        decrementOrder,
+        updateOrder,
+        checkAvailability,
+        calculateItemBasePrice,
+        calculateItemAddonsPrice,
+        calculateItemTotalPrice,
+    } = useOrder();
+
+    const orderItem = { id, quantity, serving, recipe, addons };
     const availableQuantity = checkAvailability(serving);
 
     return (
@@ -48,10 +57,44 @@ const Order = ({ id, quantity, recipe, serving }: OrderItem) => {
                     </Button>
                 </div>
             </div>
+
             <div className="flex justify-between">
                 <p>₱{serving.price}</p>
-                <p>₱{(serving.price * quantity).toFixed(2)}</p>
+                <p>₱{calculateItemBasePrice(orderItem).toFixed(2)}</p>
             </div>
+
+            {/* Display addons if any */}
+            {addons && addons.length > 0 && (
+                <>
+                    <div className="w-full">
+                        {addons.map((addon, index) => (
+                            <div
+                                key={index}
+                                className="flex justify-between text-sm w-full text-gray-600"
+                            >
+                                <div>
+                                    + {addon.quantity}
+                                    {addon.unit} {addon.name}
+                                </div>
+                                <div>
+                                    ₱
+                                    {calculateItemAddonsPrice(
+                                        orderItem
+                                    ).toFixed(2)}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                    <div>
+                        <p className="flex justify-between font-bold">
+                            <span>Total</span>
+                            <span>
+                                ₱{calculateItemTotalPrice(orderItem).toFixed(2)}
+                            </span>
+                        </p>
+                    </div>
+                </>
+            )}
         </div>
     );
 };
