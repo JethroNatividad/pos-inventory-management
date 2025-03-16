@@ -22,7 +22,7 @@ class OrderItem extends Model
 
     public function addons()
     {
-        return $this->hasMany(AddOns::class);
+        return $this->hasMany(Addons::class);
     }
 
     public function serving()
