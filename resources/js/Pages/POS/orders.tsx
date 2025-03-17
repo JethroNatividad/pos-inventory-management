@@ -75,7 +75,7 @@ const Orders = ({ user }: OrderProps) => {
             </div>
             <div className="flex flex-col space-y-4 p-4 flex-1">
                 {orders.map((order) => (
-                    <Order key={order.id} {...order} />
+                    <Order key={order.id} {...order} user={user} />
                 ))}
             </div>
             <div className="sticky bg-background bottom-0 left-0 w-full p-4 border-t">

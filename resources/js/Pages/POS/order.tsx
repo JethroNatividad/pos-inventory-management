@@ -2,10 +2,24 @@ import { Button } from "@/Components/ui/button";
 import { Input } from "@/Components/ui/input";
 import { type OrderItem, useOrder } from "@/contexts/OrderContext";
 import { Minus, Plus } from "lucide-react";
-import React from "react";
+import React, { useState } from "react";
 import { toast } from "sonner";
+import { User } from "@/types";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+} from "@/Components/ui/dialog";
+import { Label } from "@/Components/ui/label";
+import { useForm } from "@inertiajs/react";
 
-const Order = ({ id, quantity, recipe, serving, addons }: OrderItem) => {
+type OrderProps = OrderItem & {
+    user: User;
+};
+
+const Order = ({ id, quantity, recipe, serving, addons, user }: OrderProps) => {
     const {
         incrementOrder,
         decrementOrder,
@@ -15,8 +29,47 @@ const Order = ({ id, quantity, recipe, serving, addons }: OrderItem) => {
         calculateItemTotalPrice,
     } = useOrder();
 
+    const [adminDialogOpen, setAdminDialogOpen] = useState(false);
+
+    const { data, setData, post, processing, errors, reset } = useForm({
+        email: "",
+        password: "",
+    });
+
     const orderItem = { id, quantity, serving, recipe, addons };
     const availableQuantity = getMaximumOrderQuantity(orderItem);
+
+    // Check if user is administrator or store_manager
+    const isAdmin =
+        user?.role === "administrator" || user?.role === "store_manager";
+
+    const handleDecrement = () => {
+        if (isAdmin) {
+            // If admin, allow decrement directly
+            decrementOrder(id);
+        } else {
+            // If not admin, show authentication dialog
+            setAdminDialogOpen(true);
+        }
+    };
+
+    const handleAdminAuth = (e) => {
+        e.preventDefault();
+
+        post(route("admin.verify"), {
+            preserveScroll: true,
+            preserveState: true,
+            onSuccess: () => {
+                decrementOrder(id);
+                setAdminDialogOpen(false);
+                reset();
+                toast.success("Item quantity decreased");
+            },
+            onError: () => {
+                toast.error("Invalid admin credentials");
+            },
+        });
+    };
 
     return (
         <div>
@@ -26,7 +79,7 @@ const Order = ({ id, quantity, recipe, serving, addons }: OrderItem) => {
                     <p className="text-amber-800">{serving.name}</p>
                 </div>
                 <div className="flex space-x-2 items-center">
-                    <Button size="icon" onClick={() => decrementOrder(id)}>
+                    <Button size="icon" onClick={handleDecrement}>
                         <Minus />
                     </Button>
                     <Input
@@ -79,6 +132,72 @@ const Order = ({ id, quantity, recipe, serving, addons }: OrderItem) => {
                     </div>
                 </>
             )}
+
+            {/* Admin Authentication Dialog */}
+            <Dialog open={adminDialogOpen} onOpenChange={setAdminDialogOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Administrator Authentication</DialogTitle>
+                        <DialogDescription>
+                            Admin credentials required to decrease item
+                            quantity.
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <form onSubmit={handleAdminAuth} className="space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="email">Admin Email</Label>
+                            <Input
+                                id="email"
+                                type="email"
+                                value={data.email}
+                                onChange={(e) =>
+                                    setData("email", e.target.value)
+                                }
+                                placeholder="admin@example.com"
+                                required
+                            />
+                            {errors.email && (
+                                <p className="text-red-500 text-sm">
+                                    {errors.email}
+                                </p>
+                            )}
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label htmlFor="password">Admin Password</Label>
+                            <Input
+                                id="password"
+                                type="password"
+                                value={data.password}
+                                onChange={(e) =>
+                                    setData("password", e.target.value)
+                                }
+                                placeholder="••••••••"
+                                required
+                            />
+                            {errors.password && (
+                                <p className="text-red-500 text-sm">
+                                    {errors.password}
+                                </p>
+                            )}
+                        </div>
+
+                        <div className="flex justify-end gap-2">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => setAdminDialogOpen(false)}
+                            >
+                                Cancel
+                            </Button>
+                            <Button type="submit" disabled={processing}>
+                                Verify & Decrease Quantity
+                            </Button>
+                        </div>
+                    </form>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 };
