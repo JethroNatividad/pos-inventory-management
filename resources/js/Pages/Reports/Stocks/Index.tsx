@@ -70,7 +70,9 @@ const Index = ({ stockEntryLogs, stockActivityLogs }: Props) => {
         const rows = stockActivityLogs.map((log) => [
             new Date(log.created_at).toLocaleString(),
             log.action,
-            log.user?.first_name || "N/A",
+            `${log.user.first_name}${
+                log.user.middle_name ? " " + log.user.middle_name : ""
+            } ${log.user.last_name}` || "N/A",
             log.reason || "N/A",
             log.stock?.stock_entry?.name || "N/A",
             `${log.quantity || 0}${log.stock?.stock_entry?.unit || ""}`,
