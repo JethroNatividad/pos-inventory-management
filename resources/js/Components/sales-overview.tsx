@@ -419,6 +419,63 @@ const SalesOverview = () => {
                         )}
                     </div>
                 </div>
+
+                <div className="mt-8">
+                    <h2 className="text-lg font-medium mb-4">Top Employees</h2>
+                    <div className="border rounded-lg overflow-hidden">
+                        {statsLoading ? (
+                            <div className="p-4 space-y-4">
+                                {[1, 2, 3].map((i) => (
+                                    <Skeleton key={i} className="h-12 w-full" />
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="overflow-x-auto">
+                                <table className="w-full min-w-[500px]">
+                                    <thead>
+                                        <tr className="border-b bg-muted/50">
+                                            <th className="text-left p-4">
+                                                Employee Name
+                                            </th>
+                                            <th className="text-right p-4">
+                                                Orders Processed
+                                            </th>
+                                            <th className="text-right p-4">
+                                                Total Revenue
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {stats?.top_employee_sales?.map(
+                                            (employee) => (
+                                                <tr
+                                                    key={employee.user_id}
+                                                    className="border-b last:border-0"
+                                                >
+                                                    <td className="p-4">
+                                                        {employee.name}
+                                                    </td>
+                                                    <td className="text-right p-4">
+                                                        {employee.order_items}
+                                                    </td>
+                                                    <td className="text-right p-4">
+                                                        ₱
+                                                        {employee.total_income.toLocaleString(
+                                                            "fil-PH",
+                                                            {
+                                                                minimumFractionDigits: 2,
+                                                            }
+                                                        )}
+                                                    </td>
+                                                </tr>
+                                            )
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
+                    </div>
+                </div>
             </div>
         </div>
     );

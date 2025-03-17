@@ -22,7 +22,10 @@ class OrderController extends Controller
         $to = $request->input('to') ? new DateTime($request->input('to')) : null;
         $recipe_id = $request->input('recipe_id');
 
-        $orders = Order::with(['items.serving.recipe'])->get();
+        // Modified query to include soft deleted recipes
+        $orders = Order::with(['user', 'items.addons.stockEntry', 'items.serving', 'items.serving.recipe' => function ($query) {
+            $query->withTrashed(); // This includes soft deleted recipes
+        }])->get();
 
         $data = OrderStatsDTO::fromOrders($orders, $from, $to, $recipe_id)->toArray();
 
