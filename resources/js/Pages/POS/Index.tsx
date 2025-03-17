@@ -1,6 +1,6 @@
 import Layout from "@/Layouts/Layout";
 import { Recipe, StockEntry } from "@/types";
-import { Head } from "@inertiajs/react";
+import { Head, usePage } from "@inertiajs/react";
 import Items from "./items";
 
 import { ShoppingCart } from "lucide-react";
@@ -14,6 +14,8 @@ type Props = {
 };
 
 const Index = ({ recipes, stockEntries }: Props) => {
+    const user = usePage().props.auth.user;
+
     return (
         <Layout>
             <OrderProvider stockEntries={stockEntries}>
@@ -27,7 +29,7 @@ const Index = ({ recipes, stockEntries }: Props) => {
                             <MobileOrders />
                         </div>
                         <div className="hidden lg:block sticky top-16">
-                            <Orders />
+                            <Orders user={user} />
                         </div>
                     </div>
                 </div>
