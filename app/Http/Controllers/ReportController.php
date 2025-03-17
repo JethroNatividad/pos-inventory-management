@@ -39,7 +39,7 @@ class ReportController extends Controller
     public function orderReceipt(Order $order)
     {
         return Inertia::render('Reports/Orders/ReceiptPage', [
-            'order' => $order->load(['items.serving.recipe', 'user']),
+            'order' => $order->load(['items.serving.recipe', 'user', 'items.addons.stockEntry']),
         ]);
     }
 }
