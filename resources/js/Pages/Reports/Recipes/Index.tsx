@@ -18,7 +18,9 @@ const Index = ({ recipeLogs }: Props) => {
         // Convert data to CSV rows
         const rows = recipeLogs.map((log) => [
             new Date(log.created_at).toLocaleString(),
-            log.user.first_name,
+            `${log.user.first_name}${
+                log.user.middle_name ? " " + log.user.middle_name : ""
+            } ${log.user.last_name}`,
             log.recipe.name,
             log.action,
         ]);
