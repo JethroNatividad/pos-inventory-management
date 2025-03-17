@@ -130,28 +130,42 @@ class OrderController extends Controller
 
                 // Handle stock deduction for addons
                 foreach ($orderItem['addons'] as $addon) {
-                    $stock = StockEntry::find($addon['stock_entry_id'])->stocks()
+                    $addonStockEntry = StockEntry::find($addon['stock_entry_id']);
+
+                    // Fetch available stocks for the addon
+                    $addonStocks = $addonStockEntry->stocks()
                         ->where('quantity', '>', 0)
                         ->orderBy('expiry_date')
                         ->orderBy('created_at')
-                        ->first();
+                        ->get();
 
-                    $totalAvailable = $stocks->sum('quantity');
-                    if ($totalAvailable < $requiredQuantity) {
-                        throw new \Exception("Insufficient stock for {$ingredient->stockEntry->name}.");
+                    $totalAvailable = $addonStocks->sum('quantity');
+                    $requiredAddonQuantity = $addon['quantity'];
+
+                    if ($totalAvailable < $requiredAddonQuantity) {
+                        throw new \Exception("Insufficient stock for {$addonStockEntry->name}.");
                     }
 
-                    $stock->decrement('quantity', $addon['quantity']);
+                    // Deduct stock quantities
+                    foreach ($addonStocks as $addonStock) {
+                        if ($requiredAddonQuantity <= 0) break;
 
-                    StockActivityLogs::create([
-                        'stock_id' => $stock->id,
-                        'user_id' => $request->user()->id,
-                        'action' => 'stock_out',
-                        'quantity' => $addon['quantity'],
-                        'reason' => 'Add-on Deducted from Order #' . $order->id,
-                        'batch_label' => $stock->batch_label,
-                        'price' => $stock->unit_price * $addon['quantity'],
-                    ]);
+                        $deductQuantity = min($addonStock->quantity, $requiredAddonQuantity);
+
+                        $addonStock->decrement('quantity', $deductQuantity);
+
+                        StockActivityLogs::create([
+                            'stock_id' => $addonStock->id,
+                            'user_id' => $request->user()->id,
+                            'action' => 'stock_out',
+                            'quantity' => $deductQuantity,
+                            'reason' => 'Add-on Deducted from Order #' . $order->id,
+                            'batch_label' => $addonStock->batch_label,
+                            'price' => $addonStock->unit_price * $deductQuantity,
+                        ]);
+
+                        $requiredAddonQuantity -= $deductQuantity;
+                    }
                 }
             }
 

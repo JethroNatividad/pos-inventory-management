@@ -13,8 +13,14 @@ class ReportController extends Controller
     public function stocks()
     {
         return Inertia::render('Reports/Stocks/Index', [
-            'stockEntryLogs' => StockEntryLogs::all()->load(['stockEntry', 'user'])->sortByDesc('created_at'),
-            'stockActivityLogs' => StockActivityLogs::all()->load(['stock.stockEntry', 'user']),
+            'stockEntryLogs' => StockEntryLogs::with(['stockEntry' => function ($query) {
+                $query->withTrashed();
+            }, 'user'])->orderBy('created_at', 'desc')->get(),
+            'stockActivityLogs' => StockActivityLogs::with(['stock' => function ($query) {
+                $query->withTrashed()->with(['stockEntry' => function ($q) {
+                    $q->withTrashed();
+                }]);
+            }, 'user'])->get(),
         ]);
     }
 
