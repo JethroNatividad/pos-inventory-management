@@ -76,15 +76,17 @@ export default function Receipt({ order }: ReceiptProps) {
                                     className="flex justify-between text-sm pl-4 text-gray-600"
                                 >
                                     <p>
-                                        + {addon.quantity}
+                                        + {Number(addon.quantity).toFixed(2)}
                                         {addon.stock_entry.unit}{" "}
                                         {addon.stock_entry.name}
                                     </p>
                                     <p>
                                         ₱
-                                        {(addon.price * addon.quantity).toFixed(
-                                            2
-                                        )}
+                                        {(
+                                            addon.price *
+                                            addon.quantity *
+                                            item.quantity
+                                        ).toFixed(2)}
                                     </p>
                                 </div>
                             ))}
@@ -99,7 +101,8 @@ export default function Receipt({ order }: ReceiptProps) {
                                                 total +
                                                 addon.price * addon.quantity,
                                             0
-                                        )
+                                        ) *
+                                            item.quantity
                                     ).toFixed(2)}
                                 </p>
                             </div>

@@ -1,6 +1,7 @@
 import { getServingQuantityAvailable } from "@/lib/utils";
 import type { Ingredient, Recipe, Serving, StockEntry } from "@/types";
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { toast } from "sonner";
 
 export type OrderItem = {
     id: string;
@@ -209,12 +210,14 @@ export const OrderProvider: React.FC<{
 
     const addOrder = (item: OrderItem) => {
         const availableQuantity = getMaximumOrderQuantity(item);
-        if (availableQuantity <= 0) return;
+        if (availableQuantity <= 0)
+            return toast.error("Out of stock", { position: "top-right" });
 
         const orderIndex = orders.findIndex((order) => order.id === item.id);
         if (orderIndex !== -1) {
             const newOrders = [...orders];
             newOrders[orderIndex].quantity += 1;
+
             setOrders(newOrders);
         } else {
             setOrders([...orders, item]);
