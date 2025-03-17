@@ -23,7 +23,7 @@ class OrderController extends Controller
         $recipe_id = $request->input('recipe_id');
 
         // Modified query to include soft deleted recipes
-        $orders = Order::with(['items.serving', 'items.serving.recipe' => function ($query) {
+        $orders = Order::with(['user', 'items.addons.stockEntry', 'items.serving', 'items.serving.recipe' => function ($query) {
             $query->withTrashed(); // This includes soft deleted recipes
         }])->get();
 

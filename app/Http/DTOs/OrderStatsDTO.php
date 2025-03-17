@@ -9,7 +9,8 @@ class OrderStatsDTO
     public function __construct(
         public array $daily_stats,
         public array $financial_summary,
-        public array $top_selling_items
+        public array $top_selling_items,
+        public array $top_employee_sales
     ) {}
 
     public static function fromOrders($orders, ?DateTime $from = null, ?DateTime $to = null, $recipe_id = null): self
@@ -39,7 +40,8 @@ class OrderStatsDTO
                 'date' => $dayOrders->first()->created_at->toISOString(),
                 'total_orders' => $dayOrders->sum(
                     fn($order) =>
-                    $order->items->sum('quantity')
+                    $order->items->sum('quantity') +
+                        $order->items->sum(fn($item) => $item->addons->sum('quantity'))
                 )
             ])
             ->values()
@@ -48,7 +50,8 @@ class OrderStatsDTO
         // Calculate totals including VAT
         $totalGrossRevenue = $orders->sum(
             fn($order) =>
-            $order->items->sum(fn($item) => $item->quantity * $item->price)
+            $order->items->sum(fn($item) => $item->quantity * $item->price) +
+                $order->items->sum(fn($item) => $item->addons->sum(fn($addon) => $addon->quantity * $addon->price))
         );
 
         // Calculate VAT (assuming 12% VAT)
@@ -57,7 +60,11 @@ class OrderStatsDTO
             $order->items->sum(
                 fn($item) =>
                 $item->quantity * ($item->price * 0.12)
-            )
+            ) +
+                $order->items->sum(
+                    fn($item) =>
+                    $item->addons->sum(fn($addon) => $addon->quantity * ($addon->price * 0.12))
+                )
         );
 
         // Net revenue is gross revenue minus VAT
@@ -65,7 +72,8 @@ class OrderStatsDTO
 
         $totalCost = $orders->sum(
             fn($order) =>
-            $order->items->sum(fn($item) => $item->quantity * $item->cost)
+            $order->items->sum(fn($item) => $item->quantity * $item->cost) +
+                $order->items->sum(fn($item) => $item->addons->sum(fn($addon) => $addon->quantity * ($addon->stockEntry->cost ?? 0)))
         );
 
         // Net income is net revenue minus total cost
@@ -79,7 +87,8 @@ class OrderStatsDTO
             'totalIncome' => $netIncome, // Income after VAT and costs
             'totalOrders' => $orders->sum(
                 fn($order) =>
-                $order->items->sum('quantity')
+                $order->items->sum('quantity') +
+                    $order->items->sum(fn($item) => $item->addons->sum('quantity'))
             ),
         ];
 
@@ -93,11 +102,17 @@ class OrderStatsDTO
                 'totalRevenue' => $items->sum(
                     fn($item) =>
                     $item->quantity * $item->price
+                ) + $items->sum(
+                    fn($item) =>
+                    $item->addons->sum(fn($addon) => $addon->quantity * $addon->price)
                 ),
                 // Optionally include VAT for each item
                 'vatAmount' => $items->sum(
                     fn($item) =>
                     $item->quantity * ($item->price * 0.12)
+                ) + $items->sum(
+                    fn($item) =>
+                    $item->addons->sum(fn($addon) => $addon->quantity * ($addon->price * 0.12))
                 ),
             ])
             ->sortByDesc('quantitySold')
@@ -105,10 +120,43 @@ class OrderStatsDTO
             ->values()
             ->toArray();
 
+        $top_employee_sales = $orders
+            ->groupBy('user_id')
+            ->map(function ($userOrders) {
+                $user = $userOrders->first()->user;
+                return [
+                    'user_id' => $user->id,
+                    'name' => $user->first_name . ' ' . $user->last_name,
+                    'total_orders' => $userOrders->count(),
+                    'order_items' => $userOrders->sum(
+                        fn($order) =>
+                        $order->items->sum('quantity') +
+                            $order->items->sum(fn($item) => $item->addons->sum('quantity'))
+                    ),
+                    'total_revenue' => $userOrders->sum(
+                        fn($order) =>
+                        $order->items->sum(fn($item) => $item->quantity * $item->price) +
+                            $order->items->sum(fn($item) => $item->addons->sum(fn($addon) => $addon->quantity * $addon->price))
+                    ),
+                    'total_income' => $userOrders->sum(
+                        fn($order) =>
+                        $order->items->sum(fn($item) => $item->quantity * $item->price) +
+                            $order->items->sum(fn($item) => $item->addons->sum(fn($addon) => $addon->quantity * $addon->price)) -
+                            $order->items->sum(fn($item) => $item->quantity * $item->cost) -
+                            $order->items->sum(fn($item) => $item->addons->sum(fn($addon) => $addon->quantity * ($addon->stockEntry->cost ?? 0)))
+                    ),
+                ];
+            })
+            ->sortByDesc('total_revenue')
+            ->take(5)
+            ->values()
+            ->toArray();
+
         return new self(
             $daily_stats,
             $financial_summary,
-            $top_selling_items
+            $top_selling_items,
+            $top_employee_sales
         );
     }
 
@@ -118,6 +166,7 @@ class OrderStatsDTO
             'daily_stats' => $this->daily_stats,
             'financial_summary' => $this->financial_summary,
             'top_selling_items' => $this->top_selling_items,
+            'top_employee_sales' => $this->top_employee_sales,
         ];
     }
 }

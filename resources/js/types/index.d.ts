@@ -193,6 +193,13 @@ export type OrderStats = {
         quantitySold: number;
         totalRevenue: number;
     }[];
+
+    top_employee_sales: {
+        user_id: number;
+        name: string;
+        order_items: number;
+        total_income: number;
+    }[];
 };
 
 export type AddOn = {
