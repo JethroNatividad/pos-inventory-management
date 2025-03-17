@@ -28,21 +28,16 @@ type OrderContextType = {
     updateOrder: (id: string, quantity: number) => void;
     getOrder: (id: string) => OrderItem | undefined;
     calculateSubtotal: () => number;
-    checkAvailability: (
-        serving: Serving,
-        addons?: OrderItem["addons"]
-    ) => number;
-    checkAddonAvailability: (addonId: string, quantity: number) => number;
     canIncrement: (id: string) => boolean;
     stockEntries: StockEntry[];
     // New price calculation functions
     calculateItemBasePrice: (order: OrderItem) => number;
     calculateItemAddonsPrice: (order: OrderItem) => number;
     calculateItemTotalPrice: (order: OrderItem) => number;
-    getTotalOrderQuantityForServing: (
-        recipeId: number,
-        servingId: number
-    ) => number;
+
+    getMaximumOrderQuantity: (orderItem: OrderItem) => number;
+
+    isServingAvailable: (serving: Serving) => boolean;
 };
 
 const OrderContext = createContext<OrderContextType | undefined>(undefined);
@@ -55,6 +50,16 @@ export const OrderProvider: React.FC<{
         const savedOrders = localStorage.getItem("orders");
         return savedOrders ? JSON.parse(savedOrders) : [];
     });
+
+    useEffect(() => {
+        localStorage.setItem("orders", JSON.stringify(orders));
+        console.log("OLD:", stockEntries);
+        console.log("NEW:", getCurrentAvailableStocks());
+        console.log(
+            "MAX:",
+            orders.length > 0 && getMaximumOrderQuantity(orders[0])
+        );
+    }, [orders]);
 
     const getCurrentAvailableStocks = () => {
         const CurrentAvailableStocks = structuredClone(stockEntries);
@@ -70,28 +75,19 @@ export const OrderProvider: React.FC<{
                     stockEntry.quantity -= ingredient.quantity * order.quantity;
                 }
             });
+
+            order.addons.forEach((addon) => {
+                const stockEntry = CurrentAvailableStocks.find(
+                    (entry) => entry.id.toString() === addon.stock_entry_id
+                );
+
+                if (stockEntry) {
+                    stockEntry.quantity -= addon.quantity * order.quantity;
+                }
+            });
         });
 
         return CurrentAvailableStocks;
-    };
-
-    useEffect(() => {
-        localStorage.setItem("orders", JSON.stringify(orders));
-        console.log("OLD:", stockEntries);
-        console.log("NEW:", getCurrentAvailableStocks());
-    }, [orders]);
-
-    const getTotalOrderQuantityForServing = (
-        recipeId: number,
-        servingId: number
-    ): number => {
-        return orders
-            .filter(
-                (order) =>
-                    order.recipe.id === recipeId &&
-                    order.serving.id === servingId
-            )
-            .reduce((total, order) => total + order.quantity, 0);
     };
 
     const calculateSubtotal = () =>
@@ -121,61 +117,98 @@ export const OrderProvider: React.FC<{
         return calculateItemBasePrice(order) + calculateItemAddonsPrice(order);
     };
 
-    // Check how many of a specific addon are available
-    const checkAddonAvailability = (
-        stockEntryId: string,
-        requiredQuantity: number
-    ): number => {
-        const stockEntry = stockEntries.find(
-            (entry) => entry.id.toString() === stockEntryId
-        );
-        if (!stockEntry) return 0;
+    // const checkAvailability = (
+    //     serving: Serving,
+    //     addons: OrderItem["addons"] = []
+    // ): number => {
+    //     // Check serving availability based on ingredients
+    //     const maxServingAvailable = getServingQuantityAvailable(
+    //         serving,
+    //         stockEntries,
+    //         orders.filter((order) => order.serving.id !== serving.id)
+    //     );
 
-        // Calculate how much of this addon is already used in other orders
-        const usedQuantity = orders.reduce((total, order) => {
-            const addonUsage = order.addons
-                .filter((addon) => addon.stock_entry_id === stockEntryId)
-                .reduce(
-                    (sum, addon) => sum + addon.quantity * order.quantity,
-                    0
-                );
-            return total + addonUsage;
-        }, 0);
+    //     if (addons.length === 0) return maxServingAvailable;
 
-        // Available quantity is what's in stock minus what's already used
-        const availableQuantity = Math.max(
-            0,
-            stockEntry.quantity - usedQuantity
-        );
+    //     // Also check addon availability
+    //     const addonAvailability = addons.map((addon) =>
+    //         checkAddonAvailability(addon.stock_entry_id, addon.quantity)
+    //     );
 
-        // Return how many items we can make with this addon
-        return Math.floor(availableQuantity / requiredQuantity);
+    //     // We can only make as many items as the most limiting factor allows
+    //     return Math.min(maxServingAvailable, ...addonAvailability);
+    // };
+
+    const isServingAvailable = (serving: Serving): boolean => {
+        const currentAvailableStocks = getCurrentAvailableStocks();
+
+        const servingIngredients = serving.recipe_ingredients;
+
+        for (const ingredient of servingIngredients) {
+            const stockEntry = currentAvailableStocks.find(
+                (entry) => entry.id === ingredient.stock_entry_id
+            );
+
+            if (!stockEntry || stockEntry.quantity < ingredient.quantity) {
+                return false;
+            }
+        }
+
+        return true;
     };
 
-    const checkAvailability = (
-        serving: Serving,
-        addons: OrderItem["addons"] = []
-    ): number => {
-        // Check serving availability based on ingredients
-        const maxServingAvailable = getServingQuantityAvailable(
-            serving,
-            stockEntries,
-            orders.filter((order) => order.serving.id !== serving.id)
-        );
+    const getMaximumOrderQuantity = (orderItem: OrderItem): number => {
+        const currentAvailableStocks = getCurrentAvailableStocks();
 
-        if (addons.length === 0) return maxServingAvailable;
+        // Check serving availability based on ingredients plus addons
+        const totalIngredientsUsed: {
+            [key: string]: number;
+        } = {};
 
-        // Also check addon availability
-        const addonAvailability = addons.map((addon) =>
-            checkAddonAvailability(addon.stock_entry_id, addon.quantity)
-        );
+        const servingIngredients = orderItem.serving.recipe_ingredients;
 
-        // We can only make as many items as the most limiting factor allows
-        return Math.min(maxServingAvailable, ...addonAvailability);
+        servingIngredients.forEach((ingredient) => {
+            if (!totalIngredientsUsed[ingredient.stock_entry_id]) {
+                totalIngredientsUsed[ingredient.stock_entry_id] = 0;
+            }
+            totalIngredientsUsed[ingredient.stock_entry_id] += Number(
+                ingredient.quantity
+            );
+        });
+
+        orderItem.addons.forEach((addon) => {
+            if (!totalIngredientsUsed[addon.stock_entry_id]) {
+                totalIngredientsUsed[addon.stock_entry_id] = 0;
+            }
+            totalIngredientsUsed[addon.stock_entry_id] += addon.quantity;
+        });
+
+        console.log("TOTAL:", totalIngredientsUsed);
+
+        let maxQuantity = Infinity;
+
+        // Now calculate the maximum quantity we can make, Excluding the current order from the calculation
+
+        for (const [stockId, quantity] of Object.entries(
+            totalIngredientsUsed
+        )) {
+            const stockEntry = currentAvailableStocks.find(
+                (entry) => entry.id === Number(stockId)
+            );
+
+            if (!stockEntry) {
+                return 0;
+            }
+
+            const availableQuantity = stockEntry.quantity / quantity;
+            maxQuantity = Math.min(maxQuantity, availableQuantity);
+        }
+
+        return Math.floor(maxQuantity);
     };
 
     const addOrder = (item: OrderItem) => {
-        const availableQuantity = checkAvailability(item.serving, item.addons);
+        const availableQuantity = getMaximumOrderQuantity(item);
         if (availableQuantity <= 0) return;
 
         const orderIndex = orders.findIndex((order) => order.id === item.id);
@@ -196,7 +229,7 @@ export const OrderProvider: React.FC<{
         if (!order) return;
 
         // Check if we can increment considering both serving and addons
-        if (checkAvailability(order.serving, order.addons) <= 0) return;
+        if (getMaximumOrderQuantity(order) <= 0) return;
 
         setOrders(
             orders.map((o) =>
@@ -223,11 +256,9 @@ export const OrderProvider: React.FC<{
         const order = getOrder(id);
         if (!order) return;
 
-        const currentQuantity = order.quantity;
-        const availableQuantity =
-            checkAvailability(order.serving, order.addons) + currentQuantity;
+        const availableQuantity = getMaximumOrderQuantity(order);
 
-        if (quantity > availableQuantity) return;
+        if (availableQuantity <= 0) return;
 
         setOrders(orders.map((o) => (o.id === id ? { ...o, quantity } : o)));
     };
@@ -237,7 +268,7 @@ export const OrderProvider: React.FC<{
     const canIncrement = (id: string): boolean => {
         const order = getOrder(id);
         if (!order) return false;
-        return checkAvailability(order.serving, order.addons) > 0;
+        return getMaximumOrderQuantity(order) > 0;
     };
 
     // const isServingAvailable = (serving: Serving): boolean => {};
@@ -254,15 +285,16 @@ export const OrderProvider: React.FC<{
                 updateOrder,
                 calculateSubtotal,
                 getOrder,
-                checkAvailability,
-                checkAddonAvailability,
                 canIncrement,
                 stockEntries,
                 // New price calculation functions
                 calculateItemBasePrice,
                 calculateItemAddonsPrice,
                 calculateItemTotalPrice,
-                getTotalOrderQuantityForServing,
+                // getTotalOrderQuantityForServing,
+
+                getMaximumOrderQuantity,
+                isServingAvailable,
             }}
         >
             {children}

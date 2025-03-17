@@ -14,7 +14,6 @@ interface ServingSizeDialogProps {
     onOpenChange: (open: boolean) => void;
     recipe: Recipe;
     onSelectServing: (serving: Serving) => void;
-    checkAvailability: (serving: Serving) => number;
 }
 
 export const ServingSizeDialog = ({
@@ -22,9 +21,9 @@ export const ServingSizeDialog = ({
     onOpenChange,
     recipe,
     onSelectServing,
-    checkAvailability,
 }: ServingSizeDialogProps) => {
-    const { getTotalOrderQuantityForServing } = useOrder();
+    const { isServingAvailable } = useOrder();
+
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent>
@@ -34,17 +33,9 @@ export const ServingSizeDialog = ({
                 </DialogHeader>
                 <div className="flex space-y-4 flex-col">
                     {recipe.servings.map((serving) => {
-                        const availableQuantity = checkAvailability(serving);
-
                         return (
                             <Button
-                                disabled={
-                                    !serving.is_available ||
-                                    getTotalOrderQuantityForServing(
-                                        recipe.id,
-                                        serving.id
-                                    ) >= availableQuantity
-                                }
+                                disabled={!isServingAvailable(serving)}
                                 key={serving.id}
                                 onClick={() => onSelectServing(serving)}
                                 className="w-full"

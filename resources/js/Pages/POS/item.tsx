@@ -14,7 +14,7 @@ interface ItemProps {
 }
 
 const Item = ({ recipe }: ItemProps) => {
-    const { addOrder, getOrder, checkAvailability, stockEntries } = useOrder();
+    const { addOrder, getOrder, stockEntries } = useOrder();
 
     const [open, setOpen] = useState(false);
     const [addonsOpen, setAddonsOpen] = useState(false);
@@ -178,7 +178,6 @@ const Item = ({ recipe }: ItemProps) => {
                     onOpenChange={setOpen}
                     recipe={recipe}
                     onSelectServing={handleServingSelect}
-                    checkAvailability={checkAvailability}
                 />
 
                 {/* <DialogTrigger asChild> */}
