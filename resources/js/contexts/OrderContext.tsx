@@ -56,8 +56,29 @@ export const OrderProvider: React.FC<{
         return savedOrders ? JSON.parse(savedOrders) : [];
     });
 
+    const getCurrentAvailableStocks = () => {
+        const CurrentAvailableStocks = structuredClone(stockEntries);
+        orders.forEach((order) => {
+            const servingIngredients = order.serving.recipe_ingredients;
+
+            servingIngredients.forEach((ingredient) => {
+                const stockEntry = CurrentAvailableStocks.find(
+                    (entry) => entry.id === ingredient.stock_entry_id
+                );
+
+                if (stockEntry) {
+                    stockEntry.quantity -= ingredient.quantity * order.quantity;
+                }
+            });
+        });
+
+        return CurrentAvailableStocks;
+    };
+
     useEffect(() => {
         localStorage.setItem("orders", JSON.stringify(orders));
+        console.log("OLD:", stockEntries);
+        console.log("NEW:", getCurrentAvailableStocks());
     }, [orders]);
 
     const getTotalOrderQuantityForServing = (
@@ -218,6 +239,8 @@ export const OrderProvider: React.FC<{
         if (!order) return false;
         return checkAvailability(order.serving, order.addons) > 0;
     };
+
+    // const isServingAvailable = (serving: Serving): boolean => {};
 
     return (
         <OrderContext.Provider

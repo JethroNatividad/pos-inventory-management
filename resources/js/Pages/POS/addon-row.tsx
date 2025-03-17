@@ -7,7 +7,6 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/Components/ui/select";
-import { units } from "@/data/units";
 import { OrderAddon } from "@/types";
 import { Trash2 } from "lucide-react";
 
@@ -70,25 +69,9 @@ export const AddonRow = ({
                         />
                     </div>
                     <div className="col-span-2">
-                        <Select
-                            value={addon.unit}
-                            onValueChange={(value) =>
-                                onUpdate(index, "unit", value)
-                            }
-                            disabled={!addon.stock_entry_id}
-                        >
-                            <SelectTrigger>
-                                <SelectValue placeholder="Unit" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {addon.type &&
-                                    units[addon.type]?.map((unit) => (
-                                        <SelectItem key={unit} value={unit}>
-                                            {unit}
-                                        </SelectItem>
-                                    ))}
-                            </SelectContent>
-                        </Select>
+                        <div className="h-full w-full rounded-md bg-gray-100 text-sm border flex items-center px-2">
+                            {addon.unit}
+                        </div>
                     </div>
                 </div>
             </div>
