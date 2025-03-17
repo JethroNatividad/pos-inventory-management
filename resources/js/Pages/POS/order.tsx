@@ -10,14 +10,13 @@ const Order = ({ id, quantity, recipe, serving, addons }: OrderItem) => {
         incrementOrder,
         decrementOrder,
         updateOrder,
-        checkAvailability,
+        getMaximumOrderQuantity,
         calculateItemBasePrice,
-        calculateItemAddonsPrice,
         calculateItemTotalPrice,
     } = useOrder();
 
     const orderItem = { id, quantity, serving, recipe, addons };
-    const availableQuantity = checkAvailability(serving);
+    const availableQuantity = getMaximumOrderQuantity(orderItem);
 
     return (
         <div>
@@ -34,22 +33,10 @@ const Order = ({ id, quantity, recipe, serving, addons }: OrderItem) => {
                         className="w-12 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                         type="number"
                         value={quantity}
-                        onChange={(e) => {
-                            if (parseInt(e.target.value) < 0) {
-                                return;
-                            }
-
-                            if (parseInt(e.target.value) > availableQuantity) {
-                                toast.error("Not enough stocks", {
-                                    position: "top-right",
-                                });
-                                return updateOrder(id, availableQuantity);
-                            }
-                            updateOrder(id, parseInt(e.target.value) || 0);
-                        }}
+                        disabled
                     />
                     <Button
-                        disabled={quantity >= availableQuantity}
+                        disabled={availableQuantity <= 0}
                         size="icon"
                         onClick={() => incrementOrder(id)}
                     >

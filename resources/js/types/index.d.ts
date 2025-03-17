@@ -201,3 +201,13 @@ export type AddOn = {
     stock_entry: StockEntry;
     orderItem: OrderItem;
 };
+
+export interface OrderAddon {
+    id: string;
+    stock_entry_id: string;
+    quantity: number;
+    unit: string;
+    name: string;
+    price: number;
+    type: "liquid" | "powder" | "item";
+}
