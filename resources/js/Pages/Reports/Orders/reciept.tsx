@@ -57,16 +57,51 @@ export default function Receipt({ order }: ReceiptProps) {
                 <div className="space-y-4">
                     <div className="text-sm font-medium">Order Summary</div>
                     {order.items.map((item) => (
-                        <div
-                            key={item.id}
-                            className="flex justify-between text-sm"
-                        >
-                            <div>
-                                {item.quantity}x {item.serving.recipe.name} (
-                                {item.serving.name})
+                        <div>
+                            <div
+                                key={item.id}
+                                className="flex justify-between text-sm"
+                            >
+                                <div>
+                                    {item.quantity}x {item.serving.recipe.name}{" "}
+                                    ({item.serving.name})
+                                </div>
+                                <div>
+                                    ₱{(item.price * item.quantity).toFixed(2)}
+                                </div>
                             </div>
-                            <div>
-                                ₱{(item.price * item.quantity).toFixed(2)}
+                            {item.addons.map((addon, index) => (
+                                <div
+                                    key={index}
+                                    className="flex justify-between text-sm pl-4 text-gray-600"
+                                >
+                                    <p>
+                                        + {addon.quantity}
+                                        {addon.stock_entry.unit}{" "}
+                                        {addon.stock_entry.name}
+                                    </p>
+                                    <p>
+                                        ₱
+                                        {(addon.price * addon.quantity).toFixed(
+                                            2
+                                        )}
+                                    </p>
+                                </div>
+                            ))}
+                            <div className="flex justify-between font-medium text-sm">
+                                <p>Item Total:</p>
+                                <p>
+                                    ₱
+                                    {(
+                                        item.quantity * item.price +
+                                        item.addons.reduce(
+                                            (total, addon) =>
+                                                total +
+                                                addon.price * addon.quantity,
+                                            0
+                                        )
+                                    ).toFixed(2)}
+                                </p>
                             </div>
                         </div>
                     ))}

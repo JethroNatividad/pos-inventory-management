@@ -198,6 +198,6 @@ export type OrderStats = {
 export type AddOn = {
     quantity: number;
     price: number;
-    stockEntry: StockEntry;
+    stock_entry: StockEntry;
     orderItem: OrderItem;
 };

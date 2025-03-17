@@ -187,8 +187,8 @@ const Checkout = () => {
                                             </p>
                                             <p>
                                                 ₱
-                                                {calculateItemAddonsPrice(
-                                                    order
+                                                {(
+                                                    addon.quantity * addon.price
                                                 ).toFixed(2)}
                                             </p>
                                         </div>

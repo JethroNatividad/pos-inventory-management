@@ -77,10 +77,7 @@ const Order = ({ id, quantity, recipe, serving, addons }: OrderItem) => {
                                     {addon.unit} {addon.name}
                                 </div>
                                 <div>
-                                    ₱
-                                    {calculateItemAddonsPrice(
-                                        orderItem
-                                    ).toFixed(2)}
+                                    ₱{(addon.quantity * addon.price).toFixed(2)}
                                 </div>
                             </div>
                         ))}
