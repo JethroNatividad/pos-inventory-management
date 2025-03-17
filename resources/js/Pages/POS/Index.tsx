@@ -26,7 +26,7 @@ const Index = ({ recipes, stockEntries }: Props) => {
                     </div>
                     <div className="max-w-14 lg:max-w-sm w-full">
                         <div className="lg:hidden sticky top-16">
-                            <MobileOrders />
+                            <MobileOrders user={user} />
                         </div>
                         <div className="hidden lg:block sticky top-16">
                             <Orders user={user} />

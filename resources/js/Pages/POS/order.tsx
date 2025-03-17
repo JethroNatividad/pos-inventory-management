@@ -53,7 +53,7 @@ const Order = ({ id, quantity, recipe, serving, addons, user }: OrderProps) => {
         }
     };
 
-    const handleAdminAuth = (e) => {
+    const handleAdminAuth = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         post(route("admin.verify"), {

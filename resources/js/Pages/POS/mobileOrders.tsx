@@ -10,9 +10,15 @@ import { Button } from "@/Components/ui/button";
 import { ShoppingCart } from "lucide-react";
 import Orders from "./orders";
 import { useOrder } from "@/contexts/OrderContext";
+import { User } from "@/types";
 
-const MobileOrders = () => {
+type Props = {
+    user: User;
+};
+
+const MobileOrders = ({ user }: Props) => {
     const { orders } = useOrder();
+
     return (
         <Sheet>
             <div className="relative">
@@ -30,7 +36,7 @@ const MobileOrders = () => {
             <SheetContent className="w-full">
                 <SheetHeader>
                     <div className="mt-4">
-                        <Orders />
+                        <Orders user={user} />
                     </div>
                 </SheetHeader>
             </SheetContent>

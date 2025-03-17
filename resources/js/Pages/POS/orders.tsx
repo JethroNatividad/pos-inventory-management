@@ -45,14 +45,14 @@ const Orders = ({ user }: OrderProps) => {
         }
     };
 
-    const handleAdminAuth = (e) => {
+    const handleAdminAuth = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         // Use Inertia's post method with preserveScroll and preserveState options
         post(route("admin.verify"), {
             preserveScroll: true, // Prevents scrolling to top
             preserveState: true, // Preserves component state
-            onSuccess: (response) => {
+            onSuccess: (response: any) => {
                 // On successful verification, clear orders
                 clearOrders();
                 setAdminDialogOpen(false);
