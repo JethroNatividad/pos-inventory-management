@@ -19,6 +19,8 @@ const Order = ({ id, quantity, recipe, serving, addons }: OrderItem) => {
     const orderItem = { id, quantity, serving, recipe, addons };
     const availableQuantity = checkAvailability(serving);
 
+    const { getTotalOrderQuantityForServing } = useOrder();
+
     return (
         <div>
             <div className="flex justify-between items-center">
@@ -49,7 +51,13 @@ const Order = ({ id, quantity, recipe, serving, addons }: OrderItem) => {
                         }}
                     />
                     <Button
-                        disabled={quantity >= availableQuantity}
+                        disabled={
+                            !serving.is_available ||
+                            getTotalOrderQuantityForServing(
+                                recipe.id,
+                                serving.id
+                            ) >= availableQuantity
+                        }
                         size="icon"
                         onClick={() => incrementOrder(id)}
                     >

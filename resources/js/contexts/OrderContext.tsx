@@ -28,13 +28,21 @@ type OrderContextType = {
     updateOrder: (id: string, quantity: number) => void;
     getOrder: (id: string) => OrderItem | undefined;
     calculateSubtotal: () => number;
-    checkAvailability: (serving: Serving) => number;
+    checkAvailability: (
+        serving: Serving,
+        addons?: OrderItem["addons"]
+    ) => number;
+    checkAddonAvailability: (addonId: string, quantity: number) => number;
     canIncrement: (id: string) => boolean;
     stockEntries: StockEntry[];
     // New price calculation functions
     calculateItemBasePrice: (order: OrderItem) => number;
     calculateItemAddonsPrice: (order: OrderItem) => number;
     calculateItemTotalPrice: (order: OrderItem) => number;
+    getTotalOrderQuantityForServing: (
+        recipeId: number,
+        servingId: number
+    ) => number;
 };
 
 const OrderContext = createContext<OrderContextType | undefined>(undefined);
@@ -51,6 +59,19 @@ export const OrderProvider: React.FC<{
     useEffect(() => {
         localStorage.setItem("orders", JSON.stringify(orders));
     }, [orders]);
+
+    const getTotalOrderQuantityForServing = (
+        recipeId: number,
+        servingId: number
+    ): number => {
+        return orders
+            .filter(
+                (order) =>
+                    order.recipe.id === recipeId &&
+                    order.serving.id === servingId
+            )
+            .reduce((total, order) => total + order.quantity, 0);
+    };
 
     const calculateSubtotal = () =>
         orders.reduce(
@@ -79,8 +100,61 @@ export const OrderProvider: React.FC<{
         return calculateItemBasePrice(order) + calculateItemAddonsPrice(order);
     };
 
+    // Check how many of a specific addon are available
+    const checkAddonAvailability = (
+        stockEntryId: string,
+        requiredQuantity: number
+    ): number => {
+        const stockEntry = stockEntries.find(
+            (entry) => entry.id.toString() === stockEntryId
+        );
+        if (!stockEntry) return 0;
+
+        // Calculate how much of this addon is already used in other orders
+        const usedQuantity = orders.reduce((total, order) => {
+            const addonUsage = order.addons
+                .filter((addon) => addon.stock_entry_id === stockEntryId)
+                .reduce(
+                    (sum, addon) => sum + addon.quantity * order.quantity,
+                    0
+                );
+            return total + addonUsage;
+        }, 0);
+
+        // Available quantity is what's in stock minus what's already used
+        const availableQuantity = Math.max(
+            0,
+            stockEntry.quantity - usedQuantity
+        );
+
+        // Return how many items we can make with this addon
+        return Math.floor(availableQuantity / requiredQuantity);
+    };
+
+    const checkAvailability = (
+        serving: Serving,
+        addons: OrderItem["addons"] = []
+    ): number => {
+        // Check serving availability based on ingredients
+        const maxServingAvailable = getServingQuantityAvailable(
+            serving,
+            stockEntries,
+            orders.filter((order) => order.serving.id !== serving.id)
+        );
+
+        if (addons.length === 0) return maxServingAvailable;
+
+        // Also check addon availability
+        const addonAvailability = addons.map((addon) =>
+            checkAddonAvailability(addon.stock_entry_id, addon.quantity)
+        );
+
+        // We can only make as many items as the most limiting factor allows
+        return Math.min(maxServingAvailable, ...addonAvailability);
+    };
+
     const addOrder = (item: OrderItem) => {
-        const availableQuantity = checkAvailability(item.serving);
+        const availableQuantity = checkAvailability(item.serving, item.addons);
         if (availableQuantity <= 0) return;
 
         const orderIndex = orders.findIndex((order) => order.id === item.id);
@@ -97,11 +171,15 @@ export const OrderProvider: React.FC<{
         setOrders(orders.filter((order) => order.id !== id));
 
     const incrementOrder = (id: string) => {
+        const order = getOrder(id);
+        if (!order) return;
+
+        // Check if we can increment considering both serving and addons
+        if (checkAvailability(order.serving, order.addons) <= 0) return;
+
         setOrders(
-            orders.map((order) =>
-                order.id === id
-                    ? { ...order, quantity: order.quantity + 1 }
-                    : order
+            orders.map((o) =>
+                o.id === id ? { ...o, quantity: o.quantity + 1 } : o
             )
         );
     };
@@ -126,32 +204,19 @@ export const OrderProvider: React.FC<{
 
         const currentQuantity = order.quantity;
         const availableQuantity =
-            checkAvailability(order.serving) + currentQuantity;
+            checkAvailability(order.serving, order.addons) + currentQuantity;
 
         if (quantity > availableQuantity) return;
 
-        setOrders(
-            orders.map((order) =>
-                order.id === id ? { ...order, quantity } : order
-            )
-        );
+        setOrders(orders.map((o) => (o.id === id ? { ...o, quantity } : o)));
     };
 
     const clearOrders = () => setOrders([]);
 
-    const checkAvailability = (serving: Serving): number => {
-        const maxAvailable = getServingQuantityAvailable(
-            serving,
-            stockEntries,
-            orders.filter((order) => order.serving.id !== serving.id)
-        );
-        return maxAvailable;
-    };
-
     const canIncrement = (id: string): boolean => {
         const order = getOrder(id);
         if (!order) return false;
-        return checkAvailability(order.serving) > 0;
+        return checkAvailability(order.serving, order.addons) > 0;
     };
 
     return (
@@ -167,12 +232,14 @@ export const OrderProvider: React.FC<{
                 calculateSubtotal,
                 getOrder,
                 checkAvailability,
+                checkAddonAvailability,
                 canIncrement,
                 stockEntries,
                 // New price calculation functions
                 calculateItemBasePrice,
                 calculateItemAddonsPrice,
                 calculateItemTotalPrice,
+                getTotalOrderQuantityForServing,
             }}
         >
             {children}

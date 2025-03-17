@@ -1,40 +1,16 @@
 import { Button } from "@/Components/ui/button";
 import { Recipe, Serving } from "@/types";
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from "@/Components/ui/dialog";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/Components/ui/select";
-import { Input } from "@/Components/ui/input";
+import { DialogTrigger } from "@/Components/ui/dialog";
 import { useOrder } from "@/contexts/OrderContext";
-import { useState, useEffect } from "react";
-import { Badge } from "@/Components/ui/badge";
-import { Plus, Trash2 } from "lucide-react";
+import { useState } from "react";
 import { convert } from "@/lib/utils";
 import { units } from "@/data/units";
+import { OrderAddon } from "@/types";
+import { AddonsDialog } from "./addons-dialog";
+import { ServingSizeDialog } from "./serving-size-dialog";
 
 interface ItemProps {
     recipe: Recipe;
-}
-
-interface OrderAddon {
-    id: string;
-    stock_entry_id: string;
-    quantity: number;
-    unit: string;
-    name: string;
-    price: number;
-    type: "liquid" | "powder" | "item";
 }
 
 const Item = ({ recipe }: ItemProps) => {
@@ -80,7 +56,6 @@ const Item = ({ recipe }: ItemProps) => {
                 (entry) => entry.id.toString() === value
             );
             if (stockEntry) {
-                // Determine the type based on stockEntry or default to "item"
                 const type = stockEntry.type || "item";
 
                 updatedAddons[index] = {
@@ -123,32 +98,44 @@ const Item = ({ recipe }: ItemProps) => {
 
     const handleConfirmOrder = () => {
         if (selectedServing) {
+            // Create a unique signature for the addons
+            const addonSignature =
+                selectedAddons.length > 0
+                    ? `-${selectedAddons
+                          .sort((a, b) =>
+                              a.stock_entry_id.localeCompare(b.stock_entry_id)
+                          )
+                          .map(
+                              (addon) =>
+                                  `${addon.stock_entry_id}-${addon.quantity}-${addon.unit}`
+                          )
+                          .join("_")}`
+                    : "";
+
+            // Create a unique order ID that includes addon information
+            const orderId = `${recipe.id}-${selectedServing.id}${addonSignature}`;
+
             addOrder({
                 serving: selectedServing,
                 quantity: 1,
                 recipe: recipe,
-                id: `${recipe.id}-${selectedServing.id}-${JSON.stringify(
-                    selectedAddons
-                )}`,
+                id: orderId,
                 addons: selectedAddons,
             });
+
             setAddonsOpen(false);
             setSelectedServing(null);
             setSelectedAddons([]);
         }
     };
 
-    const availableAddons = stockEntries;
-
     const calculateAddonCost = (addon: OrderAddon) => {
-        // Get base stock entry
         const stockEntry = stockEntries.find(
             (entry) => entry.id.toString() === addon.stock_entry_id
         );
 
         if (!stockEntry) return 0;
 
-        // Convert quantity to base unit for price calculation
         const baseUnit =
             stockEntry.unit || (units[addon.type] ? units[addon.type][0] : "");
         const baseQuantity = convert(
@@ -158,13 +145,16 @@ const Item = ({ recipe }: ItemProps) => {
             addon.quantity
         );
 
-        // Make sure we're using the converted quantity for price calculation
         return stockEntry.average_price * baseQuantity;
     };
 
     const addonsCost = selectedAddons.reduce((total, addon) => {
         return total + calculateAddonCost(addon);
     }, 0);
+
+    const getOrderQuantity = (id: string) => {
+        return getOrder(id)?.quantity ?? 0;
+    };
 
     return (
         <div className="border rounded-lg overflow-hidden">
@@ -183,55 +173,26 @@ const Item = ({ recipe }: ItemProps) => {
                     <p>{recipe.description}</p>
                 </div>
 
-                <Dialog open={open} onOpenChange={(state) => setOpen(state)}>
-                    <DialogTrigger asChild>
-                        <Button
-                            disabled={!recipe.is_available}
-                            className="w-full"
-                            size="sm"
-                        >
-                            {recipe.is_available
-                                ? "Add to Order"
-                                : "Not Available"}
-                        </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>{recipe.name}</DialogTitle>
-                            <DialogDescription>
-                                Select Serving Size
-                            </DialogDescription>
-                        </DialogHeader>
-                        <div className="flex space-y-4 flex-col">
-                            {recipe.servings.map((serving) => {
-                                const availableQuantity =
-                                    checkAvailability(serving);
+                <ServingSizeDialog
+                    open={open}
+                    onOpenChange={setOpen}
+                    recipe={recipe}
+                    onSelectServing={handleServingSelect}
+                    checkAvailability={checkAvailability}
+                />
 
-                                return (
-                                    <Button
-                                        disabled={
-                                            !serving.is_available ||
-                                            (getOrder(
-                                                `${recipe.id}-${serving.id}`
-                                            )?.quantity ?? 0) >=
-                                                availableQuantity
-                                        }
-                                        key={serving.id}
-                                        onClick={() =>
-                                            handleServingSelect(serving)
-                                        }
-                                        className="w-full"
-                                    >
-                                        {serving.name} - ₱{serving.price}
-                                    </Button>
-                                );
-                            })}
-                        </div>
-                    </DialogContent>
-                </Dialog>
+                {/* <DialogTrigger asChild> */}
+                <Button
+                    disabled={!recipe.is_available}
+                    className="w-full"
+                    size="sm"
+                    onClick={() => setOpen(true)}
+                >
+                    {recipe.is_available ? "Add to Order" : "Not Available"}
+                </Button>
+                {/* </DialogTrigger> */}
 
-                {/* Add-ons Dialog */}
-                <Dialog
+                <AddonsDialog
                     open={addonsOpen}
                     onOpenChange={(state) => {
                         if (!state) {
@@ -239,193 +200,17 @@ const Item = ({ recipe }: ItemProps) => {
                         }
                         setAddonsOpen(state);
                     }}
-                >
-                    <DialogContent className="max-w-xl">
-                        <DialogHeader>
-                            <DialogTitle>Add-ons</DialogTitle>
-                            <DialogDescription>
-                                Select add-ons for your {recipe.name} (
-                                {selectedServing?.name})
-                            </DialogDescription>
-                        </DialogHeader>
-
-                        <div className="space-y-4 w-full overflow-x-scroll">
-                            <div className="overflow-x-scroll py-2 w-full">
-                                <div className="space-y-3 w-[500px]">
-                                    <div className="grid grid-cols-12 gap-2">
-                                        <p className="col-span-4">Add-on</p>
-                                        <p className="col-span-5">Quantity</p>
-                                        <p className="col-span-2">Cost</p>
-                                        <p className="col-span-1"></p>
-                                    </div>
-
-                                    {selectedAddons.map((addon, index) => (
-                                        <div
-                                            key={addon.id}
-                                            className="grid grid-cols-12 gap-2 items-center"
-                                        >
-                                            <div className="col-span-4">
-                                                <Select
-                                                    value={addon.stock_entry_id.toString()}
-                                                    onValueChange={(value) =>
-                                                        handleUpdateAddon(
-                                                            index,
-                                                            "stock_entry_id",
-                                                            value
-                                                        )
-                                                    }
-                                                >
-                                                    <SelectTrigger>
-                                                        <SelectValue placeholder="Select add-on" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        {availableAddons.map(
-                                                            (item) => (
-                                                                <SelectItem
-                                                                    key={
-                                                                        item.id
-                                                                    }
-                                                                    value={item.id.toString()}
-                                                                >
-                                                                    {item.name ||
-                                                                        `${item.id} (${item.unit})`}
-                                                                </SelectItem>
-                                                            )
-                                                        )}
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
-
-                                            <div className="col-span-5">
-                                                <div className="grid grid-cols-5 gap-2">
-                                                    <div className="col-span-3">
-                                                        <Input
-                                                            type="number"
-                                                            min="1"
-                                                            value={
-                                                                addon.quantity
-                                                            }
-                                                            onChange={(e) =>
-                                                                handleUpdateAddon(
-                                                                    index,
-                                                                    "quantity",
-                                                                    Number(
-                                                                        e.target
-                                                                            .value
-                                                                    )
-                                                                )
-                                                            }
-                                                        />
-                                                    </div>
-                                                    <div className="col-span-2">
-                                                        <Select
-                                                            value={addon.unit}
-                                                            onValueChange={(
-                                                                value
-                                                            ) =>
-                                                                handleUpdateAddon(
-                                                                    index,
-                                                                    "unit",
-                                                                    value
-                                                                )
-                                                            }
-                                                            disabled={
-                                                                !addon.stock_entry_id
-                                                            }
-                                                        >
-                                                            <SelectTrigger>
-                                                                <SelectValue placeholder="Unit" />
-                                                            </SelectTrigger>
-                                                            <SelectContent>
-                                                                {addon.type &&
-                                                                    units[
-                                                                        addon
-                                                                            .type
-                                                                    ]?.map(
-                                                                        (
-                                                                            unit
-                                                                        ) => (
-                                                                            <SelectItem
-                                                                                key={
-                                                                                    unit
-                                                                                }
-                                                                                value={
-                                                                                    unit
-                                                                                }
-                                                                            >
-                                                                                {
-                                                                                    unit
-                                                                                }
-                                                                            </SelectItem>
-                                                                        )
-                                                                    )}
-                                                            </SelectContent>
-                                                        </Select>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div className="col-span-2 flex h-10 items-center border rounded-md px-2 bg-gray-50">
-                                                <span>₱</span>
-                                                <p className="text-sm text-wrap">
-                                                    {calculateAddonCost(
-                                                        addon
-                                                    ).toFixed(2)}
-                                                </p>
-                                            </div>
-
-                                            <div className="col-span-1">
-                                                <Button
-                                                    variant="outline"
-                                                    onClick={() =>
-                                                        removeAddon(index)
-                                                    }
-                                                    type="button"
-                                                    size="icon"
-                                                >
-                                                    <Trash2 className="h-4 w-4" />
-                                                </Button>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-
-                            <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                onClick={handleAddAddon}
-                            >
-                                <Plus className="h-4 w-4 mr-2" /> Add Add-on
-                            </Button>
-
-                            <div className="pt-4 border-t">
-                                {selectedAddons.length > 0 && (
-                                    <div className="mb-2 text-sm">
-                                        <span className="font-medium">
-                                            Total add-ons cost:
-                                        </span>
-                                        <span className="ml-2">
-                                            ₱{addonsCost.toFixed(2)}
-                                        </span>
-                                    </div>
-                                )}
-                                <Button
-                                    onClick={handleConfirmOrder}
-                                    className="w-full"
-                                >
-                                    Confirm Order (₱
-                                    {(
-                                        Number(selectedServing?.price || 0) +
-                                        addonsCost
-                                    ).toFixed(2)}
-                                    )
-                                </Button>
-                            </div>
-                        </div>
-                    </DialogContent>
-                </Dialog>
+                    recipe={recipe}
+                    selectedServing={selectedServing}
+                    selectedAddons={selectedAddons}
+                    availableAddons={stockEntries}
+                    onAddAddon={handleAddAddon}
+                    onUpdateAddon={handleUpdateAddon}
+                    onRemoveAddon={removeAddon}
+                    onConfirmOrder={handleConfirmOrder}
+                    calculateAddonCost={calculateAddonCost}
+                    addonsCost={addonsCost}
+                />
             </div>
         </div>
     );
