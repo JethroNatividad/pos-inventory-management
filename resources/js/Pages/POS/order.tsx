@@ -117,7 +117,12 @@ const Order = ({ id, quantity, recipe, serving, addons, user }: OrderProps) => {
                                     {addon.unit} {addon.name}
                                 </div>
                                 <div>
-                                    ₱{(addon.quantity * addon.price).toFixed(2)}
+                                    ₱
+                                    {(
+                                        addon.quantity *
+                                        addon.price *
+                                        quantity
+                                    ).toFixed(2)}
                                 </div>
                             </div>
                         ))}

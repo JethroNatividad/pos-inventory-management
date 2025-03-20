@@ -182,13 +182,14 @@ const Checkout = () => {
                                         >
                                             <p>
                                                 + {addon.quantity}
-                                                {addon.unit} {addon.name} x
-                                                {order.quantity}
+                                                {addon.unit} {addon.name}
                                             </p>
                                             <p>
                                                 ₱
                                                 {(
-                                                    addon.quantity * addon.price
+                                                    addon.quantity *
+                                                    addon.price *
+                                                    order.quantity
                                                 ).toFixed(2)}
                                             </p>
                                         </div>
