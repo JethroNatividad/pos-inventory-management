@@ -124,27 +124,44 @@ class OrderStatsDTO
             ->groupBy('user_id')
             ->map(function ($userOrders) {
                 $user = $userOrders->first()->user;
+
+                // Calculate gross revenue including VAT
+                $grossRevenue = $userOrders->sum(
+                    fn($order) =>
+                    $order->items->sum(fn($item) => $item->quantity * $item->price) +
+                        $order->items->sum(fn($item) => $item->addons->sum(fn($addon) => $addon->quantity * $addon->price))
+                );
+
+                // Calculate VAT amount (assuming 12% VAT)
+                $vatAmount = $userOrders->sum(
+                    fn($order) =>
+                    $order->items->sum(fn($item) => $item->quantity * ($item->price * 0.12)) +
+                        $order->items->sum(fn($item) => $item->addons->sum(fn($addon) => $addon->quantity * ($addon->price * 0.12)))
+                );
+
+                // Calculate net revenue (excluding VAT)
+                $netRevenue = $grossRevenue - $vatAmount;
+
+                // Calculate total cost
+                $totalCost = $userOrders->sum(
+                    fn($order) =>
+                    $order->items->sum(fn($item) => $item->quantity * $item->cost) +
+                        $order->items->sum(fn($item) => $item->addons->sum(fn($addon) => $addon->quantity * ($addon->stockEntry->cost ?? 0)))
+                );
+
+                // Calculate net income (net revenue minus costs)
+                $netIncome = $netRevenue - $totalCost;
+
                 return [
                     'user_id' => $user->id,
                     'name' => $user->first_name . ' ' . $user->last_name,
                     'total_orders' => $userOrders->count(),
                     'order_items' => $userOrders->sum(
                         fn($order) =>
-                        $order->items->sum('quantity') +
-                            $order->items->sum(fn($item) => $item->addons->sum('quantity'))
+                        $order->items->sum('quantity')
                     ),
-                    'total_revenue' => $userOrders->sum(
-                        fn($order) =>
-                        $order->items->sum(fn($item) => $item->quantity * $item->price) +
-                            $order->items->sum(fn($item) => $item->addons->sum(fn($addon) => $addon->quantity * $addon->price))
-                    ),
-                    'total_income' => $userOrders->sum(
-                        fn($order) =>
-                        $order->items->sum(fn($item) => $item->quantity * $item->price) +
-                            $order->items->sum(fn($item) => $item->addons->sum(fn($addon) => $addon->quantity * $addon->price)) -
-                            $order->items->sum(fn($item) => $item->quantity * $item->cost) -
-                            $order->items->sum(fn($item) => $item->addons->sum(fn($addon) => $addon->quantity * ($addon->stockEntry->cost ?? 0)))
-                    ),
+                    'total_revenue' => $grossRevenue,
+                    'total_income' => $netIncome,
                 ];
             })
             ->sortByDesc('total_revenue')

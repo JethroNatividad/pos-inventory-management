@@ -455,7 +455,7 @@ const RecipeSalesOverview = ({ recipe }: Props) => {
                                                 Orders Processed
                                             </th>
                                             <th className="text-right p-4">
-                                                Total Revenue
+                                                Total Income
                                             </th>
                                         </tr>
                                     </thead>
