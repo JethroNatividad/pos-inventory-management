@@ -71,10 +71,10 @@ class RecipeController extends Controller
             'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,gif', 'max:2048'],
             'servings' => ['required', 'array'],
             'servings.*.name' => ['required', 'string', 'max:255'],
-            'servings.*.price' => ['required', 'numeric'],
+            'servings.*.price' => ['required', 'numeric', 'min:1'],
             'servings.*.ingredients' => ['required', 'array'],
             'servings.*.ingredients.*.stock_entry_id' => ['required', 'integer', 'exists:stock_entries,id'],
-            'servings.*.ingredients.*.quantity' => ['required', 'numeric', 'min:0'],
+            'servings.*.ingredients.*.quantity' => ['required', 'numeric', 'min:1'],
             'servings.*.ingredients.*.unit' => ['required', 'string', 'max:255'],
         ], $messages);
 
@@ -214,11 +214,11 @@ class RecipeController extends Controller
             'servings' => ['required', 'array'],
             'servings.*.id' => ['nullable', 'integer', 'exists:servings,id'],
             'servings.*.name' => ['required', 'string', 'max:255'],
-            'servings.*.price' => ['required', 'numeric'],
+            'servings.*.price' => ['required', 'numeric', 'min:1'],
             'servings.*.ingredients' => ['required', 'array'],
             'servings.*.ingredients.*.id' => ['nullable', 'integer', 'exists:recipe_ingredients,id'],
             'servings.*.ingredients.*.stock_entry_id' => ['required', 'integer', 'exists:stock_entries,id'],
-            'servings.*.ingredients.*.quantity' => ['required', 'numeric', 'min:0'],
+            'servings.*.ingredients.*.quantity' => ['required', 'numeric', 'min:1'],
             'servings.*.ingredients.*.unit' => ['required', 'string', 'max:255'],
         ], $messages);
 

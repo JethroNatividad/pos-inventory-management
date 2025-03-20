@@ -162,6 +162,7 @@ const ServingSizeForm = ({
                         onChange={(e) =>
                             setData(`servings.${index}.price`, e.target.value)
                         }
+                        min={1}
                         placeholder="Serving Price"
                     />
                     <InputError message={errors[`servings.${index}.price`]} />

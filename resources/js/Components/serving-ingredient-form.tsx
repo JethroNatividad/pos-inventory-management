@@ -92,6 +92,7 @@ const ServingIngredientForm = ({
                                     e.target.value
                                 )
                             }
+                            min={1}
                             placeholder="0"
                         />
                     </div>

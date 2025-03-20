@@ -47,8 +47,8 @@ class StockController extends Controller
     public function store(Request $request, StockEntry $stockEntry)
     {
         $validated = $request->validate([
-            'quantity' => 'required|numeric',
-            'price' => 'required|numeric',
+            'quantity' => 'required|numeric|min:1',
+            'price' => 'required|numeric|min:1',
             'batch_label' => [
                 'required',
                 'string',
@@ -195,7 +195,7 @@ class StockController extends Controller
     {
         $validated = $request->validate([
             'batch_label' => 'required|exists:stocks,batch_label',
-            'quantity' => 'required|numeric',
+            'quantity' => 'required|numeric|min:1',
             'reason' => 'required|string',
             'unit' => [
                 'required',
