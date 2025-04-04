@@ -39,6 +39,7 @@ type OrderContextType = {
     getMaximumOrderQuantity: (orderItem: OrderItem) => number;
 
     isServingAvailable: (serving: Serving) => boolean;
+    isRecipeAvailable: (recipe: Recipe) => boolean;
 };
 
 const OrderContext = createContext<OrderContextType | undefined>(undefined);
@@ -156,6 +157,10 @@ export const OrderProvider: React.FC<{
         }
 
         return true;
+    };
+
+    const isRecipeAvailable = (recipe: Recipe): boolean => {
+        return recipe.servings.some((serving) => isServingAvailable(serving));
     };
 
     const getMaximumOrderQuantity = (orderItem: OrderItem): number => {
@@ -298,6 +303,7 @@ export const OrderProvider: React.FC<{
 
                 getMaximumOrderQuantity,
                 isServingAvailable,
+                isRecipeAvailable,
             }}
         >
             {children}

@@ -14,7 +14,7 @@ interface ItemProps {
 }
 
 const Item = ({ recipe }: ItemProps) => {
-    const { addOrder, getOrder, stockEntries } = useOrder();
+    const { addOrder, getOrder, stockEntries, isRecipeAvailable } = useOrder();
 
     const [open, setOpen] = useState(false);
     const [addonsOpen, setAddonsOpen] = useState(false);
@@ -182,12 +182,14 @@ const Item = ({ recipe }: ItemProps) => {
 
                 {/* <DialogTrigger asChild> */}
                 <Button
-                    disabled={!recipe.is_available}
+                    disabled={!isRecipeAvailable(recipe)}
                     className="w-full"
                     size="sm"
                     onClick={() => setOpen(true)}
                 >
-                    {recipe.is_available ? "Add to Order" : "Not Available"}
+                    {isRecipeAvailable(recipe)
+                        ? "Add to Order"
+                        : "Not Available"}
                 </Button>
                 {/* </DialogTrigger> */}
 
