@@ -160,6 +160,7 @@ export type PageProps<
         user: User;
     };
     toast?: ToastData;
+    previousUrl: string | null;
 };
 export interface ServingAvailability {
     serving_id: number;

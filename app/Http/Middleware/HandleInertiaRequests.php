@@ -39,6 +39,7 @@ class HandleInertiaRequests extends Middleware
                 'description' => fn() => $request->session()->get('toast.description'),
                 'action' => fn() => $request->session()->get('toast.action'),
             ],
+            'previousUrl' => fn() => (url()->previous() !== route('login') && url()->previous() !== '' && url()->previous() !== url()->current() ? url()->previous() : null)
         ];
     }
 }

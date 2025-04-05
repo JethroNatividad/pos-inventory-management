@@ -4,6 +4,7 @@ import { Order } from "@/types";
 import { ChevronLeft } from "lucide-react";
 import React, { useRef } from "react";
 import Receipt from "./reciept";
+import { router, usePage } from "@inertiajs/react";
 
 type Props = {
     order: Order;
@@ -11,6 +12,7 @@ type Props = {
 
 const ReceiptPage = ({ order }: Props) => {
     const receiptRef = useRef<HTMLDivElement>(null);
+    const { previousUrl } = usePage().props;
 
     const handlePrint = () => {
         if (receiptRef.current) {
@@ -51,7 +53,9 @@ const ReceiptPage = ({ order }: Props) => {
                 <div className="flex justify-between">
                     <Button
                         variant="outline"
-                        onClick={() => window.history.back()}
+                        onClick={() => {
+                            router.visit(previousUrl ?? "/");
+                        }}
                     >
                         <ChevronLeft /> <p>Back</p>
                     </Button>
