@@ -82,7 +82,10 @@ const Edit = ({ stockEntries, recipe }: Props) => {
 
     const duplicateServing = (index: number) => {
         const hardcopy = JSON.parse(JSON.stringify(data.servings[index]));
+        // remove the id in the hardcopy.
+        delete hardcopy["id"];
         setData("servings", [...data.servings, hardcopy]);
+        console.log(hardcopy);
     };
 
     const removeServing = (index: number) => {
