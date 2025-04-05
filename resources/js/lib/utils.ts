@@ -75,45 +75,6 @@ export function convert(
     return convertFromBaseUnit(type, toUnit, baseQuantity);
 }
 
-export function getServingQuantityAvailable(
-    serving: Serving,
-    stockEntries: StockEntry[],
-    orders?: OrderItem[]
-): number {
-    const remainingStock = new Map<number, number>(
-        stockEntries.map((entry) => [entry.id, entry.quantity])
-    );
-
-    if (orders) {
-        for (const order of orders) {
-            for (const recipeIngredient of order.serving.recipe_ingredients) {
-                const quantity = remainingStock.get(
-                    recipeIngredient.stock_entry_id
-                );
-                if (quantity) {
-                    remainingStock.set(
-                        recipeIngredient.stock_entry_id,
-                        quantity - recipeIngredient.quantity * order.quantity
-                    );
-                }
-            }
-        }
-    }
-
-    let quantityAvailable = 0;
-
-    for (const recipeIngredient of serving.recipe_ingredients) {
-        const quantity =
-            remainingStock.get(recipeIngredient.stock_entry_id) || 0;
-        const available = quantity / recipeIngredient.quantity;
-        if (quantityAvailable === 0 || available < quantityAvailable) {
-            quantityAvailable = available;
-        }
-    }
-
-    return Math.floor(quantityAvailable);
-}
-
 export const formatDateKey = (
     date: Date,
     spanMultipleYears: boolean

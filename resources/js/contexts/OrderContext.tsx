@@ -1,5 +1,4 @@
-import { getServingQuantityAvailable } from "@/lib/utils";
-import type { Ingredient, Recipe, Serving, StockEntry } from "@/types";
+import type { Recipe, Serving, StockEntry } from "@/types";
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { toast } from "sonner";
 
@@ -118,28 +117,6 @@ export const OrderProvider: React.FC<{
     const calculateItemTotalPrice = (order: OrderItem): number => {
         return calculateItemBasePrice(order) + calculateItemAddonsPrice(order);
     };
-
-    // const checkAvailability = (
-    //     serving: Serving,
-    //     addons: OrderItem["addons"] = []
-    // ): number => {
-    //     // Check serving availability based on ingredients
-    //     const maxServingAvailable = getServingQuantityAvailable(
-    //         serving,
-    //         stockEntries,
-    //         orders.filter((order) => order.serving.id !== serving.id)
-    //     );
-
-    //     if (addons.length === 0) return maxServingAvailable;
-
-    //     // Also check addon availability
-    //     const addonAvailability = addons.map((addon) =>
-    //         checkAddonAvailability(addon.stock_entry_id, addon.quantity)
-    //     );
-
-    //     // We can only make as many items as the most limiting factor allows
-    //     return Math.min(maxServingAvailable, ...addonAvailability);
-    // };
 
     const isServingAvailable = (serving: Serving): boolean => {
         const currentAvailableStocks = getCurrentAvailableStocks();

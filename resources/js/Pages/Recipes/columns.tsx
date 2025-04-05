@@ -18,9 +18,8 @@ import {
     DropdownMenuTrigger,
 } from "@/Components/ui/dropdown-menu";
 import { Input } from "@/Components/ui/input";
-import { getServingQuantityAvailable } from "@/lib/utils";
-import type { Recipe, RecipeAvailability, StockEntry } from "@/types";
-import { Link, usePage } from "@inertiajs/react";
+import type { Recipe, StockEntry } from "@/types";
+import { Link } from "@inertiajs/react";
 import { ColumnDef, Row } from "@tanstack/react-table";
 import { LucideMoreHorizontal } from "lucide-react";
 import { useState } from "react";
