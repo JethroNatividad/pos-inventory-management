@@ -119,12 +119,7 @@ export const columns = (stockEntries: StockEntry[]): ColumnDef<Recipe>[] => {
                     <div>
                         {row.original.servings.map((serving, index) => (
                             <span key={serving.id}>
-                                {serving.name}(
-                                {getServingQuantityAvailable(
-                                    serving,
-                                    stockEntries
-                                )}{" "}
-                                pcs)
+                                {serving.name}({serving.quantity_available} pcs)
                                 {index < row.original.servings.length - 1
                                     ? ", "
                                     : ""}
