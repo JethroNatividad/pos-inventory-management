@@ -4,7 +4,7 @@ import { DataTable } from "./data-table";
 import { columns } from "./columns";
 import type { Order } from "@/types";
 import { Button } from "@/Components/ui/button";
-import { Download, CalendarIcon } from "lucide-react";
+import { Download, CalendarIcon, FilterIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { DateRange } from "react-day-picker";
 import { addDays, format } from "date-fns";
@@ -15,6 +15,16 @@ import {
 } from "@/Components/ui/popover";
 import { Calendar } from "@/Components/ui/calendar";
 import { cn } from "@/lib/utils";
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectLabel,
+    SelectTrigger,
+    SelectValue,
+} from "@/Components/ui/select";
+import { Badge } from "@/Components/ui/badge";
 
 type Props = {
     orders: Order[];
@@ -71,6 +81,22 @@ const Index = ({ orders }: Props) => {
     const [numberOfMonths, setNumberMonths] = useState(
         window.innerWidth >= 640 ? 2 : 1
     );
+    const [selectedCashier, setSelectedCashier] = useState<string>("all");
+    const [selectedType, setSelectedType] = useState<string>("all");
+
+    // Get unique cashiers and order types
+    const cashiers = [
+        ...new Set(
+            orders.map((order) => {
+                const { user } = order;
+                return `${user.first_name}${
+                    user.middle_name ? " " + user.middle_name : ""
+                } ${user.last_name}`;
+            })
+        ),
+    ].sort();
+
+    const orderTypes = [...new Set(orders.map((order) => order.type))].sort();
 
     // Handle window resize for calendar display
     useEffect(() => {
@@ -82,33 +108,56 @@ const Index = ({ orders }: Props) => {
         return () => window.removeEventListener("resize", handleResize);
     }, []);
 
-    // Filter orders based on date range
     useEffect(() => {
-        if (!date?.from && !date?.to) {
-            setFilteredOrders(orders);
-            return;
+        let filtered = [...orders];
+
+        // Date range filter
+        if (date?.from || date?.to) {
+            filtered = filtered.filter((order) => {
+                const orderDate = new Date(order.created_at);
+
+                if (date.from && date.to) {
+                    return orderDate >= date.from && orderDate <= date.to;
+                } else if (date.from) {
+                    return orderDate >= date.from;
+                } else if (date.to) {
+                    return orderDate <= date.to;
+                }
+
+                return true;
+            });
         }
 
-        const filtered = orders.filter((order) => {
-            const orderDate = new Date(order.created_at);
+        // Cashier filter
+        if (selectedCashier !== "all") {
+            filtered = filtered.filter((order) => {
+                const { user } = order;
+                const cashierName = `${user.first_name}${
+                    user.middle_name ? " " + user.middle_name : ""
+                } ${user.last_name}`;
+                return cashierName === selectedCashier;
+            });
+        }
 
-            if (date.from && date.to) {
-                return orderDate >= date.from && orderDate <= date.to;
-            } else if (date.from) {
-                return orderDate >= date.from;
-            } else if (date.to) {
-                return orderDate <= date.to;
-            }
-
-            return true;
-        });
+        // Type filter
+        if (selectedType !== "all") {
+            filtered = filtered.filter((order) => order.type === selectedType);
+        }
 
         setFilteredOrders(filtered);
-    }, [date, orders]);
+    }, [date, orders, selectedCashier, selectedType]);
 
     const handlePeriodChange = (period: Period) => {
         setActivePeriod(period);
         setDate(getDateRangeForPeriod(period));
+    };
+
+    // Clear all active filters
+    const clearFilters = () => {
+        setDate(undefined);
+        setActivePeriod("all");
+        setSelectedCashier("all");
+        setSelectedType("all");
     };
 
     const exportOrdersToCSV = () => {
@@ -175,6 +224,13 @@ const Index = ({ orders }: Props) => {
         document.body.removeChild(link);
     };
 
+    // Count active filters
+    const activeFilterCount = [
+        date?.from || date?.to ? 1 : 0,
+        selectedCashier ? 1 : 0,
+        selectedType ? 1 : 0,
+    ].reduce((a, b) => a + b, 0);
+
     return (
         <Layout>
             <Head title="Reports" />
@@ -191,44 +247,107 @@ const Index = ({ orders }: Props) => {
             </div>
 
             <div className="space-y-4 mb-6">
-                {/* Date range picker */}
-                <div>
-                    <Popover>
-                        <PopoverTrigger asChild>
-                            <Button
-                                variant="outline"
-                                className={cn(
-                                    "w-full sm:w-[300px] justify-start text-left font-normal",
-                                    !date && "text-muted-foreground"
-                                )}
-                            >
-                                <CalendarIcon className="mr-2 h-4 w-4 flex-shrink-0" />
-                                {date?.from ? (
-                                    date.to ? (
-                                        <>
-                                            {format(date.from, "LLL dd, y")} -{" "}
-                                            {format(date.to, "LLL dd, y")}
-                                        </>
+                {/* Filter section */}
+                <div className="flex flex-col sm:flex-row gap-4">
+                    {/* Date range picker */}
+                    <div className="sm:w-1/3">
+                        <Popover>
+                            <PopoverTrigger asChild>
+                                <Button
+                                    variant="outline"
+                                    className={cn(
+                                        "w-full justify-start text-left font-normal",
+                                        !date && "text-muted-foreground"
+                                    )}
+                                >
+                                    <CalendarIcon className="mr-2 h-4 w-4 flex-shrink-0" />
+                                    {date?.from ? (
+                                        date.to ? (
+                                            <>
+                                                {format(date.from, "LLL dd, y")}{" "}
+                                                - {format(date.to, "LLL dd, y")}
+                                            </>
+                                        ) : (
+                                            format(date.from, "LLL dd, y")
+                                        )
                                     ) : (
-                                        format(date.from, "LLL dd, y")
-                                    )
-                                ) : (
-                                    <span>All time</span>
-                                )}
-                            </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                                initialFocus
-                                mode="range"
-                                defaultMonth={date?.from}
-                                selected={date}
-                                onSelect={setDate}
-                                numberOfMonths={numberOfMonths}
-                                className="max-w-[calc(100vw-2rem)]"
-                            />
-                        </PopoverContent>
-                    </Popover>
+                                        <span>All dates</span>
+                                    )}
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent
+                                className="w-auto p-0"
+                                align="start"
+                            >
+                                <Calendar
+                                    initialFocus
+                                    mode="range"
+                                    defaultMonth={date?.from}
+                                    selected={date}
+                                    onSelect={setDate}
+                                    numberOfMonths={numberOfMonths}
+                                    className="max-w-[calc(100vw-2rem)]"
+                                />
+                            </PopoverContent>
+                        </Popover>
+                    </div>
+
+                    {/* Cashier filter */}
+                    <div className="sm:w-1/3">
+                        <Select
+                            value={selectedCashier || "all"}
+                            onValueChange={(value) =>
+                                setSelectedCashier(value || "all")
+                            }
+                        >
+                            <SelectTrigger>
+                                <SelectValue placeholder="All cashiers" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectGroup>
+                                    <SelectLabel>Cashiers</SelectLabel>
+                                    <SelectItem value="all">
+                                        All cashiers
+                                    </SelectItem>
+                                    {cashiers.map((cashier) => (
+                                        <SelectItem
+                                            key={cashier}
+                                            value={cashier}
+                                        >
+                                            {cashier}
+                                        </SelectItem>
+                                    ))}
+                                </SelectGroup>
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    {/* Order type filter */}
+                    <div className="sm:w-1/3">
+                        <Select
+                            value={selectedType || "all"}
+                            onValueChange={(value) =>
+                                setSelectedType(value || "all")
+                            }
+                        >
+                            <SelectTrigger>
+                                <SelectValue placeholder="All types" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectGroup>
+                                    <SelectLabel>Order Type</SelectLabel>
+                                    <SelectItem value="all">
+                                        All types
+                                    </SelectItem>
+                                    {orderTypes.map((type) => (
+                                        <SelectItem key={type} value={type}>
+                                            {type}
+                                        </SelectItem>
+                                    ))}
+                                </SelectGroup>
+                            </SelectContent>
+                        </Select>
+                    </div>
                 </div>
 
                 {/* Period selection buttons */}
@@ -269,7 +388,59 @@ const Index = ({ orders }: Props) => {
                         All
                     </Button>
                 </div>
+
+                {/* Active filters indicator */}
+                {activeFilterCount > 0 && (
+                    <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1">
+                            <FilterIcon className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-sm text-muted-foreground">
+                                Filters:
+                            </span>
+                        </div>
+
+                        {date?.from && date?.to && (
+                            <Badge variant="secondary" className="gap-1">
+                                Date: {format(date.from, "MMM d")} -{" "}
+                                {format(date.to, "MMM d, yyyy")}
+                            </Badge>
+                        )}
+
+                        {selectedCashier !== "all" && (
+                            <Badge variant="secondary">
+                                Cashier: {selectedCashier}
+                            </Badge>
+                        )}
+
+                        {selectedType !== "all" && (
+                            <Badge variant="secondary">
+                                Type: {selectedType}
+                            </Badge>
+                        )}
+
+                        {date?.from ||
+                        date?.to ||
+                        selectedCashier !== "all" ||
+                        selectedType !== "all" ? (
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={clearFilters}
+                            >
+                                Clear all
+                            </Button>
+                        ) : (
+                            <p className="text-sm">None</p>
+                        )}
+                    </div>
+                )}
+
+                {/* Order count indicator */}
+                <div className="text-sm text-muted-foreground">
+                    Showing {filteredOrders.length} of {orders.length} orders
+                </div>
             </div>
+
             <DataTable columns={columns} data={filteredOrders} />
         </Layout>
     );
