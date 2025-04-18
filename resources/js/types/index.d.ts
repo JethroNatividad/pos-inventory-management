@@ -181,11 +181,9 @@ export type OrderStats = {
         total_orders: number;
     }[];
     financial_summary: {
-        totalGrossRevenue: number;
-        totalVAT: number;
-        totalRevenue: number;
+        totalGrossIncome: number;
+        totalNetIncome: number;
         totalCost: number;
-        totalIncome: number;
         totalOrders: number;
     };
     top_selling_items: {
@@ -198,7 +196,7 @@ export type OrderStats = {
         user_id: number;
         name: string;
         order_items: number;
-        total_income: number;
+        total_net_income: number;
     }[];
 };
 

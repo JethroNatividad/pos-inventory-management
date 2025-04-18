@@ -47,28 +47,11 @@ class OrderStatsDTO
             ->values()
             ->toArray();
 
-        // Calculate totals including VAT
-        $totalGrossRevenue = $orders->sum(
+        $totalGrossIncome = $orders->sum(
             fn($order) =>
             $order->items->sum(fn($item) => $item->quantity * $item->price) +
                 $order->items->sum(fn($item) => $item->addons->sum(fn($addon) => $addon->quantity * $addon->price))
         );
-
-        // Calculate VAT (assuming 12% VAT)
-        $totalVAT = $orders->sum(
-            fn($order) =>
-            $order->items->sum(
-                fn($item) =>
-                $item->quantity * ($item->price * 0.12)
-            ) +
-                $order->items->sum(
-                    fn($item) =>
-                    $item->addons->sum(fn($addon) => $addon->quantity * ($addon->price * 0.12))
-                )
-        );
-
-        // Net revenue is gross revenue minus VAT
-        $netRevenue = $totalGrossRevenue - $totalVAT;
 
         $totalCost = $orders->sum(
             fn($order) =>
@@ -77,14 +60,13 @@ class OrderStatsDTO
         );
 
         // Net income is net revenue minus total cost
-        $netIncome = $netRevenue - $totalCost;
+        $netIncome = $totalGrossIncome - $totalCost;
 
         $financial_summary = [
-            'totalGrossRevenue' => $totalGrossRevenue, // Revenue including VAT
-            'totalVAT' => $totalVAT, // VAT amount
-            'totalRevenue' => $netRevenue, // Revenue excluding VAT
+            'totalGrossIncome' => $totalGrossIncome,
+            'totalRevenue' => $netIncome,
             'totalCost' => $totalCost,
-            'totalIncome' => $netIncome, // Income after VAT and costs
+            'totalNetIncome' => $netIncome,
             'totalOrders' => $orders->sum(
                 fn($order) =>
                 $order->items->sum('quantity') +
@@ -126,21 +108,11 @@ class OrderStatsDTO
                 $user = $userOrders->first()->user;
 
                 // Calculate gross revenue including VAT
-                $grossRevenue = $userOrders->sum(
+                $grossIncome = $userOrders->sum(
                     fn($order) =>
                     $order->items->sum(fn($item) => $item->quantity * $item->price) +
                         $order->items->sum(fn($item) => $item->addons->sum(fn($addon) => $addon->quantity * $addon->price))
                 );
-
-                // Calculate VAT amount (assuming 12% VAT)
-                $vatAmount = $userOrders->sum(
-                    fn($order) =>
-                    $order->items->sum(fn($item) => $item->quantity * ($item->price * 0.12)) +
-                        $order->items->sum(fn($item) => $item->addons->sum(fn($addon) => $addon->quantity * ($addon->price * 0.12)))
-                );
-
-                // Calculate net revenue (excluding VAT)
-                $netRevenue = $grossRevenue - $vatAmount;
 
                 // Calculate total cost
                 $totalCost = $userOrders->sum(
@@ -149,8 +121,8 @@ class OrderStatsDTO
                         $order->items->sum(fn($item) => $item->addons->sum(fn($addon) => $addon->quantity * ($addon->stockEntry->cost ?? 0)))
                 );
 
-                // Calculate net income (net revenue minus costs)
-                $netIncome = $netRevenue - $totalCost;
+                // Calculate net revenue (excluding VAT)
+                $netIncome = $grossIncome - $totalCost;
 
                 return [
                     'user_id' => $user->id,
@@ -160,8 +132,8 @@ class OrderStatsDTO
                         fn($order) =>
                         $order->items->sum('quantity')
                     ),
-                    'total_revenue' => $grossRevenue,
-                    'total_income' => $netIncome,
+                    'total_gross_income' => $grossIncome,
+                    'total_net_income' => $netIncome,
                 ];
             })
             ->sortByDesc('total_revenue')
