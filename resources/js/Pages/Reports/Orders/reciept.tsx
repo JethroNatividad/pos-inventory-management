@@ -16,10 +16,6 @@ export default function Receipt({ order }: ReceiptProps) {
     // Calculate discount amount
     const discountAmount = (order.subtotal * order.discountPercentage) / 100;
 
-    // Calculate VAT (12% of the discounted amount)
-    const discountedAmount = order.subtotal - discountAmount;
-    const vatAmount = discountedAmount * 0.12;
-
     return (
         <Card className="w-full">
             <CardHeader className="text-center border-b">
@@ -109,21 +105,23 @@ export default function Receipt({ order }: ReceiptProps) {
                         </div>
                     ))}
                 </div>
-                <div className="mt-6 space-y-2 pt-4 border-t">
-                    <div className="flex justify-between">
-                        <div>Subtotal:</div>
-                        <div>₱{order.subtotal}</div>
-                    </div>
+                <div className="mt-6 space-y-2">
                     {order.discountPercentage > 0 && (
-                        <div className="flex justify-between text-red-600">
-                            <div>Discount ({order.discountPercentage}%):</div>
-                            <div>-₱{discountAmount.toFixed(2)}</div>
-                        </div>
+                        <>
+                            <div className="flex justify-between border-t pt-2">
+                                <div>Subtotal:</div>
+                                <div>₱{order.subtotal}</div>
+                            </div>
+
+                            <div className="flex justify-between text-red-600">
+                                <div>
+                                    Discount ({order.discountPercentage}%):
+                                </div>
+                                <div>-₱{discountAmount.toFixed(2)}</div>
+                            </div>
+                        </>
                     )}
-                    <div className="flex justify-between">
-                        <div>VAT (12%):</div>
-                        <div>₱{vatAmount.toFixed(2)}</div>
-                    </div>
+
                     <div className="flex justify-between font-medium text-green-600 pt-2 border-t">
                         <div>Total:</div>
                         <div>₱{order.total}</div>
