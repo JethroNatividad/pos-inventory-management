@@ -328,27 +328,9 @@ const RecipeSalesOverview = ({ recipe }: Props) => {
                             }
                         />
                         <StatCard
-                            title="Gross Revenue (incl. VAT)"
+                            title="Gross Income"
                             value={`₱${
-                                stats?.financial_summary.totalGrossRevenue.toLocaleString(
-                                    "fil-PH",
-                                    { minimumFractionDigits: 2 }
-                                ) ?? "0.00"
-                            }`}
-                        />
-                        <StatCard
-                            title="VAT (12%)"
-                            value={`₱${
-                                stats?.financial_summary.totalVAT.toLocaleString(
-                                    "fil-PH",
-                                    { minimumFractionDigits: 2 }
-                                ) ?? "0.00"
-                            }`}
-                        />
-                        <StatCard
-                            title="Net Revenue"
-                            value={`₱${
-                                stats?.financial_summary.totalRevenue.toLocaleString(
+                                stats?.financial_summary.totalGrossIncome.toLocaleString(
                                     "fil-PH",
                                     { minimumFractionDigits: 2 }
                                 ) ?? "0.00"
@@ -366,7 +348,7 @@ const RecipeSalesOverview = ({ recipe }: Props) => {
                         <StatCard
                             title="Net Income"
                             value={`₱${
-                                stats?.financial_summary.totalIncome.toLocaleString(
+                                stats?.financial_summary.totalNetIncome.toLocaleString(
                                     "fil-PH",
                                     { minimumFractionDigits: 2 }
                                 ) ?? "0.00"
@@ -398,7 +380,7 @@ const RecipeSalesOverview = ({ recipe }: Props) => {
                                                 Quantity Sold
                                             </th>
                                             <th className="text-right p-4">
-                                                Total Revenue
+                                                Total Income
                                             </th>
                                         </tr>
                                     </thead>
@@ -474,7 +456,7 @@ const RecipeSalesOverview = ({ recipe }: Props) => {
                                                     </td>
                                                     <td className="text-right p-4">
                                                         ₱
-                                                        {employee.total_income.toLocaleString(
+                                                        {employee.total_net_income.toLocaleString(
                                                             "fil-PH",
                                                             {
                                                                 minimumFractionDigits: 2,

@@ -35,7 +35,6 @@ const Checkout = () => {
         type: "dine-in",
         discountPercentage: "0",
         subtotal: 0,
-        vat: 0,
         total: 0,
         orders: orders,
         customer_name: "",
@@ -50,11 +49,7 @@ const Checkout = () => {
     useEffect(() => {
         const discountAmount =
             Number(data.discountPercentage) * 0.01 * data.subtotal;
-        // Calculate VAT from the discounted amount
-        const discountedAmount = data.subtotal - discountAmount;
-        const vatAmount = discountedAmount * 0.12;
 
-        setData("vat", vatAmount);
         setData("total", data.subtotal - discountAmount);
     }, [data.subtotal, data.discountPercentage]);
 
@@ -72,9 +67,6 @@ const Checkout = () => {
 
     const discountAmount =
         Number(data.discountPercentage) * 0.01 * data.subtotal;
-
-    // Calculate VAT (12% of the discounted subtotal)
-    const vatAmount = (data.subtotal - discountAmount) * 0.12;
 
     return (
         <Dialog open={open} onOpenChange={(state) => setOpen(state)}>
@@ -208,15 +200,14 @@ const Checkout = () => {
                         </div>
                     ))}
 
-                    <div className="flex justify-between">
-                        <p className="text-xl font-medium">Subtotal:</p>
-                        <p className="text-xl font-medium">
-                            ₱{data.subtotal.toFixed(2)}
-                        </p>
-                    </div>
-
                     {Number(data.discountPercentage) > 0 && (
                         <>
+                            <div className="flex justify-between">
+                                <p className="text-xl font-medium">Subtotal:</p>
+                                <p className="text-xl font-medium">
+                                    ₱{data.subtotal.toFixed(2)}
+                                </p>
+                            </div>
                             <div className="flex justify-between">
                                 <p className="text-xl font-medium">Discount:</p>
                                 <p className="text-xl font-medium text-red-700">
@@ -225,13 +216,6 @@ const Checkout = () => {
                             </div>
                         </>
                     )}
-
-                    <div className="flex justify-between">
-                        <p className="text-xl font-medium">VAT (12%):</p>
-                        <p className="text-xl font-medium">
-                            ₱{vatAmount.toFixed(2)}
-                        </p>
-                    </div>
 
                     <div className="flex justify-between">
                         <p className="text-xl font-medium">Total:</p>
