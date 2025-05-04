@@ -13,7 +13,11 @@ const Items = ({ recipes }: Props) => {
 
     const filtered = useMemo(() => {
         const lower = query.toLowerCase();
-        return recipes.filter((r) => r.name.toLowerCase().includes(lower));
+        return recipes.filter(
+            (r) =>
+                r.name.toLowerCase().includes(lower) ||
+                r.description.toLowerCase().includes(lower)
+        );
     }, [query, recipes]);
 
     const clearSearch = () => setQuery("");
