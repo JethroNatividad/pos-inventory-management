@@ -2,7 +2,7 @@ import { Button } from "@/Components/ui/button";
 import Layout from "@/Layouts/Layout";
 import { Order } from "@/types";
 import { ChevronLeft } from "lucide-react";
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import Receipt from "./reciept";
 import { router, usePage } from "@inertiajs/react";
 
@@ -13,6 +13,12 @@ type Props = {
 const ReceiptPage = ({ order }: Props) => {
     const receiptRef = useRef<HTMLDivElement>(null);
     const { previousUrl } = usePage().props;
+
+    useEffect(() => {
+        if (previousUrl?.includes("pos")) {
+            localStorage.removeItem("orders");
+        }
+    }, []);
 
     const handlePrint = () => {
         if (receiptRef.current) {
