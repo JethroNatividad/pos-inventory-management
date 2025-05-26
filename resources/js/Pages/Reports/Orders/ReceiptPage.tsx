@@ -21,39 +21,17 @@ const ReceiptPage = ({ order }: Props) => {
     }, []);
 
     const handlePrint = () => {
-        if (receiptRef.current) {
-            const printContents = receiptRef.current.innerHTML;
-            const originalContents = document.body.innerHTML;
-
-            // Create a new style element for print
-            const style = document.createElement("style");
-            style.innerHTML = `
-                @media print {
-                    * {
-                        font-size: 12px !important;
-                    }
-                    @page {
-                        size: 80mm 200mm;
-                        margin: 0;
-                    }
-                    body {
-                        width: 80mm;
-                    }
-                }
-            `;
-
-            document.body.innerHTML = printContents;
-            document.head.appendChild(style);
-            window.print();
-            document.body.innerHTML = originalContents;
-            window.location.reload(); // Reload to restore the original content
-        }
+        window.print();
     };
 
     return (
         <Layout>
             <div className="max-w-md mx-auto space-y-4">
-                <div ref={receiptRef} className="w-full">
+                <div
+                    ref={receiptRef}
+                    id="receipt-print-area"
+                    className="w-full"
+                >
                     <Receipt order={order} />
                 </div>
                 <div className="flex justify-between">
