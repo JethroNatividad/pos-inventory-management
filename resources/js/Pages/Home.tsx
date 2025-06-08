@@ -1,5 +1,5 @@
 import Layout from "@/Layouts/Layout";
-import { Head, Link } from "@inertiajs/react";
+import { Head, Link, usePage } from "@inertiajs/react";
 import { Order, OrderStats, Stock, StockEntry } from "@/types";
 import { Button } from "@/Components/ui/button";
 import { differenceInMilliseconds, parseISO } from "date-fns";
@@ -12,6 +12,8 @@ type Props = {
 };
 
 const Home = ({ lowStocks, expiringStocks }: Props) => {
+    const user = usePage().props.auth.user;
+
     return (
         <Layout>
             <Head title="Dashboard" />
@@ -99,9 +101,11 @@ const Home = ({ lowStocks, expiringStocks }: Props) => {
                     </div>
                 </div>
 
-                <div className="border rounded-lg col-span-12 lg:col-span-7 p-4 space-y-4">
-                    <SalesOverview />
-                </div>
+                {user.role === "inventory_manager" && (
+                    <div className="border rounded-lg col-span-12 lg:col-span-7 p-4 space-y-4">
+                        <SalesOverview />
+                    </div>
+                )}
             </div>
         </Layout>
     );
