@@ -3,16 +3,8 @@ import { Input } from "@/Components/ui/input";
 import { type OrderItem, useOrder } from "@/contexts/OrderContext";
 import { Minus, Plus } from "lucide-react";
 import React, { useState } from "react";
-import { toast } from "sonner";
 import { User } from "@/types";
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogDescription,
-} from "@/Components/ui/dialog";
-import { Label } from "@/Components/ui/label";
+
 import { useForm } from "@inertiajs/react";
 
 type OrderProps = OrderItem & {
@@ -29,47 +21,48 @@ const Order = ({ id, quantity, recipe, serving, addons, user }: OrderProps) => {
         calculateItemTotalPrice,
     } = useOrder();
 
-    const [adminDialogOpen, setAdminDialogOpen] = useState(false);
+    // const [adminDialogOpen, setAdminDialogOpen] = useState(false);
 
-    const { data, setData, post, processing, errors, reset } = useForm({
-        email: "",
-        password: "",
-    });
+    // const { data, setData, post, processing, errors, reset } = useForm({
+    //     email: "",
+    //     password: "",
+    // });
 
     const orderItem = { id, quantity, serving, recipe, addons };
     const availableQuantity = getMaximumOrderQuantity(orderItem);
 
     // Check if user is administrator or store_manager
-    const isAdmin =
-        user?.role === "administrator" || user?.role === "store_manager";
+    // const isAdmin =
+    //     user?.role === "administrator" || user?.role === "store_manager";
 
     const handleDecrement = () => {
-        if (isAdmin) {
-            // If admin, allow decrement directly
-            decrementOrder(id);
-        } else {
-            // If not admin, show authentication dialog
-            setAdminDialogOpen(true);
-        }
+        decrementOrder(id);
+        // if (isAdmin) {
+        //     // If admin, allow decrement directly
+        //     decrementOrder(id);
+        // } else {
+        //     // If not admin, show authentication dialog
+        //     setAdminDialogOpen(true);
+        // }
     };
 
-    const handleAdminAuth = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
+    // const handleAdminAuth = (e: React.FormEvent<HTMLFormElement>) => {
+    //     e.preventDefault();
 
-        post(route("admin.verify"), {
-            preserveScroll: true,
-            preserveState: true,
-            onSuccess: () => {
-                decrementOrder(id);
-                setAdminDialogOpen(false);
-                reset();
-                toast.success("Item quantity decreased");
-            },
-            onError: () => {
-                toast.error("Invalid admin credentials");
-            },
-        });
-    };
+    //     post(route("admin.verify"), {
+    //         preserveScroll: true,
+    //         preserveState: true,
+    //         onSuccess: () => {
+    //             decrementOrder(id);
+    //             setAdminDialogOpen(false);
+    //             reset();
+    //             toast.success("Item quantity decreased");
+    //         },
+    //         onError: () => {
+    //             toast.error("Invalid admin credentials");
+    //         },
+    //     });
+    // };
 
     return (
         <div>
@@ -139,7 +132,7 @@ const Order = ({ id, quantity, recipe, serving, addons, user }: OrderProps) => {
             )}
 
             {/* Admin Authentication Dialog */}
-            <Dialog open={adminDialogOpen} onOpenChange={setAdminDialogOpen}>
+            {/* <Dialog open={adminDialogOpen} onOpenChange={setAdminDialogOpen}>
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle>Administrator Authentication</DialogTitle>
@@ -202,7 +195,7 @@ const Order = ({ id, quantity, recipe, serving, addons, user }: OrderProps) => {
                         </div>
                     </form>
                 </DialogContent>
-            </Dialog>
+            </Dialog> */}
         </div>
     );
 };

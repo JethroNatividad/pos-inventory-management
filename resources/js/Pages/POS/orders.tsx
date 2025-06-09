@@ -1,21 +1,9 @@
 import { useOrder } from "@/contexts/OrderContext";
-import React, { useState } from "react";
 import Order from "./order";
-import { ScrollArea } from "@/Components/ui/scroll-area";
 import { Button } from "@/Components/ui/button";
 import { Trash } from "lucide-react";
 import Checkout from "./checkout";
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogDescription,
-} from "@/Components/ui/dialog";
-import { Input } from "@/Components/ui/input";
-import { Label } from "@/Components/ui/label";
-import { useForm } from "@inertiajs/react";
-import { toast } from "sonner";
+
 import { User } from "@/types";
 
 type OrderProps = {
@@ -24,46 +12,47 @@ type OrderProps = {
 
 const Orders = ({ user }: OrderProps) => {
     const { orders, clearOrders, calculateSubtotal } = useOrder();
-    const [adminDialogOpen, setAdminDialogOpen] = useState(false);
+    // const [adminDialogOpen, setAdminDialogOpen] = useState(false);
 
-    const { data, setData, post, processing, errors, reset } = useForm({
-        email: "",
-        password: "",
-    });
+    // const { data, setData, post, processing, errors, reset } = useForm({
+    //     email: "",
+    //     password: "",
+    // });
 
     const handleClearOrders = () => {
         // Check if user is administrator or store_manager
-        const isAdmin =
-            user?.role === "administrator" || user?.role === "store_manager";
+        // const isAdmin =
+        //     user?.role === "administrator" || user?.role === "store_manager";
 
-        if (isAdmin) {
-            // If admin, clear orders directly
-            clearOrders();
-        } else {
-            // If not admin, show authentication dialog
-            setAdminDialogOpen(true);
-        }
+        clearOrders();
+        // if (isAdmin) {
+        //     // If admin, clear orders directly
+        //     clearOrders();
+        // } else {
+        //     // If not admin, show authentication dialog
+        //     setAdminDialogOpen(true);
+        // }
     };
 
-    const handleAdminAuth = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
+    // const handleAdminAuth = (e: React.FormEvent<HTMLFormElement>) => {
+    //     e.preventDefault();
 
-        // Use Inertia's post method with preserveScroll and preserveState options
-        post(route("admin.verify"), {
-            preserveScroll: true, // Prevents scrolling to top
-            preserveState: true, // Preserves component state
-            onSuccess: (response: any) => {
-                // On successful verification, clear orders
-                clearOrders();
-                setAdminDialogOpen(false);
-                reset();
-                toast.success("Orders cleared successfully");
-            },
-            onError: () => {
-                toast.error("Invalid admin credentials");
-            },
-        });
-    };
+    //     // Use Inertia's post method with preserveScroll and preserveState options
+    //     post(route("admin.verify"), {
+    //         preserveScroll: true, // Prevents scrolling to top
+    //         preserveState: true, // Preserves component state
+    //         onSuccess: (response: any) => {
+    //             // On successful verification, clear orders
+    //             clearOrders();
+    //             // setAdminDialogOpen(false);
+    //             reset();
+    //             toast.success("Orders cleared successfully");
+    //         },
+    //         onError: () => {
+    //             toast.error("Invalid admin credentials");
+    //         },
+    //     });
+    // };
 
     return (
         <div className="border rounded-lg w-full h-screen max-h-[90vh] overflow-y-scroll relative flex flex-col">
@@ -89,7 +78,7 @@ const Orders = ({ user }: OrderProps) => {
             </div>
 
             {/* Admin Authentication Dialog */}
-            <Dialog open={adminDialogOpen} onOpenChange={setAdminDialogOpen}>
+            {/* <Dialog open={adminDialogOpen} onOpenChange={setAdminDialogOpen}>
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle>Administrator Authentication</DialogTitle>
@@ -151,7 +140,7 @@ const Orders = ({ user }: OrderProps) => {
                         </div>
                     </form>
                 </DialogContent>
-            </Dialog>
+            </Dialog> */}
         </div>
     );
 };
