@@ -1,7 +1,7 @@
 import Layout from "@/Layouts/Layout";
-import { Head } from "@inertiajs/react";
+import { Head, usePage } from "@inertiajs/react";
 import { DataTable } from "./data-table";
-import { columns } from "./columns";
+import { columns, cashierColumns } from "./columns";
 import type { Order } from "@/types";
 import { Button } from "@/Components/ui/button";
 import { Download, CalendarIcon, FilterIcon } from "lucide-react";
@@ -72,6 +72,11 @@ const getDateRangeForPeriod = (period: Period): DateRange => {
 };
 
 const Index = ({ orders }: Props) => {
+    const user = usePage().props.auth.user;
+
+    const isAdmin =
+        user?.role === "administrator" || user?.role === "store_manager";
+
     const [date, setDate] = useState<DateRange | undefined>({
         from: addDays(new Date(), -30),
         to: new Date(),
@@ -441,7 +446,10 @@ const Index = ({ orders }: Props) => {
                 </div>
             </div>
 
-            <DataTable columns={columns} data={filteredOrders} />
+            <DataTable
+                columns={isAdmin ? columns : cashierColumns}
+                data={filteredOrders}
+            />
         </Layout>
     );
 };

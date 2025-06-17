@@ -121,3 +121,52 @@ export const columns: ColumnDef<Order>[] = [
         header: "Actions",
     },
 ];
+
+export const cashierColumns: ColumnDef<Order>[] = [
+    {
+        accessorKey: "id",
+        header: "Order number",
+    },
+    {
+        accessorKey: "created_at",
+        header: "Date Time",
+        cell: ({ row }) => new Date(row.original.created_at).toLocaleString(),
+    },
+    {
+        accessorKey: "user.first_name",
+        header: "Cashier",
+    },
+    {
+        accessorKey: "subtotal",
+        header: "Subtotal",
+        cell: ({ row }) => {
+            return `₱${row.original.subtotal}`;
+        },
+    },
+    {
+        accessorKey: "discountPercentage",
+        header: "Discount",
+        cell: ({ row }) => {
+            return row.original.discountPercentage
+                ? `${row.original.discountPercentage}%`
+                : "N/A";
+        },
+    },
+    {
+        accessorKey: "total",
+        header: "Total",
+        cell: ({ row }) => {
+            return `₱${row.original.total}`;
+        },
+    },
+
+    {
+        accessorKey: "type",
+        header: "Type",
+    },
+    {
+        id: "actions",
+        cell: ActionsCell,
+        header: "Actions",
+    },
+];
