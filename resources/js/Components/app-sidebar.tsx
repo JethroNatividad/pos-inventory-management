@@ -79,11 +79,6 @@ const allItems = [
 
 const cashierItems = [
     {
-        title: "Dashboard",
-        icon: Home,
-        name: "home",
-    },
-    {
         title: "POS",
         icon: LayoutDashboard,
         name: "pos",

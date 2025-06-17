@@ -7,16 +7,21 @@ use App\Models\Order;
 use App\Models\Stock;
 use App\Models\StockEntry;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class HomeController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $user = $request->user();
+        if ($user->hasRole('cashier')) {
+            return redirect()->route('pos');
+        }
+
         return Inertia::render('Home', [
             'lowStocks' => $this->getLowStocks(),
             'expiringStocks' => $this->getExpiringStocks(),
-
         ]);
     }
 
