@@ -20,7 +20,7 @@ class ReportController extends Controller
                 $query->withTrashed()->with(['stockEntry' => function ($q) {
                     $q->withTrashed();
                 }]);
-            }, 'user'])->get(),
+            }, 'user'])->orderBy('created_at', 'desc')->get(),
         ]);
     }
 
