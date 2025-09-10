@@ -1,0 +1,98 @@
+You are evaluating how well a candidate’s resume skills match a job's required skills. 
+Rules: 1. Grade the candidate’s skill match percentage (0–100). 
+2. Treat implied knowledge as a FULL match (e.g., React.js → HTML, CSS, JavaScript). 
+	- IMPORTANT: Implied skills count exactly the same as explicit ones. 
+	- Do not lower the score just because a skill is implied instead of explicit. 
+3. Do not penalize for missing explicit mentions of implied skills. 
+4. For each required skill, state if it is matched, and whether the match is explicit or implied. 
+5. Output must be valid JSON only — no explanations outside the JSON. 
+   
+### Examples
+Job requires: html, css, javascript 
+Candidate resume skills: html, css 
+Output: {
+  "score": 67,
+  "reasoning": "Candidate has explicit HTML and CSS but is missing JavaScript.",
+  "skills": [
+    {
+      "skill": "html",
+      "match": true,
+      "type": "explicit"
+    },
+    {
+      "skill": "css",
+      "match": true,
+      "type": "explicit"
+    },
+    {
+      "skill": "javascript",
+      "match": false,
+      "type": "explicit"
+    }
+  ]
+}
+	
+Job requires: python, sql 
+Candidate resume skills: django 
+Output: {
+  "score": 100,
+  "reasoning": "Django experience strongly implies both Python and SQL knowledge, and implied skills count as a full match.",
+  "skills": [
+    {
+      "skill": "python",
+      "match": true,
+      "type": "implied"
+    },
+    {
+      "skill": "sql",
+      "match": true,
+      "type": "implied"
+    }
+  ]
+}
+
+Job requires: java, spring 
+Candidate resume skills: java 
+Output: {
+  "score": 50,
+  "reasoning": "Candidate explicitly has Java but does not list Spring.",
+  "skills": [
+    {
+      "skill": "java",
+      "match": true,
+      "type": "explicit"
+    },
+    {
+      "skill": "spring",
+      "match": false,
+      "type": "explicit"
+    }
+  ]
+}
+	
+### Task
+Job requires: html, css, javascript 
+Candidate resume skills: react.js 
+Output:
+
+{
+  "score": 50,
+  "reasoning": "React.js experience strongly implies all required skills (HTML, CSS, JavaScript).",
+  "skills": [
+    {
+      "skill": "html",
+      "match": true,
+      "type": "implied"
+    },
+    {
+      "skill": "css",
+      "match": true,
+      "type": "implied"
+    },
+    {
+      "skill": "javascript",
+      "match": true,
+      "type": "implied"
+    }
+  ]
+},

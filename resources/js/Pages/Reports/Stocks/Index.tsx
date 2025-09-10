@@ -1,25 +1,31 @@
 import Layout from "@/Layouts/Layout";
-import type { StockActivityLog, StockEntryLog } from "@/types";
+import type { StockActivityLog, StockEntryLog, PaginatedData } from "@/types";
 import { Head } from "@inertiajs/react";
-import { DataTable as StockEntryLogsDataTable } from "./StockEntry/data-table";
+import { ServerSideDataTable as StockEntryLogsDataTable } from "./StockEntry/server-side-data-table";
 import { columns as stockEntryLogsColumns } from "./StockEntry/columns";
-import { DataTable as StockLogsDataTable } from "./Stock/data-table";
+import { ServerSideDataTable as StockLogsDataTable } from "./Stock/server-side-data-table";
 import { columns as stockLogsColumns } from "./Stock/columns";
 import { Button } from "@/Components/ui/button";
 import { Download } from "lucide-react";
 
 type Props = {
-    stockEntryLogs: StockEntryLog[];
-    stockActivityLogs: StockActivityLog[];
+    stockEntryLogs: PaginatedData<StockEntryLog>;
+    stockActivityLogs: PaginatedData<StockActivityLog>;
+    filters: {
+        stock_entry_search?: string;
+        stock_activity_search?: string;
+        stock_entry_per_page: number;
+        stock_activity_per_page: number;
+    };
 };
 
-const Index = ({ stockEntryLogs, stockActivityLogs }: Props) => {
+const Index = ({ stockEntryLogs, stockActivityLogs, filters }: Props) => {
     const exportStockEntryLogsToCSV = () => {
         // Define headers for CSV file
         const headers = ["Date", "Time", "Action", "User", "Stock Entry"];
 
-        // Convert data to CSV rows
-        const rows = stockEntryLogs.map((log) => [
+        // Convert data to CSV rows - note: only exports current page
+        const rows = stockEntryLogs.data.map((log: StockEntryLog) => [
             new Date(log.created_at).toLocaleString(),
             log.action,
             `${log.user.first_name}${
@@ -31,7 +37,7 @@ const Index = ({ stockEntryLogs, stockActivityLogs }: Props) => {
         // Combine headers and rows into CSV content
         const csvContent = [
             headers.join(","),
-            ...rows.map((row) => row.join(",")),
+            ...rows.map((row: any[]) => row.join(",")),
         ].join("\n");
 
         // Create download link for the CSV file
@@ -43,7 +49,7 @@ const Index = ({ stockEntryLogs, stockActivityLogs }: Props) => {
         link.setAttribute("href", url);
         link.setAttribute(
             "download",
-            `stock-entry-logs-${new Date().toISOString().split("T")[0]}.csv`
+            `stock-entry-logs-page-${stockEntryLogs.current_page}-${new Date().toISOString().split("T")[0]}.csv`
         );
         document.body.appendChild(link);
         link.click();
@@ -54,7 +60,7 @@ const Index = ({ stockEntryLogs, stockActivityLogs }: Props) => {
         // Define headers for CSV file
         const headers = [
             "Date",
-            "Time",
+            "Time", 
             "Action",
             "User",
             "Reason",
@@ -66,8 +72,8 @@ const Index = ({ stockEntryLogs, stockActivityLogs }: Props) => {
             "Is Perishable",
         ];
 
-        // Convert data to CSV rows
-        const rows = stockActivityLogs.map((log) => [
+        // Convert data to CSV rows - note: only exports current page
+        const rows = stockActivityLogs.data.map((log: StockActivityLog) => [
             new Date(log.created_at).toLocaleString(),
             log.action,
             `${log.user.first_name}${
@@ -85,7 +91,7 @@ const Index = ({ stockEntryLogs, stockActivityLogs }: Props) => {
         // Combine headers and rows into CSV content
         const csvContent = [
             headers.join(","),
-            ...rows.map((row) => row.join(",")),
+            ...rows.map((row: any[]) => row.join(",")),
         ].join("\n");
 
         // Create download link for the CSV file
@@ -97,7 +103,7 @@ const Index = ({ stockEntryLogs, stockActivityLogs }: Props) => {
         link.setAttribute("href", url);
         link.setAttribute(
             "download",
-            `stock-activity-logs-${new Date().toISOString().split("T")[0]}.csv`
+            `stock-activity-logs-page-${stockActivityLogs.current_page}-${new Date().toISOString().split("T")[0]}.csv`
         );
         document.body.appendChild(link);
         link.click();
@@ -113,14 +119,17 @@ const Index = ({ stockEntryLogs, stockActivityLogs }: Props) => {
                     onClick={exportStockEntryLogsToCSV}
                     variant="outline"
                     className="flex items-center gap-2"
+                    title="Export current page to CSV"
                 >
                     <Download className="w-4 h-4" />
-                    Export CSV
+                    Export Page CSV
                 </Button>
             </div>
             <StockEntryLogsDataTable
                 columns={stockEntryLogsColumns}
-                data={stockEntryLogs}
+                paginatedData={stockEntryLogs}
+                searchValue={filters.stock_entry_search}
+                searchParamName="stock_entry_search"
             />
 
             <div className="flex justify-between items-center mb-4 mt-8">
@@ -129,14 +138,17 @@ const Index = ({ stockEntryLogs, stockActivityLogs }: Props) => {
                     onClick={exportStockActivityLogsToCSV}
                     variant="outline"
                     className="flex items-center gap-2"
+                    title="Export current page to CSV"
                 >
                     <Download className="w-4 h-4" />
-                    Export CSV
+                    Export Page CSV
                 </Button>
             </div>
             <StockLogsDataTable
                 columns={stockLogsColumns}
-                data={stockActivityLogs}
+                paginatedData={stockActivityLogs}
+                searchValue={filters.stock_activity_search}
+                searchParamName="stock_activity_search"
             />
         </Layout>
     );
