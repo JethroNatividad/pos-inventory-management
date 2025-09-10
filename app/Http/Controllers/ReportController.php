@@ -102,14 +102,14 @@ class ReportController extends Controller
             $search = $request->search;
             $ordersQuery->where(function ($q) use ($search) {
                 $q->where('id', 'like', "%{$search}%")
-                  ->orWhere('customer_name', 'like', "%{$search}%")
-                  ->orWhere('payment_method', 'like', "%{$search}%")
-                  ->orWhere('type', 'like', "%{$search}%")
-                  ->orWhereHas('user', function ($query) use ($search) {
-                      $query->where('first_name', 'like', "%{$search}%")
+                    ->orWhere('customer_name', 'like', "%{$search}%")
+                    ->orWhere('payment_method', 'like', "%{$search}%")
+                    ->orWhere('type', 'like', "%{$search}%")
+                    ->orWhereHas('user', function ($query) use ($search) {
+                        $query->where('first_name', 'like', "%{$search}%")
                             ->orWhere('last_name', 'like', "%{$search}%")
                             ->orWhere('middle_name', 'like', "%{$search}%");
-                  });
+                    });
             });
         }
 
@@ -139,9 +139,9 @@ class ReportController extends Controller
         $cashiers = $allOrders->map(function ($order) {
             return [
                 'id' => $order->user->id,
-                'name' => trim("{$order->user->first_name} " . 
-                              ($order->user->middle_name ? $order->user->middle_name . " " : "") . 
-                              $order->user->last_name)
+                'name' => trim("{$order->user->first_name} " .
+                    ($order->user->middle_name ? $order->user->middle_name . " " : "") .
+                    $order->user->last_name)
             ];
         })->unique('id')->values();
 

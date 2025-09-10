@@ -150,7 +150,7 @@ export function ServerSideDataTable({
                 </Table>
             </div>
             <div>
-                <ServerSideDataTablePagination 
+                <ServerSideDataTablePagination
                     paginatedData={paginatedData}
                     pageParamName="page"
                     perPageParamName="per_page"
