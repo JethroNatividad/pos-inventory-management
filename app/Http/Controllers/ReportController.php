@@ -92,12 +92,73 @@ class ReportController extends Controller
         ]);
     }
 
-    public function orders()
+    public function orders(Request $request)
     {
+        $ordersQuery = Order::orderBy('created_at', 'desc')
+            ->with(['user', 'items.serving']);
+
+        // Apply search filter if provided
+        if ($request->has('search') && $request->search) {
+            $search = $request->search;
+            $ordersQuery->where(function ($q) use ($search) {
+                $q->where('id', 'like', "%{$search}%")
+                  ->orWhere('customer_name', 'like', "%{$search}%")
+                  ->orWhere('payment_method', 'like', "%{$search}%")
+                  ->orWhere('type', 'like', "%{$search}%")
+                  ->orWhereHas('user', function ($query) use ($search) {
+                      $query->where('first_name', 'like', "%{$search}%")
+                            ->orWhere('last_name', 'like', "%{$search}%")
+                            ->orWhere('middle_name', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        // Apply date range filter
+        if ($request->has('date_from') && $request->date_from) {
+            $ordersQuery->whereDate('created_at', '>=', $request->date_from);
+        }
+        if ($request->has('date_to') && $request->date_to) {
+            $ordersQuery->whereDate('created_at', '<=', $request->date_to);
+        }
+
+        // Apply cashier filter
+        if ($request->has('cashier_id') && $request->cashier_id && $request->cashier_id !== 'all') {
+            $ordersQuery->where('user_id', $request->cashier_id);
+        }
+
+        // Apply order type filter
+        if ($request->has('order_type') && $request->order_type && $request->order_type !== 'all') {
+            $ordersQuery->where('type', $request->order_type);
+        }
+
+        $perPage = $request->get('per_page', 10);
+        $orders = $ordersQuery->paginate($perPage);
+
+        // Get unique cashiers and order types for filters
+        $allOrders = Order::with('user')->get();
+        $cashiers = $allOrders->map(function ($order) {
+            return [
+                'id' => $order->user->id,
+                'name' => trim("{$order->user->first_name} " . 
+                              ($order->user->middle_name ? $order->user->middle_name . " " : "") . 
+                              $order->user->last_name)
+            ];
+        })->unique('id')->values();
+
+        $orderTypes = $allOrders->pluck('type')->unique()->values();
+
         return Inertia::render('Reports/Orders/Index', [
-            'orders' => Order::orderBy('created_at', 'desc')
-                ->with(['user', 'items.serving'])
-                ->get()
+            'orders' => $orders,
+            'filters' => [
+                'search' => $request->search,
+                'date_from' => $request->date_from,
+                'date_to' => $request->date_to,
+                'cashier_id' => $request->cashier_id,
+                'order_type' => $request->order_type,
+                'per_page' => $perPage,
+            ],
+            'cashiers' => $cashiers,
+            'orderTypes' => $orderTypes,
         ]);
     }
 

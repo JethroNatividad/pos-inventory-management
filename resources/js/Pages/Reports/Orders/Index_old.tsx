@@ -4,7 +4,7 @@ import { ServerSideDataTable } from "./server-side-data-table";
 import { columns, cashierColumns } from "./columns";
 import type { Order, PaginatedData } from "@/types";
 import { Button } from "@/Components/ui/button";
-import { Download, CalendarIcon, X } from "lucide-react";
+import { Download, CalendarIcon, FilterIcon, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { DateRange } from "react-day-picker";
 import { addDays, format } from "date-fns";
@@ -18,7 +18,9 @@ import { cn } from "@/lib/utils";
 import {
     Select,
     SelectContent,
+    SelectGroup,
     SelectItem,
+    SelectLabel,
     SelectTrigger,
     SelectValue,
 } from "@/Components/ui/select";
@@ -241,12 +243,42 @@ const Index = ({ orders, filters, cashiers, orderTypes }: Props) => {
         link.click();
         document.body.removeChild(link);
     };
+            ...rows.map((row) => row.join(",")),
+        ].join("\n");
+
+        // Create download link for the CSV file
+        const blob = new Blob([csvContent], {
+            type: "text/csv;charset=utf-8;",
+        });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+
+        // Include date range in filename if filtering
+        const dateRangeStr =
+            date?.from && date?.to
+                ? `-${format(date.from, "yyyyMMdd")}-to-${format(
+                      date.to,
+                      "yyyyMMdd"
+                  )}`
+                : "";
+
+        link.setAttribute(
+            "download",
+            `order-logs${dateRangeStr}-${
+                new Date().toISOString().split("T")[0]
+            }.csv`
+        );
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
 
     // Count active filters
     const activeFilterCount = [
         date?.from || date?.to ? 1 : 0,
-        selectedCashier !== "all" ? 1 : 0,
-        selectedType !== "all" ? 1 : 0,
+        selectedCashier ? 1 : 0,
+        selectedType ? 1 : 0,
     ].reduce((a, b) => a + b, 0);
 
     return (
@@ -258,138 +290,210 @@ const Index = ({ orders, filters, cashiers, orderTypes }: Props) => {
                     onClick={exportOrdersToCSV}
                     variant="outline"
                     className="flex items-center gap-2"
-                    title="Export current page to CSV"
                 >
                     <Download className="w-4 h-4" />
-                    Export Page CSV
+                    Export CSV
                 </Button>
             </div>
 
             <div className="space-y-4 mb-6">
                 {/* Filter section */}
-                <div className="flex flex-wrap gap-4 items-end">
-                    {/* Date filter */}
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium">Date Range</label>
+                <div className="flex flex-col sm:flex-row gap-4">
+                    {/* Date range picker */}
+                    <div className="sm:w-1/3">
                         <Popover>
                             <PopoverTrigger asChild>
                                 <Button
-                                    id="date"
-                                    variant={"outline"}
+                                    variant="outline"
                                     className={cn(
-                                        "w-[300px] justify-start text-left font-normal",
+                                        "w-full justify-start text-left font-normal",
                                         !date && "text-muted-foreground"
                                     )}
                                 >
-                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                    <CalendarIcon className="mr-2 h-4 w-4 flex-shrink-0" />
                                     {date?.from ? (
                                         date.to ? (
                                             <>
-                                                {format(date.from, "LLL dd, y")} -{" "}
-                                                {format(date.to, "LLL dd, y")}
+                                                {format(date.from, "LLL dd, y")}{" "}
+                                                - {format(date.to, "LLL dd, y")}
                                             </>
                                         ) : (
                                             format(date.from, "LLL dd, y")
                                         )
                                     ) : (
-                                        <span>Pick a date</span>
+                                        <span>All dates</span>
                                     )}
                                 </Button>
                             </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0" align="start">
+                            <PopoverContent
+                                className="w-auto p-0"
+                                align="start"
+                            >
                                 <Calendar
                                     initialFocus
                                     mode="range"
                                     defaultMonth={date?.from}
                                     selected={date}
-                                    onSelect={handleDateChange}
+                                    onSelect={setDate}
                                     numberOfMonths={numberOfMonths}
+                                    className="max-w-[calc(100vw-2rem)]"
                                 />
                             </PopoverContent>
                         </Popover>
                     </div>
 
-                    {/* Quick date filters */}
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium">Quick Filters</label>
-                        <div className="flex gap-2">
-                            {(["24h", "7d", "1m", "1y", "all"] as Period[]).map(
-                                (period) => (
-                                    <Button
-                                        key={period}
-                                        variant={
-                                            activePeriod === period
-                                                ? "default"
-                                                : "outline"
-                                        }
-                                        size="sm"
-                                        onClick={() => handlePeriodChange(period)}
-                                    >
-                                        {period === "all" ? "All" : period.toUpperCase()}
-                                    </Button>
-                                )
-                            )}
-                        </div>
-                    </div>
-
                     {/* Cashier filter */}
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium">Cashier</label>
-                        <Select value={selectedCashier} onValueChange={handleCashierChange}>
-                            <SelectTrigger className="w-[200px]">
-                                <SelectValue placeholder="Select cashier" />
+                    <div className="sm:w-1/3">
+                        <Select
+                            value={selectedCashier || "all"}
+                            onValueChange={(value) =>
+                                setSelectedCashier(value || "all")
+                            }
+                        >
+                            <SelectTrigger>
+                                <SelectValue placeholder="All cashiers" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="all">All Cashiers</SelectItem>
-                                {cashiers.map((cashier) => (
-                                    <SelectItem
-                                        key={cashier.id}
-                                        value={cashier.id.toString()}
-                                    >
-                                        {cashier.name}
+                                <SelectGroup>
+                                    <SelectLabel>Cashiers</SelectLabel>
+                                    <SelectItem value="all">
+                                        All cashiers
                                     </SelectItem>
-                                ))}
+                                    {cashiers.map((cashier) => (
+                                        <SelectItem
+                                            key={cashier}
+                                            value={cashier}
+                                        >
+                                            {cashier}
+                                        </SelectItem>
+                                    ))}
+                                </SelectGroup>
                             </SelectContent>
                         </Select>
                     </div>
 
                     {/* Order type filter */}
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium">Order Type</label>
-                        <Select value={selectedType} onValueChange={handleTypeChange}>
-                            <SelectTrigger className="w-[150px]">
-                                <SelectValue placeholder="Select type" />
+                    <div className="sm:w-1/3">
+                        <Select
+                            value={selectedType || "all"}
+                            onValueChange={(value) =>
+                                setSelectedType(value || "all")
+                            }
+                        >
+                            <SelectTrigger>
+                                <SelectValue placeholder="All types" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="all">All Types</SelectItem>
-                                {orderTypes.map((type) => (
-                                    <SelectItem key={type} value={type}>
-                                        {type}
+                                <SelectGroup>
+                                    <SelectLabel>Order Type</SelectLabel>
+                                    <SelectItem value="all">
+                                        All types
                                     </SelectItem>
-                                ))}
+                                    {orderTypes.map((type) => (
+                                        <SelectItem key={type} value={type}>
+                                            {type}
+                                        </SelectItem>
+                                    ))}
+                                </SelectGroup>
                             </SelectContent>
                         </Select>
                     </div>
+                </div>
 
-                    {/* Clear filters button */}
-                    {activeFilterCount > 0 && (
-                        <Button
-                            variant="ghost"
-                            onClick={clearFilters}
-                            className="flex items-center gap-2"
-                        >
-                            <X className="h-4 w-4" />
-                            Clear Filters
-                            <Badge variant="secondary">{activeFilterCount}</Badge>
-                        </Button>
-                    )}
+                {/* Period selection buttons */}
+                <div className="flex border rounded-lg w-fit p-1 flex-wrap gap-2">
+                    <Button
+                        variant={activePeriod === "24h" ? "default" : "ghost"}
+                        onClick={() => handlePeriodChange("24h")}
+                        size="sm"
+                    >
+                        24h
+                    </Button>
+                    <Button
+                        variant={activePeriod === "7d" ? "default" : "ghost"}
+                        onClick={() => handlePeriodChange("7d")}
+                        size="sm"
+                    >
+                        7d
+                    </Button>
+                    <Button
+                        variant={activePeriod === "1m" ? "default" : "ghost"}
+                        onClick={() => handlePeriodChange("1m")}
+                        size="sm"
+                    >
+                        1m
+                    </Button>
+                    <Button
+                        variant={activePeriod === "1y" ? "default" : "ghost"}
+                        onClick={() => handlePeriodChange("1y")}
+                        size="sm"
+                    >
+                        1y
+                    </Button>
+                    <Button
+                        variant={activePeriod === "all" ? "default" : "ghost"}
+                        onClick={() => handlePeriodChange("all")}
+                        size="sm"
+                    >
+                        All
+                    </Button>
+                </div>
+
+                {/* Active filters indicator */}
+                {activeFilterCount > 0 && (
+                    <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1">
+                            <FilterIcon className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-sm text-muted-foreground">
+                                Filters:
+                            </span>
+                        </div>
+
+                        {date?.from && date?.to && (
+                            <Badge variant="secondary" className="gap-1">
+                                Date: {format(date.from, "MMM d")} -{" "}
+                                {format(date.to, "MMM d, yyyy")}
+                            </Badge>
+                        )}
+
+                        {selectedCashier !== "all" && (
+                            <Badge variant="secondary">
+                                Cashier: {selectedCashier}
+                            </Badge>
+                        )}
+
+                        {selectedType !== "all" && (
+                            <Badge variant="secondary">
+                                Type: {selectedType}
+                            </Badge>
+                        )}
+
+                        {date?.from ||
+                        date?.to ||
+                        selectedCashier !== "all" ||
+                        selectedType !== "all" ? (
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={clearFilters}
+                            >
+                                Clear all
+                            </Button>
+                        ) : (
+                            <p className="text-sm">None</p>
+                        )}
+                    </div>
+                )}
+
+                {/* Order count indicator */}
+                <div className="text-sm text-muted-foreground">
+                    Showing {filteredOrders.length} of {orders.length} orders
                 </div>
             </div>
 
-            <ServerSideDataTable
+            <DataTable
                 columns={isAdmin ? columns : cashierColumns}
-                paginatedData={orders}
-                searchValue={filters.search}
+                data={filteredOrders}
             />
         </Layout>
     );
