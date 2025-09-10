@@ -288,7 +288,7 @@ const Index = ({ orders, filters, cashiers, orderTypes }: Props) => {
                 {/* Filter section */}
                 <div className="flex flex-wrap gap-4 items-end">
                     {/* Date filter */}
-                    <div className="space-y-2">
+                    <div className="space-y-2 flex flex-col">
                         <label className="text-sm font-medium">
                             Date Range
                         </label>
