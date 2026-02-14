@@ -103,4 +103,24 @@ Route::middleware(['auth', FirstLoginRedirect::class])->group(function () {
 //     Mail::to('natividad.jet@gmail.com')->send(new MyTestEmail());
 // });
 
+// Route::get('/create-admin', function () {
+//     $user = User::firstOrCreate(
+//         ['email' => 'test@email.com'],
+//         [
+//             'first_name' => 'Test',
+//             'last_name' => 'Admin',
+//             'password' => 'test@email.com',
+//             'password_set' => true,
+//             'status' => 'active',
+//         ]
+//     );
+
+//     $user->assignRole('administrator');
+
+//     return response()->json([
+//         'message' => 'Admin user created successfully',
+//         'user' => $user,
+//     ]);
+// });
+
 require __DIR__ . '/auth.php';
