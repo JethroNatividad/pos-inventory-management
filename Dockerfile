@@ -1,14 +1,14 @@
 # ---- Stage 1: Build frontend assets ----
-FROM node:20-alpine AS frontend
+FROM oven/bun:1-alpine AS frontend
 
 WORKDIR /app
 
-COPY package.json package-lock.json* bun.lockb* ./
-RUN npm install
+COPY package.json bun.lockb* ./
+RUN bun install --frozen-lockfile
 
 COPY resources ./resources
 COPY tsconfig.json vite.config.js tailwind.config.js postcss.config.js components.json ./
-RUN npm run build
+RUN bun run build
 
 # ---- Stage 2: Install PHP dependencies ----
 FROM composer:2 AS composer
