@@ -11,7 +11,9 @@ COPY tsconfig.json vite.config.js tailwind.config.js postcss.config.js component
 RUN bun run build
 
 # ---- Stage 2: Install PHP dependencies ----
-FROM composer:2 AS composer
+FROM php:8.2-cli-alpine AS composer
+
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /app
 
